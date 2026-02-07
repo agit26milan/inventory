@@ -1,0 +1,23 @@
+import { useQuery } from '@tanstack/react-query';
+import { reportService } from '../services/report.service';
+
+export const useSalesSummary = (startDate?: string, endDate?: string) => {
+    return useQuery({
+        queryKey: ['reports', 'sales-summary', startDate, endDate],
+        queryFn: () => reportService.getSalesSummary(startDate, endDate),
+    });
+};
+
+export const useProductPerformance = () => {
+    return useQuery({
+        queryKey: ['reports', 'product-performance'],
+        queryFn: reportService.getProductPerformance,
+    });
+};
+
+export const useInventoryValuation = () => {
+    return useQuery({
+        queryKey: ['reports', 'inventory-valuation'],
+        queryFn: reportService.getInventoryValuation,
+    });
+};

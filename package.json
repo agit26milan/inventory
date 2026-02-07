@@ -1,0 +1,24 @@
+{
+    "name": "inventory-monorepo",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Inventory Management System with FIFO & LIFO support",
+    "workspaces": [
+        "apps/backend",
+        "apps/frontend"
+    ],
+    "scripts": {
+        "install:all": "npm install --workspace=apps/backend && npm install --workspace=apps/frontend",
+        "dev": "concurrently \"brew services start mysql\" \"npm run dev --workspace=apps/backend\" \"npm run dev --workspace=apps/frontend\"",
+        "build": "npm run build --workspace=apps/backend && npm run build --workspace=apps/frontend",
+        "backend": "npm run dev --workspace=apps/backend",
+        "frontend": "npm run dev --workspace=apps/frontend"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    },
+    "engines": {
+        "node": ">=18.0.0",
+        "npm": ">=9.0.0"
+    }
+}
