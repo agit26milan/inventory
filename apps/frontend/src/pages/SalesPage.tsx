@@ -19,7 +19,7 @@ export const SalesPage = () => {
   const [saleItems, setSaleItems] = useState<CartItem[]>([]);
   const [currentItem, setCurrentItem] = useState<CartItem>({
     productId: 0,
-    quantity: 0,
+    quantity: 1,
   });
 
   // Track selected product to fetch variants

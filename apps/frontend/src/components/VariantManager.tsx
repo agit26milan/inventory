@@ -9,6 +9,7 @@ import {
     useDeleteVariantValue
 } from '../hooks/useVariants';
 import { Variant } from '../types';
+import './VariantManager.css';
 
 interface VariantManagerProps {
     productId: number;
@@ -173,7 +174,7 @@ export const VariantManager = ({ productId }: VariantManagerProps) => {
                         </div>
 
                         <div className="pl-3 border-l-2 border-primary-light">
-                            <div className="flex flex-wrap gap-2 mb-2">
+                            <div className="flex flex-wrap gap-2 mb-2 variant-container">
                                 {variant.values?.map((value) => (
                                     <span key={value.id} className="badge badge-primary flex items-center gap-1">
                                         {editingValue?.id === value.id ? (

@@ -13,8 +13,8 @@ export const InventoryPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<CreateInventoryBatchDTO>({
     productId: 0,
-    quantity: 0,
-    costPrice: 0,
+    quantity: 1,
+    costPrice: 1,
     sellingPrice: 0,
   });
 
