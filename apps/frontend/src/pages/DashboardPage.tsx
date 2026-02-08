@@ -1,5 +1,6 @@
 import { useSalesSummary, useInventoryValuation } from '../hooks/useReports';
 import { useProducts } from '../hooks/useProducts';
+import { formatCurrency } from '../utils/currency';
 
 export const DashboardPage = () => {
   const { data: summary, isLoading: summaryLoading } = useSalesSummary();
@@ -25,7 +26,7 @@ export const DashboardPage = () => {
           </div>
           <div className="text-center">
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--success)' }}>
-              ${summary?.totalSales.toFixed(2) || '0.00'}
+              {summary ? formatCurrency(summary.totalSales) : formatCurrency(0)}
             </p>
             <p className="text-muted">{summary?.numberOfTransactions || 0} transactions</p>
           </div>
@@ -37,7 +38,7 @@ export const DashboardPage = () => {
           </div>
           <div className="text-center">
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary-light)' }}>
-              ${summary?.totalProfit.toFixed(2) || '0.00'}
+              {summary ? formatCurrency(summary.totalProfit) : formatCurrency(0)}
             </p>
             <p className="text-muted">Margin: {summary?.profitMargin.toFixed(1) || 0}%</p>
           </div>
@@ -49,7 +50,7 @@ export const DashboardPage = () => {
           </div>
           <div className="text-center">
             <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--warning)' }}>
-              ${totalInventoryValue.toFixed(2)}
+              {formatCurrency(totalInventoryValue)}
             </p>
             <p className="text-muted">{products?.length || 0} products</p>
           </div>
@@ -64,7 +65,7 @@ export const DashboardPage = () => {
           <div className="flex flex-col gap-2">
             <div className="flex justify-between">
               <span className="text-muted">Total COGS:</span>
-              <span className="text-danger">${summary?.totalCogs.toFixed(2) || '0.00'}</span>
+              <span className="text-danger">{summary ? formatCurrency(summary.totalCogs) : formatCurrency(0)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted">Low Stock Products:</span>

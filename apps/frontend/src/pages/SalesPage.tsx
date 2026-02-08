@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { useSales, useCreateSale } from '../hooks/useSales';
 import { useProducts } from '../hooks/useProducts';
-import { SaleItem } from '../types';
+import { useVariantCombinations } from '../hooks/useVariantCombinations';
+import { SaleItem, VariantCombination } from '../types';
+import { formatCurrency } from '../utils/currency';
+
+// Extend SaleItem for UI display
+interface CartItem extends SaleItem {
+  variantName?: string;
+}
 
 export const SalesPage = () => {
   const { data: sales, isLoading } = useSales();
@@ -9,16 +16,36 @@ export const SalesPage = () => {
   const createSale = useCreateSale();
 
   const [showForm, setShowForm] = useState(false);
-  const [saleItems, setSaleItems] = useState<SaleItem[]>([]);
-  const [currentItem, setCurrentItem] = useState<SaleItem>({
+  const [saleItems, setSaleItems] = useState<CartItem[]>([]);
+  const [currentItem, setCurrentItem] = useState<CartItem>({
     productId: 0,
     quantity: 0,
   });
 
+  // Track selected product to fetch variants
+  const [selectedProductId, setSelectedProductId] = useState<number>(0);
+  const { data: variants } = useVariantCombinations(selectedProductId);
+
   const addItem = () => {
     if (currentItem.productId && currentItem.quantity > 0) {
-      setSaleItems([...saleItems, currentItem]);
+      // Check if variant is required but not selected
+      if (variants && variants.length > 0 && !currentItem.variantCombinationId) {
+          alert('Please select a variant');
+          return;
+      }
+
+      // Add variant name if variant is selected
+      let itemToAdd = { ...currentItem };
+      if (currentItem.variantCombinationId && variants) {
+          const selectedVariant = variants.find(v => v.id === currentItem.variantCombinationId);
+          if (selectedVariant) {
+              itemToAdd.variantName = selectedVariant.sku;
+          }
+      }
+
+      setSaleItems([...saleItems, itemToAdd]);
       setCurrentItem({ productId: 0, quantity: 0 });
+      setSelectedProductId(0);
     }
   };
 
@@ -34,7 +61,9 @@ export const SalesPage = () => {
     }
 
     try {
-      await createSale.mutateAsync({ items: saleItems });
+      // Strip variantName before sending to API
+      const itemsPayload = saleItems.map(({ variantName, ...item }) => item);
+      await createSale.mutateAsync({ items: itemsPayload });
       setSaleItems([]);
       setShowForm(false);
     } catch (error: any) {
@@ -70,9 +99,11 @@ export const SalesPage = () => {
                 <select
                   className="form-select"
                   value={currentItem.productId}
-                  onChange={(e) =>
-                    setCurrentItem({ ...currentItem, productId: parseInt(e.target.value) })
-                  }
+                  onChange={(e) => {
+                    const pid = parseInt(e.target.value);
+                    setCurrentItem({ ...currentItem, productId: pid, variantCombinationId: undefined });
+                    setSelectedProductId(pid);
+                  }}
                 >
                   <option value={0}>Select a product</option>
                   {products?.map((product) => (
@@ -82,6 +113,27 @@ export const SalesPage = () => {
                   ))}
                 </select>
               </div>
+
+               {/* Variant Selection */}
+               {variants && variants.length > 0 && (
+                  <div className="form-group">
+                    <label className="form-label">Variant</label>
+                    <select
+                      className="form-select"
+                      value={currentItem.variantCombinationId || ''}
+                      onChange={(e) =>
+                        setCurrentItem({ ...currentItem, variantCombinationId: parseInt(e.target.value) })
+                      }
+                    >
+                      <option value="">Select Variant</option>
+                      {variants.map((variant: VariantCombination) => (
+                        <option key={variant.id} value={variant.id}>
+                          {variant.sku}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+              )}
 
               <div className="form-group">
                 <label className="form-label">Quantity</label>
@@ -112,6 +164,7 @@ export const SalesPage = () => {
                     <thead>
                       <tr>
                         <th>Product</th>
+                        <th>Variant</th>
                         <th>Quantity</th>
                         <th>Actions</th>
                       </tr>
@@ -122,6 +175,13 @@ export const SalesPage = () => {
                         return (
                           <tr key={index}>
                             <td>{product?.name}</td>
+                            <td>
+                                {item.variantName ? (
+                                    <span className="badge badge-secondary">{item.variantName}</span>
+                                ) : (
+                                    <span className="text-muted">-</span>
+                                )}
+                            </td>
                             <td>{item.quantity}</td>
                             <td>
                               <button
@@ -176,10 +236,10 @@ export const SalesPage = () => {
                   <tr key={sale.id}>
                     <td>{new Date(sale.saleDate).toLocaleString()}</td>
                     <td>{sale.items.length} item(s)</td>
-                    <td className="text-success">${sale.totalAmount.toFixed(2)}</td>
-                    <td className="text-danger">${sale.totalCogs.toFixed(2)}</td>
+                    <td className="text-success">{formatCurrency(sale.totalAmount)}</td>
+                    <td className="text-danger">{formatCurrency(sale.totalCogs)}</td>
                     <td className="text-primary-light" style={{ fontWeight: 600 }}>
-                      ${sale.profit.toFixed(2)}
+                      {formatCurrency(sale.profit)}
                     </td>
                     <td>
                       {((sale.profit / sale.totalAmount) * 100).toFixed(1)}%

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import { useProducts, useCreateProduct, useDeleteProduct } from '../hooks/useProducts';
 import { CreateProductDTO, StockMethod } from '../types';
 import { VariantManager } from '../components/VariantManager';
@@ -13,7 +14,6 @@ export const ProductsPage = () => {
     name: '',
     sku: '',
     stockMethod: 'FIFO',
-    sellingPrice: 0,
   });
 
   const [showVariantModal, setShowVariantModal] = useState(false);
@@ -27,9 +27,12 @@ export const ProductsPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createProduct.mutateAsync(formData);
-      setFormData({ name: '', sku: '', stockMethod: 'FIFO', sellingPrice: 0 });
+      const newProduct = await createProduct.mutateAsync(formData);
+      setFormData({ name: '', sku: '', stockMethod: 'FIFO' });
       setShowForm(false);
+      
+      // Open variant manager for the new product
+      handleManageVariants(newProduct.id);
     } catch (error: any) {
       alert(error.response?.data?.message || 'Failed to create product');
     }
@@ -103,20 +106,6 @@ export const ProductsPage = () => {
                   <option value="LIFO">LIFO (Last In First Out)</option>
                 </select>
               </div>
-
-              <div className="form-group">
-                <label className="form-label">Selling Price ($)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  className="form-input"
-                  value={formData.sellingPrice}
-                  onChange={(e) =>
-                    setFormData({ ...formData, sellingPrice: parseFloat(e.target.value) })
-                  }
-                  required
-                />
-              </div>
             </div>
 
             <button type="submit" className="btn btn-primary" disabled={createProduct.isPending}>
@@ -139,7 +128,6 @@ export const ProductsPage = () => {
                   <th>Product Name</th>
                   <th>SKU</th>
                   <th>Stock Method</th>
-                  <th>Selling Price</th>
                   <th>Current Stock</th>
                   <th>Actions</th>
                 </tr>
@@ -158,7 +146,6 @@ export const ProductsPage = () => {
                         {product.stockMethod}
                       </span>
                     </td>
-                    <td>${product.sellingPrice.toFixed(2)}</td>
                     <td>
                       <span className={product.currentStock < 10 ? 'text-warning' : 'text-success'}>
                         {product.currentStock} units

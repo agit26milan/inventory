@@ -5,6 +5,7 @@ import salesController from '../modules/sales/sales.controller';
 import reportController from '../modules/report/report.controller';
 import variantRoutes from '../modules/variant/variant.routes';
 import variantCombinationRoutes from '../modules/variant-combination/variant-combination.routes';
+import marketplaceFeeRoutes from './marketplace-fee.routes';
 import { validate } from '../utils/validation';
 import {
     createProductSchema,
@@ -40,6 +41,9 @@ router.use('/variants', variantRoutes);
 
 // Variant combination routes
 router.use('/variant-combinations', variantCombinationRoutes);
+
+// Marketplace Fee routes
+router.use('/marketplace-fees', marketplaceFeeRoutes);
 
 // Inventory routes
 router.post(

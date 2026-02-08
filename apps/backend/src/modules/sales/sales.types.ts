@@ -1,5 +1,6 @@
 export interface SaleItemDTO {
     productId: number;
+    variantCombinationId?: number;
     quantity: number;
 }
 
@@ -20,6 +21,7 @@ export interface SaleItemResponse {
     id: number;
     productId: number;
     productName: string;
+    variantName?: string;
     quantity: number;
     sellingPrice: number;
     cogs: number;

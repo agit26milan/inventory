@@ -2,9 +2,11 @@ import { z } from 'zod';
 
 export const createInventoryBatchSchema = z.object({
     body: z.object({
-        productId: z.number().int().positive('Product ID must be a positive integer'),
-        quantity: z.number().int().positive('Quantity must be a positive integer'),
-        costPrice: z.number().positive('Cost price must be positive'),
+        productId: z.number().int().positive(),
+        variantCombinationId: z.number().int().positive().optional(),
+        quantity: z.number().int().positive(),
+        costPrice: z.number().positive(),
+        sellingPrice: z.number().positive(),
     }),
 });
 

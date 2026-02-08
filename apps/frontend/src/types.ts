@@ -5,7 +5,6 @@ export interface Product {
     name: string;
     sku: string;
     stockMethod: StockMethod;
-    sellingPrice: number;
     currentStock: number;
     createdAt: string;
     updatedAt: string;
@@ -15,27 +14,31 @@ export interface CreateProductDTO {
     name: string;
     sku: string;
     stockMethod: StockMethod;
-    sellingPrice: number;
 }
 
 export interface InventoryBatch {
     id: number;
     productId: number;
     productName: string;
+    variantName?: string;
     quantity: number;
     remainingQuantity: number;
     costPrice: number;
+    sellingPrice: number;
     createdAt: string;
 }
 
 export interface CreateInventoryBatchDTO {
     productId: number;
+    variantCombinationId?: number;
     quantity: number;
     costPrice: number;
+    sellingPrice: number;
 }
 
 export interface SaleItem {
     productId: number;
+    variantCombinationId?: number;
     quantity: number;
 }
 
@@ -123,8 +126,40 @@ export interface UpdateVariantValueDTO {
     name: string;
 }
 
+export interface VariantCombination {
+    id: number;
+    productId: number;
+    sku: string;
+    stock: number;
+    createdAt: string;
+    updatedAt: string;
+    values?: VariantCombinationValue[];
+}
+
+export interface VariantCombinationValue {
+     combinationId: number;
+     variantValueId: number;
+     variantValue: VariantValue;
+}
+
 export interface ApiResponse<T> {
     success: boolean;
     message: string;
     data: T;
+}
+
+export interface MarketplaceFee {
+    id: number;
+    productId: number;
+    productName: string;
+    marketplace: string;
+    percentage: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CreateMarketplaceFeeDTO {
+    productId: number;
+    marketplace: string;
+    percentage: number;
 }

@@ -13,12 +13,27 @@ export class InventoryService {
             throw new AppError(404, 'Product not found');
         }
 
+        // Verify variant combination if provided
+        if (data.variantCombinationId) {
+             const variant = await prisma.variantCombination.findUnique({
+                 where: { id: data.variantCombinationId },
+             });
+             if (!variant) {
+                 throw new AppError(404, 'Variant combination not found');
+             }
+             if (variant.productId !== data.productId) {
+                 throw new AppError(400, 'Variant combination does not belong to this product');
+             }
+        }
+
         const batch = await prisma.inventoryBatch.create({
             data: {
                 productId: data.productId,
+                variantCombinationId: data.variantCombinationId,
                 quantity: data.quantity,
                 remainingQuantity: data.quantity,
                 costPrice: data.costPrice,
+                sellingPrice: data.sellingPrice,
             },
             include: {
                 product: {
@@ -26,6 +41,11 @@ export class InventoryService {
                         name: true,
                     },
                 },
+                variantCombination: {
+                     select: {
+                         sku: true,
+                     }
+                }
             },
         });
 
@@ -33,9 +53,11 @@ export class InventoryService {
             id: batch.id,
             productId: batch.productId,
             productName: batch.product.name,
+            variantName: batch.variantCombination?.sku,
             quantity: batch.quantity,
             remainingQuantity: batch.remainingQuantity,
             costPrice: Number(batch.costPrice),
+            sellingPrice: Number(batch.sellingPrice),
             createdAt: batch.createdAt,
         };
     }
@@ -58,6 +80,11 @@ export class InventoryService {
                         name: true,
                     },
                 },
+                variantCombination: {
+                     select: {
+                         sku: true,
+                     }
+                }
             },
             orderBy: {
                 createdAt: 'desc',
@@ -68,9 +95,11 @@ export class InventoryService {
             id: batch.id,
             productId: batch.productId,
             productName: batch.product.name,
+            variantName: batch.variantCombination?.sku,
             quantity: batch.quantity,
             remainingQuantity: batch.remainingQuantity,
             costPrice: Number(batch.costPrice),
+            sellingPrice: Number(batch.sellingPrice),
             createdAt: batch.createdAt,
         }));
     }
@@ -83,6 +112,11 @@ export class InventoryService {
                         name: true,
                     },
                 },
+                variantCombination: {
+                     select: {
+                         sku: true,
+                     }
+                }
             },
             orderBy: {
                 createdAt: 'desc',
@@ -93,16 +127,23 @@ export class InventoryService {
             id: batch.id,
             productId: batch.productId,
             productName: batch.product.name,
+            variantName: batch.variantCombination?.sku,
             quantity: batch.quantity,
             remainingQuantity: batch.remainingQuantity,
             costPrice: Number(batch.costPrice),
+            sellingPrice: Number(batch.sellingPrice),
             createdAt: batch.createdAt,
         }));
     }
 
-    async getCurrentStock(productId: number): Promise<number> {
+    async getCurrentStock(productId: number, variantCombinationId?: number): Promise<number> {
+        const whereClause: any = { productId };
+        if (variantCombinationId) {
+            whereClause.variantCombinationId = variantCombinationId;
+        }
+
         const batches = await prisma.inventoryBatch.findMany({
-            where: { productId },
+            where: whereClause,
             select: {
                 remainingQuantity: true,
             },

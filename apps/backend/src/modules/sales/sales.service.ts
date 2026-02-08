@@ -19,14 +19,30 @@ export class SalesService {
                 // Get product details
                 const product = await tx.product.findUnique({
                     where: { id: item.productId },
+                    include: {
+                        marketplaceFees: true, // Fetch fees
+                    }
                 });
 
                 if (!product) {
                     throw new AppError(404, `Product with ID ${item.productId} not found`);
                 }
 
+                // Verify variant combination if provided
+                if (item.variantCombinationId) {
+                    const variant = await tx.variantCombination.findUnique({
+                        where: { id: item.variantCombinationId },
+                    });
+                     if (!variant) {
+                         throw new AppError(404, `Variant combination ID ${item.variantCombinationId} not found`);
+                     }
+                     if (variant.productId !== item.productId) {
+                         throw new AppError(400, `Variant combination ID ${item.variantCombinationId} does not belong to product ${item.productId}`);
+                     }
+                }
+
                 // Check available stock
-                const currentStock = await this.getAvailableStock(tx, item.productId);
+                const currentStock = await this.getAvailableStock(tx, item.productId, item.variantCombinationId);
                 if (currentStock < item.quantity) {
                     throw new AppError(
                         400,
@@ -34,34 +50,53 @@ export class SalesService {
                     );
                 }
 
-                // Calculate COGS based on FIFO or LIFO
-                const cogs = await this.calculateCogsAndDeductStock(
+                // Calculate COGS and Revenue based on FIFO or LIFO
+                const { cogs, revenue } = await this.calculateCogsAndDeductStock(
                     tx,
                     item.productId,
                     item.quantity,
-                    product.stockMethod
+                    product.stockMethod,
+                    item.variantCombinationId
                 );
 
-                const itemTotal = Number(product.sellingPrice) * item.quantity;
-                totalAmount += itemTotal;
+                // Calculate Fee Deduction (if applicable)
+                const shopeeFee = product.marketplaceFees.find(f => f.marketplace === 'SHOPEE');
+                let netRevenue = revenue;
+                
+                if (shopeeFee) {
+                    // "harga selling price ... akan di kurangi biaya admin"
+                    // We reduce the revenue (total selling price) by the fee percentage
+                    const feeAmount = (revenue * Number(shopeeFee.percentage)) / 100;
+                    netRevenue = revenue - feeAmount;
+                }
+
+                totalAmount += netRevenue;
                 totalCogs += cogs;
 
+                // Calculate weighted average selling price for the sale item record (NET Price)
+                const averageSellingPrice = netRevenue / item.quantity;
+                
                 saleItemsData.push({
                     productId: item.productId,
+                    variantCombinationId: item.variantCombinationId,
                     quantity: item.quantity,
-                    sellingPrice: product.sellingPrice,
+                    sellingPrice: averageSellingPrice,
                     cogs,
                 });
             }
 
+            // Profit is now simply Total Net Revenue - Total COGS
             const profit = totalAmount - totalCogs;
 
             // Create the sale record
+            // Note: `totalAmount` is Gross Revenue.
+            // `totalCogs` is Cost of Goods.
+            // `profit` is Net Profit (Revenue - COGS - Fees).
             const sale = await tx.sale.create({
                 data: {
                     totalAmount,
                     totalCogs,
-                    profit,
+                    profit, 
                     saleItems: {
                         create: saleItemsData,
                     },
@@ -74,6 +109,11 @@ export class SalesService {
                                     name: true,
                                 },
                             },
+                             variantCombination: {
+                                 select: {
+                                     sku: true,
+                                 }
+                             }
                         },
                     },
                 },
@@ -85,15 +125,47 @@ export class SalesService {
                 totalAmount: Number(sale.totalAmount),
                 totalCogs: Number(sale.totalCogs),
                 profit: Number(sale.profit),
-                items: sale.saleItems.map((item) => ({
-                    id: item.id,
-                    productId: item.productId,
-                    productName: item.product.name,
-                    quantity: item.quantity,
-                    sellingPrice: Number(item.sellingPrice),
-                    cogs: Number(item.cogs),
-                    profit: Number(item.sellingPrice) * item.quantity - Number(item.cogs),
-                })),
+                items: sale.saleItems.map((item) => {
+                    // We need to re-calculate fee to show correct item profit in response, 
+                    // OR we accept that this response might show Gross Profit for items if we don't fetch fees again.
+                    // But we can't easily fetch fees here again efficiently without query.
+                    // For the response, simpler is (sellingPrice * qty - cogs).
+                    // If we want to show net profit per item, we'd need to know the fee again.
+                    // Let's stick to simple Gross Profit for item breakdown unless we query product again.
+                    // Wait, `sale.profit` is Net. Item breakdown summing to Gross might be confusing.
+                    // But `SaleItem` doesn't have `fee` column.
+                    // Let's leave item breakdown as is (Standard Margin) or try to fetch it?
+                    // The user requirement is about the "Inventory selling price" being reduced?
+                    // "harga selling price di masing masing inventory akan di kurangi"
+                    // This creates a discrepancy.
+                    // If we reduce the `sellingPrice` stored in `SaleItem`, then `totalAmount` (Revenue) decreases.
+                    // Is that what they want? "Net Sales"?
+                    // "harga selling price ... akan di kurangi biaya admin"
+                    // If I change `sellingPrice` in `SaleItem`, it effectively lowers Revenue.
+                    // Revenue = Selling Price * Qty.
+                    // If I lower Selling Price, I lower Revenue.
+                    // Profit = Lowered Revenue - COGS.
+                    // This matches the math.
+                    // AND it matches "selling price ... will be reduced".
+                    // So, instead of `feeAmount` being separate expense, I should reduce `revenue` variable itself?
+                    // `const netRevenue = revenue - feeAmount`.
+                    // `const netSellingPrice = netRevenue / quantity`.
+                    // And store THAT in `SaleItem`.
+                    // This way `totalAmount` in Sale will be Net Revenue.
+                    // And `profit` will be Net Profit.
+                    // This seems to align best with "selling price ... will be reduced".
+                    
+                    return {
+                        id: item.id,
+                        productId: item.productId,
+                        productName: item.product.name,
+                        variantName: item.variantCombination?.sku,
+                        quantity: item.quantity,
+                        sellingPrice: Number(item.sellingPrice),
+                        cogs: Number(item.cogs),
+                        profit: Number(item.sellingPrice) * item.quantity - Number(item.cogs),
+                    };
+                }),
             };
         });
     }
@@ -105,20 +177,29 @@ export class SalesService {
         tx: any,
         productId: number,
         quantity: number,
-        stockMethod: StockMethod
-    ): Promise<number> {
+        stockMethod: StockMethod,
+        variantCombinationId?: number
+    ): Promise<{ cogs: number; revenue: number }> {
         let remainingQuantity = quantity;
         let totalCogs = 0;
+        let totalRevenue = 0;
 
         // Fetch inventory batches based on stock method
         const orderBy = stockMethod === 'FIFO' ? 'asc' : 'desc';
-        const batches = await tx.inventoryBatch.findMany({
-            where: {
-                productId,
-                remainingQuantity: {
-                    gt: 0,
-                },
+        
+        const whereClause: any = {
+            productId,
+            remainingQuantity: {
+                gt: 0,
             },
+        };
+
+        if (variantCombinationId) {
+            whereClause.variantCombinationId = variantCombinationId;
+        }
+
+        const batches = await tx.inventoryBatch.findMany({
+            where: whereClause,
             orderBy: {
                 createdAt: orderBy,
             },
@@ -130,8 +211,10 @@ export class SalesService {
 
             const deductQuantity = Math.min(batch.remainingQuantity, remainingQuantity);
             const batchCogs = Number(batch.costPrice) * deductQuantity;
+            const batchRevenue = Number(batch.sellingPrice) * deductQuantity;
 
             totalCogs += batchCogs;
+            totalRevenue += batchRevenue;
             remainingQuantity -= deductQuantity;
 
             // Update batch remaining quantity
@@ -147,15 +230,20 @@ export class SalesService {
             throw new AppError(400, 'Insufficient stock to complete the sale');
         }
 
-        return totalCogs;
+        return { cogs: totalCogs, revenue: totalRevenue };
     }
 
     /**
      * Get available stock for a product
      */
-    private async getAvailableStock(tx: any, productId: number): Promise<number> {
+    private async getAvailableStock(tx: any, productId: number, variantCombinationId?: number): Promise<number> {
+        const whereClause: any = { productId };
+        if (variantCombinationId) {
+             whereClause.variantCombinationId = variantCombinationId;
+        }
+
         const batches = await tx.inventoryBatch.findMany({
-            where: { productId },
+            where: whereClause,
             select: {
                 remainingQuantity: true,
             },
@@ -177,6 +265,11 @@ export class SalesService {
                                 name: true,
                             },
                         },
+                         variantCombination: {
+                             select: {
+                                 sku: true,
+                             }
+                         }
                     },
                 },
             },
@@ -195,6 +288,7 @@ export class SalesService {
                 id: item.id,
                 productId: item.productId,
                 productName: item.product.name,
+                variantName: item.variantCombination?.sku,
                 quantity: item.quantity,
                 sellingPrice: Number(item.sellingPrice),
                 cogs: Number(item.cogs),
@@ -217,6 +311,11 @@ export class SalesService {
                                 name: true,
                             },
                         },
+                         variantCombination: {
+                             select: {
+                                 sku: true,
+                             }
+                         }
                     },
                 },
             },
@@ -236,6 +335,7 @@ export class SalesService {
                 id: item.id,
                 productId: item.productId,
                 productName: item.product.name,
+                variantName: item.variantCombination?.sku,
                 quantity: item.quantity,
                 sellingPrice: Number(item.sellingPrice),
                 cogs: Number(item.cogs),

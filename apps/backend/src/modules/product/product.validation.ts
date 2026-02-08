@@ -7,7 +7,6 @@ export const createProductSchema = z.object({
         stockMethod: z.enum(['FIFO', 'LIFO'], {
             errorMap: () => ({ message: 'Stock method must be FIFO or LIFO' }),
         }),
-        sellingPrice: z.number().positive('Selling price must be positive'),
     }),
 });
 
@@ -19,7 +18,6 @@ export const updateProductSchema = z.object({
         name: z.string().min(1).max(255).optional(),
         sku: z.string().min(1).max(100).optional(),
         stockMethod: z.enum(['FIFO', 'LIFO']).optional(),
-        sellingPrice: z.number().positive().optional(),
     }),
 });
 

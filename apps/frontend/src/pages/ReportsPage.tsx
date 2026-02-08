@@ -3,6 +3,7 @@ import {
   useProductPerformance,
   useInventoryValuation,
 } from '../hooks/useReports';
+import { formatCurrency } from '../utils/currency';
 
 export const ReportsPage = () => {
   const { data: summary, isLoading: summaryLoading } = useSalesSummary();
@@ -26,19 +27,19 @@ export const ReportsPage = () => {
           <div>
             <p className="text-muted">Total Sales</p>
             <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--success)' }}>
-              ${summary?.totalSales.toFixed(2) || '0.00'}
+              {summary ? formatCurrency(summary.totalSales) : formatCurrency(0)}
             </p>
           </div>
           <div>
             <p className="text-muted">Total Profit</p>
             <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary-light)' }}>
-              ${summary?.totalProfit.toFixed(2) || '0.00'}
+              {summary ? formatCurrency(summary.totalProfit) : formatCurrency(0)}
             </p>
           </div>
           <div>
             <p className="text-muted">Total COGS</p>
             <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--danger)' }}>
-              ${summary?.totalCogs.toFixed(2) || '0.00'}
+              {summary ? formatCurrency(summary.totalCogs) : formatCurrency(0)}
             </p>
           </div>
           <div>
@@ -72,10 +73,10 @@ export const ReportsPage = () => {
                   <tr key={item.productId}>
                     <td style={{ fontWeight: 600 }}>{item.productName}</td>
                     <td>{item.totalQuantitySold}</td>
-                    <td className="text-success">${item.totalRevenue.toFixed(2)}</td>
-                    <td className="text-danger">${item.totalCogs.toFixed(2)}</td>
+                    <td className="text-success">{formatCurrency(item.totalRevenue)}</td>
+                    <td className="text-danger">{formatCurrency(item.totalCogs)}</td>
                     <td className="text-primary-light" style={{ fontWeight: 600 }}>
-                      ${item.totalProfit.toFixed(2)}
+                      {formatCurrency(item.totalProfit)}
                     </td>
                     <td>
                       {((item.totalProfit / item.totalRevenue) * 100).toFixed(1)}%
@@ -110,16 +111,16 @@ export const ReportsPage = () => {
                   <tr key={item.productId}>
                     <td style={{ fontWeight: 600 }}>{item.productName}</td>
                     <td>{item.currentStock} units</td>
-                    <td>${item.averageCostPrice.toFixed(2)}</td>
+                    <td>{formatCurrency(item.averageCostPrice)}</td>
                     <td className="text-warning" style={{ fontWeight: 600 }}>
-                      ${item.totalValue.toFixed(2)}
+                      {formatCurrency(item.totalValue)}
                     </td>
                   </tr>
                 ))}
                 <tr style={{ background: 'var(--bg-tertiary)', fontWeight: 'bold' }}>
                   <td colSpan={3}>Total Inventory Value</td>
                   <td className="text-warning">
-                    ${valuation.reduce((sum, item) => sum + item.totalValue, 0).toFixed(2)}
+                    {formatCurrency(valuation.reduce((sum, item) => sum + item.totalValue, 0))}
                   </td>
                 </tr>
               </tbody>

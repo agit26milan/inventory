@@ -18,7 +18,6 @@ export class ProductService {
                 name: data.name,
                 sku: data.sku,
                 stockMethod: data.stockMethod,
-                sellingPrice: data.sellingPrice,
             },
         });
 
@@ -44,7 +43,6 @@ export class ProductService {
             name: product.name,
             sku: product.sku,
             stockMethod: product.stockMethod,
-            sellingPrice: Number(product.sellingPrice),
             currentStock: product.inventoryBatches.reduce(
                 (sum, batch) => sum + batch.remainingQuantity,
                 0
@@ -75,7 +73,6 @@ export class ProductService {
             name: product.name,
             sku: product.sku,
             stockMethod: product.stockMethod,
-            sellingPrice: Number(product.sellingPrice),
             currentStock: product.inventoryBatches.reduce(
                 (sum, batch) => sum + batch.remainingQuantity,
                 0
@@ -193,7 +190,6 @@ export class ProductService {
             name: product.name,
             sku: product.sku,
             stockMethod: product.stockMethod,
-            sellingPrice: Number(product.sellingPrice),
             currentStock: product.inventoryBatches.reduce(
                 (sum: number, batch) => sum + batch.remainingQuantity,
                 0
@@ -211,7 +207,6 @@ export class ProductService {
             variantCombinations: product.variantCombinations.map((combination) => ({
                 id: combination.id,
                 sku: combination.sku,
-                price: Number(combination.price),
                 stock: combination.stock,
                 values: combination.values.map((v) => ({
                     id: v.variantValue.id,

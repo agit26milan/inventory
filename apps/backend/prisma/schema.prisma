@@ -20,18 +20,33 @@ model Product {
   name          String           @db.VarChar(255)
   sku           String           @unique @db.VarChar(100)
   stockMethod   StockMethod      @default(FIFO)
-  sellingPrice  Decimal          @db.Decimal(10, 2)
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   
-  inventoryBatches      InventoryBatch[]
-  saleItems             SaleItem[]
   variants              Variant[]
   variantValues         VariantValue[]
   variantCombinations   VariantCombination[]
+  inventoryBatches      InventoryBatch[]
+  saleItems             SaleItem[]
+  marketplaceFees       MarketplaceFee[]
 
   @@index([sku])
   @@map("products")
+}
+
+model MarketplaceFee {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  marketplace String   @db.VarChar(50) // e.g., "SHOPEE"
+  percentage  Decimal  @db.Decimal(5, 2) // e.g., 5.50
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, marketplace]) // One fee per marketplace per product
+  @@index([productId])
+  @@map("marketplace_fees")
 }
 
 model Variant {
@@ -69,13 +84,14 @@ model VariantCombination {
   id          Int      @id @default(autoincrement())
   productId   Int
   sku         String   @unique @db.VarChar(100)
-  price       Decimal  @db.Decimal(10, 2)
   stock       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
   product Product                   @relation(fields: [productId], references: [id], onDelete: Cascade)
   values  VariantCombinationValue[]
+  inventoryBatches InventoryBatch[]
+  saleItems        SaleItem[]
 
   @@index([productId])
   @@index([sku])
@@ -96,16 +112,20 @@ model VariantCombinationValue {
 }
 
 model InventoryBatch {
-  id                Int      @id @default(autoincrement())
-  productId         Int
-  quantity          Int
-  remainingQuantity Int
-  costPrice         Decimal  @db.Decimal(10, 2)
-  createdAt         DateTime @default(now())
+  id                  Int                 @id @default(autoincrement())
+  productId           Int
+  variantCombinationId Int?
+  quantity            Int
+  remainingQuantity   Int
+  costPrice           Decimal             @db.Decimal(10, 2)
+  sellingPrice        Decimal             @db.Decimal(10, 2) @default(0)
+  createdAt           DateTime            @default(now())
   
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product             Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantCombination  VariantCombination? @relation(fields: [variantCombinationId], references: [id], onDelete: SetNull)
 
   @@index([productId, createdAt])
+  @@index([variantCombinationId])
   @@map("inventory_batches")
 }
 
@@ -124,15 +144,17 @@ model Sale {
 }
 
 model SaleItem {
-  id           Int     @id @default(autoincrement())
-  saleId       Int
-  productId    Int
-  quantity     Int
-  sellingPrice Decimal @db.Decimal(10, 2)
-  cogs         Decimal @db.Decimal(10, 2)
+  id                   Int                 @id @default(autoincrement())
+  saleId               Int
+  productId            Int
+  variantCombinationId  Int?
+  quantity             Int
+  sellingPrice         Decimal             @db.Decimal(10, 2)
+  cogs                 Decimal             @db.Decimal(10, 2)
   
-  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  sale                 Sale                @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product              Product             @relation(fields: [productId], references: [id], onDelete: Restrict)
+  variantCombination   VariantCombination? @relation(fields: [variantCombinationId], references: [id], onDelete: SetNull)
 
   @@index([saleId])
   @@index([productId])

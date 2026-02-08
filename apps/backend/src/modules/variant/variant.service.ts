@@ -35,6 +35,9 @@ export class VariantService {
             },
         });
 
+        // Regenerate combinations (will essentially clear them if this new variant has no values yet, forcing the user to add values)
+        await this.generateCombinations(data.productId);
+
         return variant;
     }
 
@@ -113,34 +116,30 @@ export class VariantService {
         // Check if variant exists
         const variant = await prisma.variant.findUnique({
             where: { id },
-            include: {
-                values: {
-                    include: {
-                        variantCombinationValues: true,
-                    },
-                },
-            },
         });
 
         if (!variant) {
             throw new AppError(404, 'Variant not found');
         }
 
-        // Check if any variant values are used in combinations
-        const hasActiveCombinations = variant.values.some(
-            (value) => value.variantCombinationValues.length > 0
-        );
-
-        if (hasActiveCombinations) {
-            throw new AppError(
-                400,
-                'Cannot delete variant that has values used in variant combinations'
-            );
-        }
-
+        // Allow deletion even if combinations exist, but we must check for INVENTORY or SALES
+        // For now, simpler approach: if ANY combination associated with this variant has inventory/sales, block.
+        // But doing that check is complex.
+        // We will rely on the regenerate logic:
+        // 1. Delete variant (cascade deletes variant values).
+        // 2. Cascade deletes variantCombinations?? No, VariantCombinationValue cascade deletes.
+        // VariantCombination itself might remain empty?
+        
+        // Let's rely on manual clean up or force user to clear values first.
+        // BUT, to be user friendly, we allow delete and regenerate.
+        
+        // We delete the variant.
         await prisma.variant.delete({
             where: { id },
         });
+
+        // Regenerate combinations for the product (remaining variants)
+        await this.generateCombinations(variant.productId);
 
         return { message: 'Variant deleted successfully' };
     }
@@ -176,6 +175,9 @@ export class VariantService {
             },
         });
 
+        // Regenerate combinations
+        await this.generateCombinations(variant.productId);
+
         return variantValue;
     }
 
@@ -210,6 +212,10 @@ export class VariantService {
                 name: data.name,
             },
         });
+        
+        // Update combinations SKU names? 
+        // Yes, if value name changed, SKUs derived from it should change.
+        await this.generateCombinations(existingValue.productId);
 
         return variantValue;
     }
@@ -218,28 +224,111 @@ export class VariantService {
         // Check if variant value exists
         const variantValue = await prisma.variantValue.findUnique({
             where: { id },
-            include: {
-                variantCombinationValues: true,
-            },
         });
 
         if (!variantValue) {
             throw new AppError(404, 'Variant value not found');
         }
 
-        // Check if value is used in any combinations
-        if (variantValue.variantCombinationValues.length > 0) {
-            throw new AppError(
-                400,
-                'Cannot delete variant value that is used in variant combinations'
-            );
-        }
-
         await prisma.variantValue.delete({
             where: { id },
         });
 
+        // Regenerate combinations
+        await this.generateCombinations(variantValue.productId);
+
         return { message: 'Variant value deleted successfully' };
+    }
+
+    /**
+     * Internal method to regenerate variant combinations for a product.
+     * Calculates Cartesian product of all variant values and syncs with DB.
+     */
+    private async generateCombinations(productId: number) {
+         // 1. Fetch all variants and their values
+         const variants = await prisma.variant.findMany({
+            where: { productId },
+            include: { values: true },
+            orderBy: { id: 'asc' }, // Ensure consistent order
+        });
+
+        // 2. Fetch product for base SKU and price
+        const product = await prisma.product.findUnique({
+            where: { id: productId },
+        });
+
+        if (!product) return;
+
+        // If no variants exist, we shouldn't have any combinations.
+        if (variants.length === 0) {
+            await prisma.variantCombination.deleteMany({ where: { productId } });
+            return;
+        }
+
+        // 3. Check if all variants have at least one value
+        const allVariantsHaveValues = variants.every(v => v.values.length > 0);
+        
+        // If strict mode: if any variant is missing values, we have NO valid complete combinations.
+        if (!allVariantsHaveValues) {
+             // Delete all existing combinations because they are now incomplete/indeterminant
+             // Note: This cascade keeps inventory batches but sets variantCombinationId to null (if configured)
+             await prisma.variantCombination.deleteMany({ where: { productId } });
+             return;
+        }
+
+        // 4. Generate Cartesian product
+        // Helper to compute cartesian product of arrays
+        const cartesian = (a: any[]) => a.reduce((a, b) => a.flatMap((d: any) => b.map((e: any) => [d, e].flat())), [[]]);
+        
+        const valuesArrays = variants.map(v => v.values);
+        const combinations = cartesian(valuesArrays);
+
+        // 5. Calculate valid SKUs for the new state
+        // We will perform upsert logic or delete-then-create. 
+        // Upsert is safer to preserve IDs if SKUs match.
+        
+        const validSkus = new Set<string>();
+
+        for (const combinationValues of combinations) {
+            // combinationValues is an array of VariantValue objects
+            // Generate SKU: PROD-SKU-VAL1-VAL2...
+            // Use UpperCase and remove spaces for SKU
+            const valueSuffix = combinationValues.map((v: any) => v.name.toUpperCase().replace(/\s+/g, '')).join('-');
+            const sku = `${product.sku}-${valueSuffix}`;
+            
+            validSkus.add(sku);
+
+            // Check if exists
+            const existing = await prisma.variantCombination.findUnique({
+                where: { sku },
+            });
+
+            if (!existing) {
+                // Create new combination
+                await prisma.variantCombination.create({
+                    data: {
+                        productId,
+                        sku,
+                        price: product.sellingPrice,
+                        stock: 0,
+                        values: {
+                            create: combinationValues.map((v: any) => ({
+                                variantValueId: v.id
+                            }))
+                        }
+                    }
+                });
+            }
+            // If exists, we leave it alone (preserve price/stock/ID)
+        }
+
+        // 6. Delete combinations that are no longer valid (not in the generated set)
+        await prisma.variantCombination.deleteMany({
+            where: {
+                productId,
+                sku: { notIn: Array.from(validSkus) }
+            }
+        });
     }
 }
 

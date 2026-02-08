@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useInventoryBatches, useCreateInventoryBatch } from '../hooks/useInventory';
 import { useProducts } from '../hooks/useProducts';
-import { CreateInventoryBatchDTO } from '../types';
+import { useVariantCombinations } from '../hooks/useVariantCombinations';
+import { CreateInventoryBatchDTO, VariantCombination } from '../types';
+import { formatCurrency } from '../utils/currency';
 
 export const InventoryPage = () => {
   const { data: batches, isLoading: batchesLoading } = useInventoryBatches();
@@ -13,13 +15,19 @@ export const InventoryPage = () => {
     productId: 0,
     quantity: 0,
     costPrice: 0,
+    sellingPrice: 0,
   });
+
+  // State to track selected product's variants
+  const [selectedProductId, setSelectedProductId] = useState<number>(0);
+  const { data: variants } = useVariantCombinations(selectedProductId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await createBatch.mutateAsync(formData);
-      setFormData({ productId: 0, quantity: 0, costPrice: 0 });
+      setFormData({ productId: 0, quantity: 0, costPrice: 0, sellingPrice: 0 });
+      setSelectedProductId(0);
       setShowForm(false);
     } catch (error: any) {
       alert(error.response?.data?.message || 'Failed to create inventory batch');
@@ -54,9 +62,11 @@ export const InventoryPage = () => {
                 <select
                   className="form-select"
                   value={formData.productId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, productId: parseInt(e.target.value) })
-                  }
+                  onChange={(e) => {
+                    const pid = parseInt(e.target.value);
+                    setFormData({ ...formData, productId: pid, variantCombinationId: undefined });
+                    setSelectedProductId(pid);
+                  }}
                   required
                 >
                   <option value={0}>Select a product</option>
@@ -67,6 +77,28 @@ export const InventoryPage = () => {
                   ))}
                 </select>
               </div>
+
+              {/* Variant Selection if available */}
+              {variants && variants.length > 0 && (
+                  <div className="form-group">
+                    <label className="form-label">Variant</label>
+                    <select
+                      className="form-select"
+                      value={formData.variantCombinationId || ''}
+                      onChange={(e) =>
+                        setFormData({ ...formData, variantCombinationId: parseInt(e.target.value) })
+                      }
+                      required
+                    >
+                      <option value="">Select Variant</option>
+                      {variants.map((variant: VariantCombination) => (
+                        <option key={variant.id} value={variant.id}>
+                          {variant.sku}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+              )}
 
               <div className="form-group">
                 <label className="form-label">Quantity</label>
@@ -83,7 +115,7 @@ export const InventoryPage = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Cost Price ($)</label>
+                <label className="form-label">Cost Price</label>
                 <input
                   type="number"
                   step="0.01"
@@ -91,6 +123,20 @@ export const InventoryPage = () => {
                   value={formData.costPrice}
                   onChange={(e) =>
                     setFormData({ ...formData, costPrice: parseFloat(e.target.value) })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Selling Price</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  className="form-input"
+                  value={formData.sellingPrice}
+                  onChange={(e) =>
+                    setFormData({ ...formData, sellingPrice: parseFloat(e.target.value) })
                   }
                   required
                 />
@@ -115,9 +161,11 @@ export const InventoryPage = () => {
               <thead>
                 <tr>
                   <th>Product</th>
+                  <th>Variant</th>
                   <th>Original Qty</th>
                   <th>Remaining Qty</th>
                   <th>Cost Price</th>
+                  <th>Selling Price</th>
                   <th>Total Value</th>
                   <th>Date Added</th>
                 </tr>
@@ -126,14 +174,22 @@ export const InventoryPage = () => {
                 {batches.map((batch) => (
                   <tr key={batch.id}>
                     <td style={{ fontWeight: 600 }}>{batch.productName}</td>
+                    <td>
+                        {batch.variantName ? (
+                            <span className="badge badge-secondary">{batch.variantName}</span>
+                        ) : (
+                            <span className="text-muted">-</span>
+                        )}
+                    </td>
                     <td>{batch.quantity}</td>
                     <td>
                       <span className={batch.remainingQuantity === 0 ? 'text-muted' : 'text-success'}>
                         {batch.remainingQuantity}
                       </span>
                     </td>
-                    <td>${batch.costPrice.toFixed(2)}</td>
-                    <td>${(batch.remainingQuantity * batch.costPrice).toFixed(2)}</td>
+                    <td>{formatCurrency(batch.costPrice)}</td>
+                    <td>{formatCurrency(batch.sellingPrice)}</td>
+                    <td>{formatCurrency(batch.remainingQuantity * batch.costPrice)}</td>
                     <td className="text-muted">
                       {new Date(batch.createdAt).toLocaleDateString()}
                     </td>
