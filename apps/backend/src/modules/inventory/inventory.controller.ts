@@ -59,6 +59,15 @@ export class InventoryController {
         }
     }
 
+    async getBatchById(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const batch = await inventoryService.getBatchById(Number(req.params.id));
+            successResponse(res, batch, 'Inventory batch details retrieved successfully');
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async deleteBatch(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const result = await inventoryService.deleteBatch(Number(req.params.id));

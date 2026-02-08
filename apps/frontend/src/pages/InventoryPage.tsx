@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
     useInventoryBatches, 
     useCreateInventoryBatch, 
     useUpdateInventoryBatch, 
-    useDeleteInventoryBatch ,
+    useDeleteInventoryBatch,
+    useInventoryBatch
 } from '../hooks/useInventory';
 import { useProducts } from '../hooks/useProducts';
 import { useVariantCombinations } from '../hooks/useVariantCombinations';
@@ -20,6 +21,9 @@ export const InventoryPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingBatchId, setEditingBatchId] = useState<number | null>(null);
   
+  // Fetch detailed batch data when editing
+  const { data: batchDetail, isLoading: isLoadingDetail } = useInventoryBatch(editingBatchId);
+
   const [formData, setFormData] = useState<CreateInventoryBatchDTO>({
     productId: 0,
     quantity: 1,
@@ -31,6 +35,21 @@ export const InventoryPage = () => {
   const [selectedProductId, setSelectedProductId] = useState<number>(0);
   const { data: variants } = useVariantCombinations(selectedProductId);
 
+  // Effect to populate form when batchDetail is loaded
+  useEffect(() => {
+      if (batchDetail && editingBatchId) {          
+          const combinationId = findCombinationId();
+          setFormData({
+              productId: batchDetail.productId,
+              quantity: batchDetail.quantity,
+              costPrice: batchDetail.costPrice,
+              sellingPrice: batchDetail.sellingPrice,
+              variantCombinationId: combinationId 
+          });
+          setSelectedProductId(batchDetail.productId);
+      }
+  }, [batchDetail, editingBatchId, variants]);
+
   const resetForm = () => {
       setFormData({ productId: 0, quantity: 1, costPrice: 0, sellingPrice: 0 });
       setSelectedProductId(0);
@@ -40,15 +59,12 @@ export const InventoryPage = () => {
 
   const handleEdit = (batch: InventoryBatch) => {
       setEditingBatchId(batch.id);
-      setSelectedProductId(batch.productId);
-      setFormData({
-          productId: batch.productId,
-          variantCombinationId: (batch as any).variantCombinationId, // Note: backend response might not strictly have this if used flattened struct, but let's assume standard DTO or we might need to adjust
-          quantity: batch.quantity,
-          costPrice: batch.costPrice,
-          sellingPrice: batch.sellingPrice
-      });
       setShowForm(true);
+      // Data will be populated by useEffect once useInventoryBatch fetches it
+  };
+
+  const findCombinationId = () => {
+    return variants?.find((v) => v.sku === batchDetail?.variantName)?.id;
   };
 
   const handleDelete = async (id: number) => {
@@ -109,106 +125,111 @@ export const InventoryPage = () => {
           <div className="card-header">
             <h3 className="card-title">{editingBatchId ? 'Edit Batch' : 'Add Stock Batch'}</h3>
           </div>
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-3">
-              <div className="form-group">
-                <label className="form-label">Product</label>
-                <select
-                  className="form-select"
-                  value={formData.productId}
-                  onChange={(e) => {
-                    const pid = parseInt(e.target.value);
-                    setFormData({ ...formData, productId: pid, variantCombinationId: undefined });
-                    setSelectedProductId(pid);
-                  }}
-                  required
-                  disabled={!!editingBatchId} // Disable product change on edit to simplify logic
-                >
-                  <option value={0}>Select a product</option>
-                  {products?.map((product) => (
-                    <option key={product.id} value={product.id}>
-                      {product.name} ({product.sku})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Variant Selection if available */}
-              {variants && variants.length > 0 && (
-                  <div className="form-group">
-                    <label className="form-label">Variant</label>
+          
+          {isLoadingDetail && editingBatchId ? (
+              <div className="p-4 text-center">Loading batch details...</div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+                <div className="grid grid-3">
+                <div className="form-group">
+                    <label className="form-label">Product</label>
                     <select
-                      className="form-select"
-                      value={formData.variantCombinationId || ''}
-                      onChange={(e) =>
-                        setFormData({ ...formData, variantCombinationId: parseInt(e.target.value) })
-                      }
-                      disabled={!!editingBatchId} // Disable variant change on edit
+                    className="form-select"
+                    value={formData.productId}
+                    onChange={(e) => {
+                        const pid = parseInt(e.target.value);
+                        setFormData({ ...formData, productId: pid, variantCombinationId: undefined });
+                        setSelectedProductId(pid);
+                    }}
+                    required
+                    disabled={!!editingBatchId} // Disable product change on edit to simplify logic
                     >
-                      <option value="">Select Variant</option>
-                      {variants.map((variant: VariantCombination) => (
-                        <option key={variant.id} value={variant.id}>
-                          {variant.sku}
+                    <option value={0}>Select a product</option>
+                    {products?.map((product) => (
+                        <option key={product.id} value={product.id}>
+                        {product.name} ({product.sku})
                         </option>
-                      ))}
+                    ))}
                     </select>
-                  </div>
-              )}
+                </div>
 
-              <div className="form-group">
-                <label className="form-label">Quantity</label>
-                <input
-                  type="number"
-                  className="form-input"
-                  value={formData.quantity}
-                  onChange={(e) =>
-                    setFormData({ ...formData, quantity: parseInt(e.target.value) })
-                  }
-                  required
-                  min="1"
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Cost Price</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  className="form-input"
-                  value={formData.costPrice}
-                  onChange={(e) =>
-                    setFormData({ ...formData, costPrice: parseFloat(e.target.value) })
-                  }
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Selling Price</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  className="form-input"
-                  value={formData.sellingPrice}
-                  onChange={(e) =>
-                    setFormData({ ...formData, sellingPrice: parseFloat(e.target.value) })
-                  }
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-                <button type="submit" className="btn btn-success" disabled={createBatch.isPending || updateBatch.isPending}>
-                {createBatch.isPending || updateBatch.isPending ? 'Saving...' : (editingBatchId ? 'Update Batch' : 'Add Stock')}
-                </button>
-                {editingBatchId && (
-                    <button type="button" className="btn btn-secondary" onClick={resetForm}>
-                        Cancel
-                    </button>
+                {/* Variant Selection if available */}
+                {variants && variants.length > 0 && (
+                    <div className="form-group">
+                        <label className="form-label">Variant</label>
+                        <select
+                        className="form-select"
+                        value={formData.variantCombinationId || ''}
+                        onChange={(e) =>
+                            setFormData({ ...formData, variantCombinationId: parseInt(e.target.value) })
+                        }
+                        disabled={!!editingBatchId} // Disable variant change on edit
+                        >
+                        <option value="">Select Variant</option>
+                        {variants.map((variant: VariantCombination) => (
+                            <option key={variant.id} value={variant.id}>
+                            {variant.sku}
+                            </option>
+                        ))}
+                        </select>
+                    </div>
                 )}
-            </div>
-          </form>
+
+                <div className="form-group">
+                    <label className="form-label">Quantity</label>
+                    <input
+                    type="number"
+                    className="form-input"
+                    value={formData.quantity}
+                    onChange={(e) =>
+                        setFormData({ ...formData, quantity: parseInt(e.target.value) })
+                    }
+                    required
+                    min="1"
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Cost Price</label>
+                    <input
+                    type="number"
+                    step="0.01"
+                    className="form-input"
+                    value={formData.costPrice}
+                    onChange={(e) =>
+                        setFormData({ ...formData, costPrice: parseFloat(e.target.value) })
+                    }
+                    required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Selling Price</label>
+                    <input
+                    type="number"
+                    step="0.01"
+                    className="form-input"
+                    value={formData.sellingPrice}
+                    onChange={(e) =>
+                        setFormData({ ...formData, sellingPrice: parseFloat(e.target.value) })
+                    }
+                    required
+                    />
+                </div>
+                </div>
+
+                <div className="flex gap-2">
+                    <button type="submit" className="btn btn-success" disabled={createBatch.isPending || updateBatch.isPending}>
+                    {createBatch.isPending || updateBatch.isPending ? 'Saving...' : (editingBatchId ? 'Update Batch' : 'Add Stock')}
+                    </button>
+                    {editingBatchId && (
+                        <button type="button" className="btn btn-secondary" onClick={resetForm}>
+                            Cancel
+                        </button>
+                    )}
+                </div>
+            </form>
+          )}
         </div>
       )}
 

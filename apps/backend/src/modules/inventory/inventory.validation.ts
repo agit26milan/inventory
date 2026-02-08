@@ -27,6 +27,12 @@ export const updateInventoryBatchSchema = z.object({
     }),
 });
 
+export const getInventoryBatchSchema = z.object({
+    params: z.object({
+        id: z.string().regex(/^\d+$/, 'Invalid batch ID'),
+    }),
+});
+
 export const deleteInventoryBatchSchema = z.object({
     params: z.object({
         id: z.string().regex(/^\d+$/, 'Invalid batch ID'),

@@ -16,6 +16,7 @@ export interface InventoryBatchResponse {
     id: number;
     productId: number;
     productName: string;
+    variantCombinationId?: number;
     variantName?: string;
     quantity: number;
     remainingQuantity: number;

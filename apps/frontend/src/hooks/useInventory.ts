@@ -43,6 +43,14 @@ export const useUpdateInventoryBatch = () => {
     });
 };
 
+export const useInventoryBatch = (id: number | null) => {
+    return useQuery({
+        queryKey: ['inventory', id],
+        queryFn: () => inventoryService.getBatchById(id!),
+        enabled: !!id,
+    });
+};
+
 export const useDeleteInventoryBatch = () => {
     const queryClient = useQueryClient();
 

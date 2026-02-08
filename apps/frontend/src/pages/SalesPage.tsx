@@ -44,7 +44,7 @@ export const SalesPage = () => {
       }
 
       setSaleItems([...saleItems, itemToAdd]);
-      setCurrentItem({ productId: 0, quantity: 0 });
+      setCurrentItem({ productId: 0, quantity: 1 });
       setSelectedProductId(0);
     }
   };

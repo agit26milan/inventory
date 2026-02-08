@@ -197,12 +197,47 @@ export class InventoryService {
             id: updatedBatch.id,
             productId: updatedBatch.productId,
             productName: updatedBatch.product.name,
+            variantCombinationId: updatedBatch.variantCombinationId || undefined,
             variantName: updatedBatch.variantCombination?.sku,
             quantity: updatedBatch.quantity,
             remainingQuantity: updatedBatch.remainingQuantity,
             costPrice: Number(updatedBatch.costPrice),
             sellingPrice: Number(updatedBatch.sellingPrice),
             createdAt: updatedBatch.createdAt,
+        };
+    }
+
+    async getBatchById(id: number): Promise<InventoryBatchResponse> {
+        const batch = await prisma.inventoryBatch.findUnique({
+            where: { id },
+            include: {
+                product: {
+                    select: {
+                        name: true,
+                    },
+                },
+                variantCombination: {
+                     select: {
+                         sku: true,
+                     }
+                }
+            },
+        });
+
+        if (!batch) {
+            throw new AppError(404, 'Inventory batch not found');
+        }
+
+        return {
+            id: batch.id,
+            productId: batch.productId,
+            productName: batch.product.name,
+            variantName: batch.variantCombination?.sku,
+            quantity: batch.quantity,
+            remainingQuantity: batch.remainingQuantity,
+            costPrice: Number(batch.costPrice),
+            sellingPrice: Number(batch.sellingPrice),
+            createdAt: batch.createdAt,
         };
     }
 

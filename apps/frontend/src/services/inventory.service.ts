@@ -31,6 +31,11 @@ export const inventoryService = {
         return response.data.data;
     },
 
+    getBatchById: async (id: number): Promise<InventoryBatch> => {
+        const response = await api.get<ApiResponse<InventoryBatch>>(`/inventory/${id}`);
+        return response.data.data;
+    },
+
     deleteBatch: async (id: number): Promise<void> => {
         await api.delete<ApiResponse<null>>(`/inventory/${id}`);
     },
