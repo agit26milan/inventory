@@ -10,6 +10,7 @@ import { useProducts } from '../hooks/useProducts';
 import { useVariantCombinations } from '../hooks/useVariantCombinations';
 import { CreateInventoryBatchDTO, VariantCombination, InventoryBatch } from '../types';
 import { formatCurrency } from '../utils/currency';
+import { getSkuName } from '../utils/sku';
 
 export const InventoryPage = () => {
   const { data: batches, isLoading: batchesLoading } = useInventoryBatches();
@@ -168,7 +169,7 @@ export const InventoryPage = () => {
                         <option value="">Select Variant</option>
                         {variants.map((variant: VariantCombination) => (
                             <option key={variant.id} value={variant.id}>
-                            {variant.sku}
+                            {getSkuName(variant.sku)}
                             </option>
                         ))}
                         </select>
@@ -260,7 +261,7 @@ export const InventoryPage = () => {
                     <td style={{ fontWeight: 600 }}>{batch.productName}</td>
                     <td>
                         {batch.variantName ? (
-                            <span className="badge badge-secondary">{batch.variantName}</span>
+                            <span className="badge badge-secondary">{getSkuName(batch.variantName)}</span>
                         ) : (
                             <span className="text-muted">-</span>
                         )}

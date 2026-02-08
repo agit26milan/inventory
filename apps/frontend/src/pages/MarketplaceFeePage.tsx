@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import { useFeesByProduct, useSetFee } from '../hooks/useMarketplaceFees';
 import { CreateMarketplaceFeeDTO } from '../types';
+import { formatCurrency } from '../utils/currency';
 
 export const MarketplaceFeePage = () => {
   const { data: products, isLoading: isLoadingProducts } = useProducts();
@@ -11,11 +12,20 @@ export const MarketplaceFeePage = () => {
   const setFee = useSetFee();
 
   const [percentage, setPercentage] = useState<number>(0);
+  const [processFee, setProcessFee] = useState<number>(0);
 
   const handleProductChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedProductId(Number(e.target.value));
     setPercentage(0); // Reset form
+    setProcessFee(0); // Reset form
   };
+
+  useEffect(() => {
+    if (fees && fees?.length > 0) {
+      setPercentage(fees[0].percentage);
+      setProcessFee(fees[0].processFee);
+    }
+  }, [fees])
 
   const handleSave = async () => { // Fixed: Renamed from handleSetFee to handleSave
     if (!selectedProductId) return;
@@ -24,7 +34,8 @@ export const MarketplaceFeePage = () => {
     const data: CreateMarketplaceFeeDTO = {
         productId: selectedProductId,
         marketplace: 'SHOPEE',
-        percentage: percentage
+        percentage: percentage,
+        processFee: processFee
     };
 
     try {
@@ -77,6 +88,26 @@ export const MarketplaceFeePage = () => {
                     </p>
                 </div>
 
+                <div className="form-group mb-4">
+                    <label className="form-label">Process Fee (Rp)</label>
+                    <div className="flex items-center gap-2">
+                        <span>Rp</span>
+                        <input
+                            type="number"
+                            className="form-input"
+                            style={{ maxWidth: '200px' }}
+                            value={processFee}
+                            placeholder="e.g. 5000"
+                            step="100"
+                            min="0"
+                            onChange={(e) => setProcessFee(parseFloat(e.target.value) || 0)}
+                        />
+                    </div>
+                    <p className="text-muted text-sm mt-1">
+                        Note: Fixed processing fee in Rupiah that will be deducted per unit sold.
+                    </p>
+                </div>
+
                 <button 
                     className="btn btn-primary" 
                     onClick={handleSave} 
@@ -96,6 +127,7 @@ export const MarketplaceFeePage = () => {
                                     <tr>
                                         <th>Marketplace</th>
                                         <th>Fee Percentage</th>
+                                        <th>Process Fee (Rp)</th>
                                         <th>Last Updated</th>
                                     </tr>
                                 </thead>
@@ -104,6 +136,7 @@ export const MarketplaceFeePage = () => {
                                         <tr key={fee.id}>
                                             <td>{fee.marketplace}</td>
                                             <td>{fee.percentage}%</td>
+                                            <td>{formatCurrency(fee.processFee)}</td>
                                             <td>{new Date(fee.updatedAt).toLocaleDateString()}</td>
                                         </tr>
                                     ))}

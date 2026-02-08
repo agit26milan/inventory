@@ -155,6 +155,7 @@ export interface MarketplaceFee {
     productName: string;
     marketplace: string;
     percentage: number;
+    processFee: number;
     createdAt: string;
     updatedAt: string;
 }
@@ -163,4 +164,5 @@ export interface CreateMarketplaceFeeDTO {
     productId: number;
     marketplace: string;
     percentage: number;
+    processFee: number;
 }

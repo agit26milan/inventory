@@ -18,7 +18,7 @@ export const setFee = async (req: Request, res: Response, next: NextFunction) =>
 
 export const getFeesByProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const productId = parseInt(req.params.productId);
+        const productId = parseInt(req.params.productId as string);
         const fees = await feeService.getFeesByProduct(productId);
         res.status(200).json({
             success: true,
@@ -32,7 +32,7 @@ export const getFeesByProduct = async (req: Request, res: Response, next: NextFu
 
 export const deleteFee = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = parseInt(req.params.id as string);
         await feeService.deleteFee(id);
         res.status(200).json({
             success: true,

@@ -2,6 +2,7 @@ export interface CreateMarketplaceFeeDTO {
     productId: number;
     marketplace: string;
     percentage: number;
+    processFee: number;
 }
 
 export interface UpdateMarketplaceFeeDTO {
@@ -16,4 +17,5 @@ export interface MarketplaceFeeResponse {
     percentage: number;
     createdAt: Date;
     updatedAt: Date;
+    processFee?: number;
 }

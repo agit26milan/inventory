@@ -1,5 +1,5 @@
 import prisma from '../../database/client';
-import { CreateMarketplaceFeeDTO, UpdateMarketplaceFeeDTO, MarketplaceFeeResponse } from './marketplace-fee.types';
+import { CreateMarketplaceFeeDTO, MarketplaceFeeResponse } from './marketplace-fee.types';
 import { AppError } from '../../utils/error-handler';
 
 export class MarketplaceFeeService {
@@ -26,6 +26,7 @@ export class MarketplaceFeeService {
             },
             update: {
                 percentage: data.percentage,
+                processFee: data.processFee,
             },
             create: {
                 productId: data.productId,
@@ -47,6 +48,7 @@ export class MarketplaceFeeService {
             percentage: Number(fee.percentage),
             createdAt: fee.createdAt,
             updatedAt: fee.updatedAt,
+            processFee: Number(fee.processFee),
         };
     }
 
@@ -71,6 +73,7 @@ export class MarketplaceFeeService {
             percentage: Number(fee.percentage),
             createdAt: fee.createdAt,
             updatedAt: fee.updatedAt,
+            processFee: Number(fee.processFee),
         }));
     }
     

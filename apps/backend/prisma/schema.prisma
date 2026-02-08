@@ -39,6 +39,7 @@ model MarketplaceFee {
   productId   Int
   marketplace String   @db.VarChar(50) // e.g., "SHOPEE"
   percentage  Decimal  @db.Decimal(5, 2) // e.g., 5.50
+  processFee  Decimal  @db.Decimal(10, 2) @default(0) // Fixed amount in Rupiah, e.g., 5000.00
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

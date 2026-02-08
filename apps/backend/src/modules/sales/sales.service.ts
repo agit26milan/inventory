@@ -67,7 +67,8 @@ export class SalesService {
                     // "harga selling price ... akan di kurangi biaya admin"
                     // We reduce the revenue (total selling price) by the fee percentage
                     const feeAmount = (revenue * Number(shopeeFee.percentage)) / 100;
-                    netRevenue = revenue - feeAmount;
+                    const processFeeAmount = Number(shopeeFee.processFee);
+                    netRevenue = revenue - feeAmount - processFeeAmount;
                 }
 
                 totalAmount += netRevenue;

@@ -4,6 +4,7 @@ import { useProducts } from '../hooks/useProducts';
 import { useVariantCombinations } from '../hooks/useVariantCombinations';
 import { SaleItem, VariantCombination } from '../types';
 import { formatCurrency } from '../utils/currency';
+import { getSkuName } from '../utils/sku';
 
 // Extend SaleItem for UI display
 interface CartItem extends SaleItem {
@@ -128,7 +129,7 @@ export const SalesPage = () => {
                       <option value="">Select Variant</option>
                       {variants.map((variant: VariantCombination) => (
                         <option key={variant.id} value={variant.id}>
-                          {variant.sku}
+                          {getSkuName(variant.sku)}
                         </option>
                       ))}
                     </select>

@@ -7,5 +7,6 @@ export const createMarketplaceFeeSchema = z.object({
         percentage: z.number({ required_error: 'Percentage is required' })
             .min(0, 'Percentage cannot be negative')
             .max(100, 'Percentage cannot be more than 100'),
+        processFee: z.number().min(0, 'Process fee cannot be negative').optional().default(0),
     }),
 });
