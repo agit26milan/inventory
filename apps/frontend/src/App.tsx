@@ -5,6 +5,8 @@ import { InventoryPage } from './pages/InventoryPage';
 import { SalesPage } from './pages/SalesPage';
 import { MarketplaceFeePage } from './pages/MarketplaceFeePage';
 import { Sidebar } from './components/Sidebar';
+import { DashboardPage } from './pages/DashboardPage';
+import { ReportsPage } from './pages/ReportsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,11 +25,13 @@ function App() {
           <Sidebar />
           <main className="main-content">
             <Routes>
-              <Route path="/" element={<Navigate to="/products" replace />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/inventory" element={<InventoryPage />} />
               <Route path="/sales" element={<SalesPage />} />
               <Route path="/marketplace-fees" element={<MarketplaceFeePage />} />
+              <Route path="/reports" element={<ReportsPage />} />
             </Routes>
           </main>
         </div>
