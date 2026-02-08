@@ -25,4 +25,13 @@ export const inventoryService = {
         );
         return response.data.data.currentStock;
     },
+
+    updateBatch: async (id: number, data: Partial<CreateInventoryBatchDTO>): Promise<InventoryBatch> => {
+        const response = await api.put<ApiResponse<InventoryBatch>>(`/inventory/${id}`, data);
+        return response.data.data;
+    },
+
+    deleteBatch: async (id: number): Promise<void> => {
+        await api.delete<ApiResponse<null>>(`/inventory/${id}`);
+    },
 };

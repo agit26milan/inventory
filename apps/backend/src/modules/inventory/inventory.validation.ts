@@ -15,3 +15,20 @@ export const getInventoryByProductSchema = z.object({
         productId: z.string().regex(/^\d+$/, 'Invalid product ID'),
     }),
 });
+
+export const updateInventoryBatchSchema = z.object({
+    params: z.object({
+        id: z.string().regex(/^\d+$/, 'Invalid batch ID'),
+    }),
+    body: z.object({
+        quantity: z.number().int().positive().optional(),
+        costPrice: z.number().positive().optional(),
+        sellingPrice: z.number().positive().optional(),
+    }),
+});
+
+export const deleteInventoryBatchSchema = z.object({
+    params: z.object({
+        id: z.string().regex(/^\d+$/, 'Invalid batch ID'),
+    }),
+});

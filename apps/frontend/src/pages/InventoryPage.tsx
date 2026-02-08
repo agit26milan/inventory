@@ -1,20 +1,29 @@
 import { useState } from 'react';
-import { useInventoryBatches, useCreateInventoryBatch } from '../hooks/useInventory';
+import { 
+    useInventoryBatches, 
+    useCreateInventoryBatch, 
+    useUpdateInventoryBatch, 
+    useDeleteInventoryBatch ,
+} from '../hooks/useInventory';
 import { useProducts } from '../hooks/useProducts';
 import { useVariantCombinations } from '../hooks/useVariantCombinations';
-import { CreateInventoryBatchDTO, VariantCombination } from '../types';
+import { CreateInventoryBatchDTO, VariantCombination, InventoryBatch } from '../types';
 import { formatCurrency } from '../utils/currency';
 
 export const InventoryPage = () => {
   const { data: batches, isLoading: batchesLoading } = useInventoryBatches();
   const { data: products } = useProducts();
   const createBatch = useCreateInventoryBatch();
+  const updateBatch = useUpdateInventoryBatch();
+  const deleteBatch = useDeleteInventoryBatch();
 
   const [showForm, setShowForm] = useState(false);
+  const [editingBatchId, setEditingBatchId] = useState<number | null>(null);
+  
   const [formData, setFormData] = useState<CreateInventoryBatchDTO>({
     productId: 0,
     quantity: 1,
-    costPrice: 1,
+    costPrice: 0,
     sellingPrice: 0,
   });
 
@@ -22,15 +31,54 @@ export const InventoryPage = () => {
   const [selectedProductId, setSelectedProductId] = useState<number>(0);
   const { data: variants } = useVariantCombinations(selectedProductId);
 
+  const resetForm = () => {
+      setFormData({ productId: 0, quantity: 1, costPrice: 0, sellingPrice: 0 });
+      setSelectedProductId(0);
+      setEditingBatchId(null);
+      setShowForm(false);
+  };
+
+  const handleEdit = (batch: InventoryBatch) => {
+      setEditingBatchId(batch.id);
+      setSelectedProductId(batch.productId);
+      setFormData({
+          productId: batch.productId,
+          variantCombinationId: (batch as any).variantCombinationId, // Note: backend response might not strictly have this if used flattened struct, but let's assume standard DTO or we might need to adjust
+          quantity: batch.quantity,
+          costPrice: batch.costPrice,
+          sellingPrice: batch.sellingPrice
+      });
+      setShowForm(true);
+  };
+
+  const handleDelete = async (id: number) => {
+      if (window.confirm('Are you sure you want to delete this inventory batch? This cannot be undone.')) {
+          try {
+              await deleteBatch.mutateAsync(id);
+          } catch (error: any) {
+              alert(error.response?.data?.message || 'Failed to delete batch');
+          }
+      }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createBatch.mutateAsync(formData);
-      setFormData({ productId: 0, quantity: 0, costPrice: 0, sellingPrice: 0 });
-      setSelectedProductId(0);
-      setShowForm(false);
+      if (editingBatchId) {
+          await updateBatch.mutateAsync({
+              id: editingBatchId,
+              data: {
+                  quantity: formData.quantity,
+                  costPrice: formData.costPrice,
+                  sellingPrice: formData.sellingPrice
+              }
+          });
+      } else {
+          await createBatch.mutateAsync(formData);
+      }
+      resetForm();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to create inventory batch');
+      alert(error.response?.data?.message || 'Failed to save inventory batch');
     }
   };
 
@@ -45,7 +93,13 @@ export const InventoryPage = () => {
           <h1>📥 Inventory</h1>
           <p className="text-muted">Manage stock batches and track inventory</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+        <button 
+            className="btn btn-primary" 
+            onClick={() => {
+                if (showForm) resetForm();
+                else setShowForm(true);
+            }}
+        >
           {showForm ? '✕ Cancel' : '+ Stock In'}
         </button>
       </div>
@@ -53,7 +107,7 @@ export const InventoryPage = () => {
       {showForm && (
         <div className="card mb-4">
           <div className="card-header">
-            <h3 className="card-title">Add Stock Batch</h3>
+            <h3 className="card-title">{editingBatchId ? 'Edit Batch' : 'Add Stock Batch'}</h3>
           </div>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-3">
@@ -68,6 +122,7 @@ export const InventoryPage = () => {
                     setSelectedProductId(pid);
                   }}
                   required
+                  disabled={!!editingBatchId} // Disable product change on edit to simplify logic
                 >
                   <option value={0}>Select a product</option>
                   {products?.map((product) => (
@@ -88,7 +143,7 @@ export const InventoryPage = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, variantCombinationId: parseInt(e.target.value) })
                       }
-                      required
+                      disabled={!!editingBatchId} // Disable variant change on edit
                     >
                       <option value="">Select Variant</option>
                       {variants.map((variant: VariantCombination) => (
@@ -143,9 +198,16 @@ export const InventoryPage = () => {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-success" disabled={createBatch.isPending}>
-              {createBatch.isPending ? 'Adding...' : 'Add Stock'}
-            </button>
+            <div className="flex gap-2">
+                <button type="submit" className="btn btn-success" disabled={createBatch.isPending || updateBatch.isPending}>
+                {createBatch.isPending || updateBatch.isPending ? 'Saving...' : (editingBatchId ? 'Update Batch' : 'Add Stock')}
+                </button>
+                {editingBatchId && (
+                    <button type="button" className="btn btn-secondary" onClick={resetForm}>
+                        Cancel
+                    </button>
+                )}
+            </div>
           </form>
         </div>
       )}
@@ -168,6 +230,7 @@ export const InventoryPage = () => {
                   <th>Selling Price</th>
                   <th>Total Value</th>
                   <th>Date Added</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -192,6 +255,22 @@ export const InventoryPage = () => {
                     <td>{formatCurrency(batch.remainingQuantity * batch.costPrice)}</td>
                     <td className="text-muted">
                       {new Date(batch.createdAt).toLocaleDateString()}
+                    </td>
+                    <td>
+                        <div className="flex gap-2">
+                            <button 
+                                className="btn btn-sm btn-secondary"
+                                onClick={() => handleEdit(batch)}
+                            >
+                                ✏️
+                            </button>
+                            <button 
+                                className="btn btn-sm btn-danger"
+                                onClick={() => handleDelete(batch.id)}
+                            >
+                                🗑️
+                            </button>
+                        </div>
                     </td>
                   </tr>
                 ))}

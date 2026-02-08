@@ -1,5 +1,5 @@
 import prisma from '../../database/client';
-import { CreateInventoryBatchDTO, InventoryBatchResponse } from './inventory.types';
+import { CreateInventoryBatchDTO, UpdateInventoryBatchDTO, InventoryBatchResponse } from './inventory.types';
 import { AppError } from '../../utils/error-handler';
 
 export class InventoryService {
@@ -150,6 +150,76 @@ export class InventoryService {
         });
 
         return batches.reduce((sum, batch) => sum + batch.remainingQuantity, 0);
+    }
+    async updateBatch(id: number, data: UpdateInventoryBatchDTO) {
+        const batch = await prisma.inventoryBatch.findUnique({
+            where: { id },
+        });
+
+        if (!batch) {
+            throw new AppError(404, 'Inventory batch not found');
+        }
+
+        const updates: any = {};
+        if (data.costPrice) updates.costPrice = data.costPrice;
+        if (data.sellingPrice) updates.sellingPrice = data.sellingPrice;
+
+        if (data.quantity) {
+            const quantityDiff = data.quantity - batch.quantity;
+            const newRemaining = batch.remainingQuantity + quantityDiff;
+
+            if (newRemaining < 0) {
+                throw new AppError(400, `Cannot reduce quantity to ${data.quantity} because ${batch.quantity - batch.remainingQuantity} items have already been sold.`);
+            }
+
+            updates.quantity = data.quantity;
+            updates.remainingQuantity = newRemaining;
+        }
+
+        const updatedBatch = await prisma.inventoryBatch.update({
+            where: { id },
+            data: updates,
+            include: {
+                product: {
+                    select: {
+                        name: true,
+                    },
+                },
+                variantCombination: {
+                     select: {
+                         sku: true,
+                     }
+                }
+            },
+        });
+
+        return {
+            id: updatedBatch.id,
+            productId: updatedBatch.productId,
+            productName: updatedBatch.product.name,
+            variantName: updatedBatch.variantCombination?.sku,
+            quantity: updatedBatch.quantity,
+            remainingQuantity: updatedBatch.remainingQuantity,
+            costPrice: Number(updatedBatch.costPrice),
+            sellingPrice: Number(updatedBatch.sellingPrice),
+            createdAt: updatedBatch.createdAt,
+        };
+    }
+
+    async deleteBatch(id: number) {
+        const batch = await prisma.inventoryBatch.findUnique({
+            where: { id },
+        });
+
+        if (!batch) {
+            throw new AppError(404, 'Inventory batch not found');
+        }
+
+        await prisma.inventoryBatch.delete({
+            where: { id },
+        });
+
+        return { message: 'Inventory batch deleted successfully' };
     }
 }
 

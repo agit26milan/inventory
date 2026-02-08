@@ -17,6 +17,7 @@ export const useInventoryByProduct = (productId: number) => {
     });
 };
 
+
 export const useCreateInventoryBatch = () => {
     const queryClient = useQueryClient();
 
@@ -28,3 +29,29 @@ export const useCreateInventoryBatch = () => {
         },
     });
 };
+
+export const useUpdateInventoryBatch = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: Partial<CreateInventoryBatchDTO> }) => 
+            inventoryService.updateBatch(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['inventory'] });
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+        },
+    });
+};
+
+export const useDeleteInventoryBatch = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: number) => inventoryService.deleteBatch(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['inventory'] });
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+        },
+    });
+};
+

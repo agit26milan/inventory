@@ -16,6 +16,8 @@ import {
 import {
     createInventoryBatchSchema,
     getInventoryByProductSchema,
+    updateInventoryBatchSchema,
+    deleteInventoryBatchSchema,
 } from '../modules/inventory/inventory.validation';
 import {
     createSaleSchema,
@@ -61,6 +63,16 @@ router.get(
     '/inventory/stock/:productId',
     validate(getInventoryByProductSchema),
     inventoryController.getCurrentStock
+);
+router.put(
+    '/inventory/:id',
+    validate(updateInventoryBatchSchema),
+    inventoryController.updateBatch
+);
+router.delete(
+    '/inventory/:id',
+    validate(deleteInventoryBatchSchema),
+    inventoryController.deleteBatch
 );
 
 // Sales routes

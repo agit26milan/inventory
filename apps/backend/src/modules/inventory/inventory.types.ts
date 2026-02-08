@@ -6,6 +6,12 @@ export interface CreateInventoryBatchDTO {
     sellingPrice: number;
 }
 
+export interface UpdateInventoryBatchDTO {
+    quantity?: number;
+    costPrice?: number;
+    sellingPrice?: number;
+}
+
 export interface InventoryBatchResponse {
     id: number;
     productId: number;

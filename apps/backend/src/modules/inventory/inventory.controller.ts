@@ -46,6 +46,27 @@ export class InventoryController {
             next(error);
         }
     }
+
+    async updateBatch(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const batch = await inventoryService.updateBatch(
+                Number(req.params.id),
+                req.body
+            );
+            successResponse(res, batch, 'Inventory batch updated successfully');
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteBatch(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const result = await inventoryService.deleteBatch(Number(req.params.id));
+            successResponse(res, result, 'Inventory batch deleted successfully');
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new InventoryController();
