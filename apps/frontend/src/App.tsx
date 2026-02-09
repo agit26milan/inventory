@@ -4,6 +4,8 @@ import { ProductsPage } from './pages/ProductsPage';
 import { InventoryPage } from './pages/InventoryPage';
 import { SalesPage } from './pages/SalesPage';
 import { MarketplaceFeePage } from './pages/MarketplaceFeePage';
+import EquityPage from './pages/EquityPage';
+import StoreExpensePage from './pages/StoreExpensePage';
 import { Sidebar } from './components/Sidebar';
 import { DashboardPage } from './pages/DashboardPage';
 import { ReportsPage } from './pages/ReportsPage';
@@ -31,6 +33,8 @@ function App() {
               <Route path="/inventory" element={<InventoryPage />} />
               <Route path="/sales" element={<SalesPage />} />
               <Route path="/marketplace-fees" element={<MarketplaceFeePage />} />
+              <Route path="/equity" element={<EquityPage />} />
+              <Route path="/store-expenses" element={<StoreExpensePage />} />
               <Route path="/reports" element={<ReportsPage />} />
             </Routes>
           </main>

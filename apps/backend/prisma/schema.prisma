@@ -112,6 +112,27 @@ model VariantCombinationValue {
   @@map("variant_combination_values")
 }
 
+model Equity {
+  id          Int      @id @default(autoincrement())
+  amount      Decimal  @db.Decimal(15, 2) // Can be positive or negative
+  description String   @db.VarChar(255)
+  createdAt   DateTime @default(now())
+  
+  @@map("equities")
+}
+
+model StoreExpense {
+  id          Int       @id @default(autoincrement())
+  amount      Decimal   @db.Decimal(15, 2) // Always positive
+  description String    @db.VarChar(255)
+  category    String?   @db.VarChar(100) // e.g., "Rent", "Utilities", "Salaries"
+  deletedAt   DateTime? // Soft delete
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@map("store_expenses")
+}
+
 model InventoryBatch {
   id                  Int                 @id @default(autoincrement())
   productId           Int

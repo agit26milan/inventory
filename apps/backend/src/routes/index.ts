@@ -6,6 +6,8 @@ import reportController from '../modules/report/report.controller';
 import variantRoutes from '../modules/variant/variant.routes';
 import variantCombinationRoutes from '../modules/variant-combination/variant-combination.routes';
 import marketplaceFeeRoutes from './marketplace-fee.routes';
+import * as equityController from '../modules/equity/equity.controller';
+import * as storeExpenseController from '../modules/store-expense/store-expense.controller';
 import { validate } from '../utils/validation';
 import {
     createProductSchema,
@@ -25,6 +27,12 @@ import {
     createSaleSchema,
     getSaleSchema,
 } from '../modules/sales/sales.validation';
+import { createEquitySchema } from '../modules/equity/equity.validation';
+import {
+    createStoreExpenseSchema,
+    updateStoreExpenseSchema,
+    deleteStoreExpenseSchema,
+} from '../modules/store-expense/store-expense.validation';
 
 const router = Router();
 
@@ -48,6 +56,18 @@ router.use('/variant-combinations', variantCombinationRoutes);
 
 // Marketplace Fee routes
 router.use('/marketplace-fees', marketplaceFeeRoutes);
+
+// Equity routes
+router.post('/equity', validate(createEquitySchema), equityController.createEquity);
+router.get('/equity', equityController.getAllEquities);
+router.get('/equity/total', equityController.getTotalEquity);
+
+// Store Expense routes
+router.post('/store-expenses', validate(createStoreExpenseSchema), storeExpenseController.createExpense);
+router.get('/store-expenses', storeExpenseController.getAllExpenses);
+router.get('/store-expenses/total', storeExpenseController.getTotalExpenses);
+router.put('/store-expenses/:id', validate(updateStoreExpenseSchema), storeExpenseController.updateExpense);
+router.delete('/store-expenses/:id', validate(deleteStoreExpenseSchema), storeExpenseController.deleteExpense);
 
 // Inventory routes
 router.post(

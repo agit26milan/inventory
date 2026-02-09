@@ -167,3 +167,38 @@ export interface CreateMarketplaceFeeDTO {
     percentage: number;
     processFee: number;
 }
+
+// Equity types
+export interface Equity {
+    id: number;
+    amount: number;
+    description: string;
+    createdAt: string;
+}
+
+export interface CreateEquityDTO {
+    amount: number;
+    description: string;
+}
+
+// Store Expense types
+export interface StoreExpense {
+    id: number;
+    amount: number;
+    description: string;
+    category?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CreateStoreExpenseDTO {
+    amount: number;
+    description: string;
+    category?: string;
+}
+
+export interface UpdateStoreExpenseDTO {
+    amount?: number;
+    description?: string;
+    category?: string;
+}
