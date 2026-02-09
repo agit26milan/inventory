@@ -7,9 +7,10 @@ import {
     useTotalExpenses,
 } from '../hooks/useStoreExpense';
 import { formatCurrency } from '../utils/currency';
+import { CurrencyInput } from '../components/CurrencyInput';
 
 export default function StoreExpensePage() {
-    const [amount, setAmount] = useState('');
+    const [amount, setAmount] = useState(0);
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -33,7 +34,7 @@ export default function StoreExpensePage() {
                 await updateExpense.mutateAsync({
                     id: editingId,
                     data: {
-                        amount: parseFloat(amount),
+                        amount: amount,
                         description,
                         category: category || undefined,
                     },
@@ -41,7 +42,7 @@ export default function StoreExpensePage() {
                 alert('Expense updated successfully!');
             } else {
                 await createExpense.mutateAsync({
-                    amount: parseFloat(amount),
+                    amount: amount,
                     description,
                     category: category || undefined,
                 });
@@ -49,7 +50,7 @@ export default function StoreExpensePage() {
             }
 
             // Reset form
-            setAmount('');
+            setAmount(0);
             setDescription('');
             setCategory('');
             setEditingId(null);
@@ -60,7 +61,7 @@ export default function StoreExpensePage() {
 
     const handleEdit = (expense: any) => {
         setEditingId(expense.id);
-        setAmount(expense.amount.toString());
+        setAmount(expense.amount);
         setDescription(expense.description);
         setCategory(expense.category || '');
     };
@@ -80,7 +81,7 @@ export default function StoreExpensePage() {
 
     const handleCancelEdit = () => {
         setEditingId(null);
-        setAmount('');
+        setAmount(0);
         setDescription('');
         setCategory('');
     };
@@ -108,14 +109,11 @@ export default function StoreExpensePage() {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
                         <div className="form-group">
                             <label className="form-label">Amount (Rp) *</label>
-                            <input
-                                type="number"
+                            <CurrencyInput
                                 className="form-input"
                                 placeholder="0"
                                 value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                step="0.01"
-                                min="0"
+                                onChange={(value) => setAmount(value)}
                                 required
                             />
                         </div>

@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useEquities, useCreateEquity, useTotalEquity } from '../hooks/useEquity';
 import { useTotalExpenses } from '../hooks/useStoreExpense';
 import { formatCurrency } from '../utils/currency';
+import { CurrencyInput } from '../components/CurrencyInput';
 
 export default function EquityPage() {
-    const [amount, setAmount] = useState('');
+    const [amount, setAmount] = useState(0);
     const [description, setDescription] = useState('');
 
     const { data: equities, isLoading } = useEquities();
@@ -22,12 +23,12 @@ export default function EquityPage() {
 
         try {
             await createEquity.mutateAsync({
-                amount: parseFloat(amount),
+                amount: amount,
                 description,
             });
 
             // Reset form
-            setAmount('');
+            setAmount(0);
             setDescription('');
             alert('Equity entry created successfully!');
         } catch (error: any) {
@@ -72,13 +73,11 @@ export default function EquityPage() {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: '1rem', alignItems: 'end' }}>
                         <div className="form-group">
                             <label className="form-label">Amount (Rp)</label>
-                            <input
-                                type="number"
+                            <CurrencyInput
                                 className="form-input"
                                 placeholder="Can be positive or negative"
                                 value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                step="0.01"
+                                onChange={(value) => setAmount(value)}
                             />
                             <small style={{ color: '#888', fontSize: '0.85rem' }}>
                                 Positive for capital injection, negative for withdrawal

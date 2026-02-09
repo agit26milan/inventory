@@ -3,6 +3,7 @@ import { useProducts } from '../hooks/useProducts';
 import { useFeesByProduct, useSetFee } from '../hooks/useMarketplaceFees';
 import { CreateMarketplaceFeeDTO } from '../types';
 import { formatCurrency } from '../utils/currency';
+import { CurrencyInput } from '../components/CurrencyInput';
 
 export const MarketplaceFeePage = () => {
   const { data: products, isLoading: isLoadingProducts } = useProducts();

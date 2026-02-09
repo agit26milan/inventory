@@ -11,6 +11,7 @@ import { useVariantCombinations } from '../hooks/useVariantCombinations';
 import { CreateInventoryBatchDTO, VariantCombination, InventoryBatch } from '../types';
 import { formatCurrency } from '../utils/currency';
 import { getSkuName } from '../utils/sku';
+import { CurrencyInput } from '../components/CurrencyInput';
 
 export const InventoryPage = () => {
   // Filter state
@@ -204,29 +205,21 @@ export const InventoryPage = () => {
 
                 <div className="form-group">
                     <label className="form-label">Cost Price</label>
-                    <input
-                    type="number"
-                    step="0.01"
-                    className="form-input"
-                    value={formData.costPrice}
-                    onChange={(e) =>
-                        setFormData({ ...formData, costPrice: parseFloat(e.target.value) })
-                    }
-                    required
+                    <CurrencyInput
+                        className="form-input"
+                        value={formData.costPrice}
+                        onChange={(value) => setFormData({ ...formData, costPrice: value })}
+                        required
                     />
                 </div>
 
                 <div className="form-group">
                     <label className="form-label">Selling Price</label>
-                    <input
-                    type="number"
-                    step="0.01"
-                    className="form-input"
-                    value={formData.sellingPrice}
-                    onChange={(e) =>
-                        setFormData({ ...formData, sellingPrice: parseFloat(e.target.value) })
-                    }
-                    required
+                    <CurrencyInput
+                        className="form-input"
+                        value={formData.sellingPrice}
+                        onChange={(value) => setFormData({ ...formData, sellingPrice: value })}
+                        required
                     />
                 </div>
                 </div>
