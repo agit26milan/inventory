@@ -18,4 +18,7 @@ export interface MarketplaceFeeResponse {
     createdAt: Date;
     updatedAt: Date;
     processFee?: number;
+    product?: {
+        name: string;
+    };
 }

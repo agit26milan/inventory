@@ -65,10 +65,10 @@ export class MarketplaceFeeService {
             },
         });
 
-        return fees.map(fee => ({
+        return fees.map((fee:MarketplaceFeeResponse) => ({
             id: fee.id,
             productId: fee.productId,
-            productName: fee.product.name,
+            productName: fee.product?.name,
             marketplace: fee.marketplace,
             percentage: Number(fee.percentage),
             createdAt: fee.createdAt,
