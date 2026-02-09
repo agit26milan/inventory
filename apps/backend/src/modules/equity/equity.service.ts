@@ -25,7 +25,7 @@ export class EquityService {
             },
         });
 
-        return equities.map(equity => ({
+        return equities.map((equity: EquityResponse) => ({
             id: equity.id,
             amount: Number(equity.amount),
             description: equity.description,

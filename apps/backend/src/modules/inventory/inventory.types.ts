@@ -28,4 +28,11 @@ export interface InventoryBatchResponse {
     costPrice: number;
     sellingPrice: number;
     createdAt: Date;
+    product?: {
+        name: string;
+    };
+    variantCombination?: {
+        name: string;
+        sku: string;
+    };
 }

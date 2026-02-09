@@ -91,10 +91,10 @@ export class InventoryService {
             },
         });
 
-        return batches.map((batch) => ({
+        return batches.map((batch: InventoryBatchResponse) => ({
             id: batch.id,
             productId: batch.productId,
-            productName: batch.product.name,
+            productName: batch.product?.name,
             variantName: batch.variantCombination?.sku,
             quantity: batch.quantity,
             remainingQuantity: batch.remainingQuantity,
@@ -144,10 +144,10 @@ export class InventoryService {
             },
         });
 
-        return batches.map((batch) => ({
+        return batches.map((batch:InventoryBatchResponse) => ({
             id: batch.id,
             productId: batch.productId,
-            productName: batch.product.name,
+            productName: batch.product?.name,
             variantCombinationId: batch.variantCombinationId || undefined,
             variantName: batch.variantCombination?.sku,
             quantity: batch.quantity,
@@ -171,7 +171,7 @@ export class InventoryService {
             },
         });
 
-        return batches.reduce((sum, batch) => sum + batch.remainingQuantity, 0);
+        return batches.reduce((sum:number, batch:InventoryBatchResponse) => sum + batch.remainingQuantity, 0);
     }
     async updateBatch(id: number, data: UpdateInventoryBatchDTO) {
         const batch = await prisma.inventoryBatch.findUnique({
