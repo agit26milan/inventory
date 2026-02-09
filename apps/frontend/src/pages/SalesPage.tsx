@@ -12,7 +12,16 @@ interface CartItem extends SaleItem {
 }
 
 export const SalesPage = () => {
-  const { data: sales, isLoading } = useSales();
+  // Filter state
+  const [filterProductName, setFilterProductName] = useState('');
+  const [filterVariantName, setFilterVariantName] = useState('');
+
+  const filters = {
+    productName: filterProductName || undefined,
+    variantName: filterVariantName || undefined,
+  };
+
+  const { data: sales, isLoading } = useSales(filters);
   const { data: products } = useProducts();
   const createSale = useCreateSale();
 
@@ -72,9 +81,7 @@ export const SalesPage = () => {
     }
   };
 
-  if (isLoading) {
-    return <div className="spinner"></div>;
-  }
+
 
   return (
     <div>
@@ -217,6 +224,42 @@ export const SalesPage = () => {
       <div className="card">
         <div className="card-header">
           <h3 className="card-title">Sales History ({sales?.length || 0})</h3>
+        </div>
+
+        {/* Filter Section */}
+        <div className="card-body" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
+            <div className="form-group">
+              <label className="form-label">Filter by Product Name</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Search product..."
+                value={filterProductName}
+                onChange={(e) => setFilterProductName(e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Filter by Variant</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Search variant..."
+                value={filterVariantName}
+                onChange={(e) => setFilterVariantName(e.target.value)}
+              />
+            </div>
+            <button
+              className="btn btn-secondary"
+              onClick={() => {
+                setFilterProductName('');
+                setFilterVariantName('');
+              }}
+              style={{ marginBottom: '0.5rem' }}
+            >
+              Clear Filters
+            </button>
+          </div>
         </div>
 
         {sales && sales.length > 0 ? (

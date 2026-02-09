@@ -12,9 +12,13 @@ export class SalesController {
         }
     }
 
-    async getAll(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const sales = await salesService.getAllSales();
+            const filters = {
+                productName: req.query.productName as string | undefined,
+                variantName: req.query.variantName as string | undefined,
+            };
+            const sales = await salesService.getAllSales(filters);
             successResponse(res, sales, 'Sales retrieved successfully');
         } catch (error) {
             next(error);

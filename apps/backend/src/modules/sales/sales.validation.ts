@@ -18,3 +18,10 @@ export const getSaleSchema = z.object({
         id: z.string().regex(/^\d+$/, 'Invalid sale ID'),
     }),
 });
+
+export const getAllSalesSchema = z.object({
+    query: z.object({
+        productName: z.string().optional(),
+        variantName: z.string().optional(),
+    }),
+});

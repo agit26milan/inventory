@@ -265,8 +265,33 @@ export class SalesService {
     /**
      * Get all sales
      */
-    async getAllSales(): Promise<SaleResponse[]> {
+    async getAllSales(filters?: { productName?: string; variantName?: string }): Promise<SaleResponse[]> {
+        const whereClause: any = {};
+
+        // Build where clause to filter sales by items
+        if (filters?.productName || filters?.variantName) {
+            whereClause.saleItems = {
+                some: {
+                    ...(filters.productName && {
+                        product: {
+                            name: {
+                                contains: filters.productName,
+                            },
+                        },
+                    }),
+                    ...(filters.variantName && {
+                        variantCombination: {
+                            sku: {
+                                contains: filters.variantName,
+                            },
+                        },
+                    }),
+                },
+            };
+        }
+
         const sales = await prisma.sale.findMany({
+            where: whereClause,
             include: {
                 saleItems: {
                     include: {

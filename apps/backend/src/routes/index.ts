@@ -26,6 +26,7 @@ import {
 import {
     createSaleSchema,
     getSaleSchema,
+    getAllSalesSchema,
 } from '../modules/sales/sales.validation';
 import { createEquitySchema } from '../modules/equity/equity.validation';
 import {
@@ -108,7 +109,7 @@ router.delete(
 
 // Sales routes
 router.post('/sales', validate(createSaleSchema), salesController.create);
-router.get('/sales', salesController.getAll);
+router.get('/sales', validate(getAllSalesSchema), salesController.getAll);
 router.get('/sales/:id', validate(getSaleSchema), salesController.getById);
 
 // Report routes

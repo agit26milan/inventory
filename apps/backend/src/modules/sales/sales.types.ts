@@ -27,3 +27,8 @@ export interface SaleItemResponse {
     cogs: number;
     profit: number;
 }
+
+export interface GetSalesFilters {
+    productName?: string;
+    variantName?: string;
+}
