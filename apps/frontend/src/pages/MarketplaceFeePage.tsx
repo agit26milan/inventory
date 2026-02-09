@@ -92,16 +92,12 @@ export const MarketplaceFeePage = () => {
                 <div className="form-group mb-4">
                     <label className="form-label">Process Fee (Rp)</label>
                     <div className="flex items-center gap-2">
-                        <span>Rp</span>
-                        <input
-                            type="number"
+                        <CurrencyInput
                             className="form-input"
                             style={{ maxWidth: '200px' }}
                             value={processFee}
                             placeholder="e.g. 5000"
-                            step="100"
-                            min="0"
-                            onChange={(e) => setProcessFee(parseFloat(e.target.value) || 0)}
+                            onChange={(value) => setProcessFee(value)}
                         />
                     </div>
                     <p className="text-muted text-sm mt-1">
