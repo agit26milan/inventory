@@ -19,6 +19,7 @@ import {
     updateInventoryBatchSchema,
     deleteInventoryBatchSchema,
     getInventoryBatchSchema,
+    getAllInventoryBatchesSchema
 } from '../modules/inventory/inventory.validation';
 import {
     createSaleSchema,
@@ -54,7 +55,11 @@ router.post(
     validate(createInventoryBatchSchema),
     inventoryController.createBatch
 );
-router.get('/inventory', inventoryController.getAllBatches);
+router.get(
+    '/inventory',
+    validate(getAllInventoryBatchesSchema),
+    inventoryController.getAllBatches
+);
 router.get(
     '/inventory/product/:productId',
     validate(getInventoryByProductSchema),

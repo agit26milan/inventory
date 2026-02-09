@@ -23,9 +23,13 @@ export class InventoryController {
         }
     }
 
-    async getAllBatches(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    async getAllBatches(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const batches = await inventoryService.getAllBatches();
+            const filters = {
+                productName: req.query.productName as string | undefined,
+                variantName: req.query.variantName as string | undefined,
+            };
+            const batches = await inventoryService.getAllBatches(filters);
             successResponse(res, batches, 'All inventory batches retrieved successfully');
         } catch (error) {
             next(error);

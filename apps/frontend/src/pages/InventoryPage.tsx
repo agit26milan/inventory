@@ -13,8 +13,18 @@ import { formatCurrency } from '../utils/currency';
 import { getSkuName } from '../utils/sku';
 
 export const InventoryPage = () => {
-  const { data: batches, isLoading: batchesLoading } = useInventoryBatches();
-  const { data: products } = useProducts();
+  // Filter state
+  const [filterProductName, setFilterProductName] = useState('');
+  const [filterVariantName, setFilterVariantName] = useState('');
+  
+  // Build filters object
+  const filters = {
+    productName: filterProductName || undefined,
+    variantName: filterVariantName || undefined,
+  };
+
+  const { data: batches, isLoading: batchesLoading } = useInventoryBatches(filters);
+  const { data: products, isLoading: productsLoading } = useProducts();
   const createBatch = useCreateInventoryBatch();
   const updateBatch = useUpdateInventoryBatch();
   const deleteBatch = useDeleteInventoryBatch();
@@ -99,9 +109,11 @@ export const InventoryPage = () => {
     }
   };
 
-  if (batchesLoading) {
-    return <div className="spinner"></div>;
-  }
+  const clearFilters = () => {
+      setFilterProductName('');
+      setFilterVariantName('');
+  };
+
 
   return (
     <div>
@@ -233,6 +245,42 @@ export const InventoryPage = () => {
           )}
         </div>
       )}
+
+      {/* Filter Section */}
+      <div className="card mb-4">
+          <h3 className="mb-3">🔍 Filter Inventory</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
+              <div className="form-group">
+                  <label className="form-label">Product Name</label>
+                  <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Search by product name..."
+                      value={filterProductName}
+                      onChange={(e) => setFilterProductName(e.target.value)}
+                  />
+              </div>
+              <div className="form-group">
+                  <label className="form-label">Variant Name</label>
+                  <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Search by variant..."
+                      value={filterVariantName}
+                      onChange={(e) => setFilterVariantName(e.target.value)}
+                  />
+              </div>
+              <div>
+                  <button 
+                      className="btn btn-secondary" 
+                      onClick={clearFilters}
+                      disabled={!filterProductName && !filterVariantName}
+                  >
+                      Clear Filters
+                  </button>
+              </div>
+          </div>
+      </div>
 
       <div className="card">
         <div className="card-header">

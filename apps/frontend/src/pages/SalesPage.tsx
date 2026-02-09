@@ -226,6 +226,7 @@ export const SalesPage = () => {
                 <tr>
                   <th>Date</th>
                   <th>Items</th>
+                  <th>Sale Item</th>
                   <th>Total Amount</th>
                   <th>COGS</th>
                   <th>Profit</th>
@@ -237,6 +238,7 @@ export const SalesPage = () => {
                   <tr key={sale.id}>
                     <td>{new Date(sale.saleDate).toLocaleString()}</td>
                     <td>{sale.items.length} item(s)</td>
+                    <td>{sale.items.map((item) => `${item.productName} - ${getSkuName(item.variantName || '') || '-'} x ${item.quantity}`).join(' | ')} </td>
                     <td className="text-success">{formatCurrency(sale.totalAmount)}</td>
                     <td className="text-danger">{formatCurrency(sale.totalCogs)}</td>
                     <td className="text-primary-light" style={{ fontWeight: 600 }}>

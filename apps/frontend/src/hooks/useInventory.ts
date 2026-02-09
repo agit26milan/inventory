@@ -2,10 +2,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { inventoryService } from '../services/inventory.service';
 import { CreateInventoryBatchDTO } from '../types';
 
-export const useInventoryBatches = () => {
+export const useInventoryBatches = (filters?: { productName?: string; variantName?: string }) => {
     return useQuery({
-        queryKey: ['inventory'],
-        queryFn: inventoryService.getAll,
+        queryKey: ['inventoryBatches', filters],
+        queryFn: () => inventoryService.getAllBatches(filters),
     });
 };
 

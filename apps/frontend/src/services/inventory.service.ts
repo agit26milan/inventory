@@ -2,8 +2,15 @@ import api from './api';
 import { InventoryBatch, CreateInventoryBatchDTO, ApiResponse } from '../types';
 
 export const inventoryService = {
-    getAll: async (): Promise<InventoryBatch[]> => {
-        const response = await api.get<ApiResponse<InventoryBatch[]>>('/inventory');
+    getAllBatches: async (filters?: { productName?: string; variantName?: string }): Promise<InventoryBatch[]> => {
+        const params = new URLSearchParams();
+        if (filters?.productName) params.append('productName', filters.productName);
+        if (filters?.variantName) params.append('variantName', filters.variantName);
+        
+        const queryString = params.toString();
+        const url = queryString ? `/inventory?${queryString}` : `/inventory`;
+        
+        const response = await api.get<ApiResponse<InventoryBatch[]>>(url);
         return response.data.data;
     },
 

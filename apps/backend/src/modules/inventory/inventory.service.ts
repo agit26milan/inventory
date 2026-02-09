@@ -104,8 +104,29 @@ export class InventoryService {
         }));
     }
 
-    async getAllBatches(): Promise<InventoryBatchResponse[]> {
+    async getAllBatches(filters?: { productName?: string; variantName?: string }): Promise<InventoryBatchResponse[]> {
+        const whereClause: any = {};
+
+        // Build where clause based on filters
+        // Note: MySQL is case-insensitive by default, so we don't need mode: 'insensitive'
+        if (filters?.productName) {
+            whereClause.product = {
+                name: {
+                    contains: filters.productName,
+                },
+            };
+        }
+
+        if (filters?.variantName) {
+            whereClause.variantCombination = {
+                sku: {
+                    contains: filters.variantName,
+                },
+            };
+        }
+
         const batches = await prisma.inventoryBatch.findMany({
+            where: whereClause,
             include: {
                 product: {
                     select: {
@@ -127,6 +148,7 @@ export class InventoryService {
             id: batch.id,
             productId: batch.productId,
             productName: batch.product.name,
+            variantCombinationId: batch.variantCombinationId || undefined,
             variantName: batch.variantCombination?.sku,
             quantity: batch.quantity,
             remainingQuantity: batch.remainingQuantity,

@@ -60,6 +60,7 @@ export interface SaleItemDetail {
     id: number;
     productId: number;
     productName: string;
+    variantName?: string;
     quantity: number;
     sellingPrice: number;
     cogs: number;
