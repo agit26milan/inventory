@@ -23,12 +23,11 @@ export const InventoryPage = () => {
     variantName: filterVariantName || undefined,
   };
 
-  const { data: batches, isLoading: batchesLoading } = useInventoryBatches(filters);
+  const { data: batches, isLoading: batchesLoading, refetch: refetchBatches } = useInventoryBatches(filters);
   const { data: products, isLoading: productsLoading } = useProducts();
   const createBatch = useCreateInventoryBatch();
   const updateBatch = useUpdateInventoryBatch();
   const deleteBatch = useDeleteInventoryBatch();
-
   const [showForm, setShowForm] = useState(false);
   const [editingBatchId, setEditingBatchId] = useState<number | null>(null);
   
@@ -103,6 +102,7 @@ export const InventoryPage = () => {
       } else {
           await createBatch.mutateAsync(formData);
       }
+      refetchBatches();
       resetForm();
     } catch (error: any) {
       alert(error.response?.data?.message || 'Failed to save inventory batch');
@@ -176,7 +176,7 @@ export const InventoryPage = () => {
                         onChange={(e) =>
                             setFormData({ ...formData, variantCombinationId: parseInt(e.target.value) })
                         }
-                        disabled={!!editingBatchId} // Disable variant change on edit
+                        // disabled={!!editingBatchId} // Disable variant change on edit
                         >
                         <option value="">Select Variant</option>
                         {variants.map((variant: VariantCombination) => (

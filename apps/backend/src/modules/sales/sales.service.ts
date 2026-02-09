@@ -2,6 +2,7 @@ import prisma from '../../database/client';
 import { CreateSaleDTO, SaleResponse } from './sales.types';
 import { AppError } from '../../utils/error-handler';
 import { StockMethod } from '@prisma/client';
+import { equityService } from '../equity/equity.service';
 
 export class SalesService {
     /**
@@ -117,6 +118,14 @@ export class SalesService {
                              }
                         },
                     },
+                },
+            });
+
+            // Automatically create equity entry for the total revenue
+            await tx.equity.create({
+                data: {
+                    amount: totalAmount,
+                    description: `Revenue from Sale #${sale.id}`,
                 },
             });
 
