@@ -25,7 +25,7 @@ export class EquityService {
             },
         });
 
-        return equities.map((equity: EquityResponse) => ({
+        return equities.map((equity) => ({
             id: equity.id,
             amount: Number(equity.amount),
             description: equity.description,
@@ -41,20 +41,9 @@ export class EquityService {
             },
         });
 
-        // Sum of all non-deleted store expenses
-        const expensesSum = await prisma.storeExpense.aggregate({
-            where: {
-                deletedAt: null,
-            },
-            _sum: {
-                amount: true,
-            },
-        });
-
         const totalEquity = Number(equitySum._sum.amount || 0);
-        const totalExpenses = Number(expensesSum._sum.amount || 0);
 
-        return totalEquity - totalExpenses;
+        return totalEquity;
     }
 }
 

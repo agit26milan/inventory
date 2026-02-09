@@ -65,7 +65,7 @@ export class MarketplaceFeeService {
             },
         });
 
-        return fees.map((fee:MarketplaceFeeResponse) => ({
+        return fees.map((fee) => ({
             id: fee.id,
             productId: fee.productId,
             productName: fee.product?.name,
