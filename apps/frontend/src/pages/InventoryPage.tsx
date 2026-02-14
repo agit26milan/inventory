@@ -13,6 +13,7 @@ import { formatCurrency } from '../utils/currency';
 import { getSkuName } from '../utils/sku';
 import { CurrencyInput } from '../components/CurrencyInput';
 import { BulkEditInventoryModal } from '../components/BulkEditInventoryModal';
+import { SearchableDropdown } from '../components/SearchableDropdown';
 
 export const InventoryPage = () => {
   // Filter state
@@ -197,21 +198,17 @@ export const InventoryPage = () => {
                 {variants && variants.length > 0 && (
                     <div className="form-group">
                         <label className="form-label">Variant</label>
-                        <select
-                        className="form-select"
-                        value={formData.variantCombinationId || ''}
-                        onChange={(e) =>
-                            setFormData({ ...formData, variantCombinationId: parseInt(e.target.value) })
-                        }
-                        // disabled={!!editingBatchId} // Disable variant change on edit
-                        >
-                        <option value="">Select Variant</option>
-                        {variants.map((variant: VariantCombination) => (
-                            <option key={variant.id} value={variant.id}>
-                            {getSkuName(variant.sku)}
-                            </option>
-                        ))}
-                        </select>
+                        <SearchableDropdown
+                            options={variants.map((variant: VariantCombination) => ({
+                                value: variant.id,
+                                label: getSkuName(variant.sku),
+                            }))}
+                            value={formData.variantCombinationId || ''}
+                            onChange={(value) =>
+                                setFormData({ ...formData, variantCombinationId: Number(value) })
+                            }
+                            placeholder="Select Variant"
+                        />
                     </div>
                 )}
 
