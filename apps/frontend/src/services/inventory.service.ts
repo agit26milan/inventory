@@ -46,4 +46,8 @@ export const inventoryService = {
     deleteBatch: async (id: number): Promise<void> => {
         await api.delete<ApiResponse<null>>(`/inventory/${id}`);
     },
+
+    bulkUpdateSellingPrice: async (data: { updates: { id: number; sellingPrice: number }[] }): Promise<void> => {
+        await api.put<ApiResponse<null>>('/inventory/bulk/selling-price', data);
+    },
 };

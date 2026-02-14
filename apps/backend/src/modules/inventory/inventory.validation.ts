@@ -27,6 +27,15 @@ export const updateInventoryBatchSchema = z.object({
     }),
 });
 
+export const bulkUpdateSellingPriceSchema = z.object({
+    body: z.object({
+        updates: z.array(z.object({
+            id: z.number().int().positive(),
+            sellingPrice: z.number().positive(),
+        })).min(1),
+    }),
+});
+
 export const getInventoryBatchSchema = z.object({
     params: z.object({
         id: z.string().transform(Number),

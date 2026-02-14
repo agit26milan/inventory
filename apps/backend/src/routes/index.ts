@@ -19,6 +19,7 @@ import {
     createInventoryBatchSchema,
     getInventoryByProductSchema,
     updateInventoryBatchSchema,
+    bulkUpdateSellingPriceSchema,
     deleteInventoryBatchSchema,
     getInventoryBatchSchema,
     getAllInventoryBatchesSchema
@@ -95,6 +96,11 @@ router.put(
     '/inventory/:id',
     validate(updateInventoryBatchSchema),
     inventoryController.updateBatch
+);
+router.put(
+    '/inventory/bulk/selling-price',
+    validate(bulkUpdateSellingPriceSchema),
+    inventoryController.bulkUpdateSellingPrice
 );
 router.get(
     '/inventory/:id',

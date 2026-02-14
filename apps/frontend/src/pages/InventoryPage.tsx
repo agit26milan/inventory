@@ -12,6 +12,7 @@ import { CreateInventoryBatchDTO, VariantCombination, InventoryBatch } from '../
 import { formatCurrency } from '../utils/currency';
 import { getSkuName } from '../utils/sku';
 import { CurrencyInput } from '../components/CurrencyInput';
+import { BulkEditInventoryModal } from '../components/BulkEditInventoryModal';
 
 export const InventoryPage = () => {
   // Filter state
@@ -41,6 +42,31 @@ export const InventoryPage = () => {
     costPrice: 0,
     sellingPrice: 0,
   });
+
+  // Bulk Edit State
+  const [selectedBatchIds, setSelectedBatchIds] = useState<number[]>([]);
+  const [showBulkEditModal, setShowBulkEditModal] = useState(false);
+
+  const toggleBatchSelection = (id: number) => {
+      setSelectedBatchIds(prev => 
+          prev.includes(id) 
+              ? prev.filter(batchId => batchId !== id)
+              : [...prev, id]
+      );
+  };
+
+  const toggleAllSelection = () => {
+      if (selectedBatchIds.length === batches?.length) {
+          setSelectedBatchIds([]);
+      } else {
+          setSelectedBatchIds(batches?.map(b => b.id) || []);
+      }
+  };
+
+  const handleBulkUpdateSuccess = () => {
+      setSelectedBatchIds([]);
+      refetchBatches();
+  };
 
   // State to track selected product's variants
   const [selectedProductId, setSelectedProductId] = useState<number>(0);
@@ -276,8 +302,16 @@ export const InventoryPage = () => {
       </div>
 
       <div className="card">
-        <div className="card-header">
+        <div className="card-header flex justify-between items-center">
           <h3 className="card-title">Inventory Batches ({batches?.length || 0})</h3>
+          {selectedBatchIds.length > 0 && (
+              <button 
+                  className="btn btn-warning btn-sm"
+                  onClick={() => setShowBulkEditModal(true)}
+              >
+                  ✏️ Bulk Edit Selling Price ({selectedBatchIds.length})
+              </button>
+          )}
         </div>
 
         {batches && batches.length > 0 ? (
@@ -285,6 +319,13 @@ export const InventoryPage = () => {
             <table>
               <thead>
                 <tr>
+                  <th>
+                      <input 
+                          type="checkbox" 
+                          checked={batches?.length > 0 && selectedBatchIds.length === batches?.length}
+                          onChange={toggleAllSelection}
+                      />
+                  </th>
                   <th>Product</th>
                   <th>Variant</th>
                   <th>Original Qty</th>
@@ -299,6 +340,13 @@ export const InventoryPage = () => {
               <tbody>
                 {batches.map((batch) => (
                   <tr key={batch.id}>
+                    <td>
+                        <input 
+                            type="checkbox" 
+                            checked={selectedBatchIds.includes(batch.id)}
+                            onChange={() => toggleBatchSelection(batch.id)}
+                        />
+                    </td>
                     <td style={{ fontWeight: 600 }}>{batch.productName}</td>
                     <td>
                         {batch.variantName ? (
@@ -344,6 +392,16 @@ export const InventoryPage = () => {
           <p className="text-center text-muted">No inventory batches found. Add your first stock!</p>
         )}
       </div>
+
+      
+      {batches && (
+        <BulkEditInventoryModal
+            isOpen={showBulkEditModal}
+            onClose={() => setShowBulkEditModal(false)}
+            selectedBatches={batches.filter(b => selectedBatchIds.includes(b.id))}
+            onSuccess={handleBulkUpdateSuccess}
+        />
+      )}
     </div>
   );
 };

@@ -63,6 +63,15 @@ export class InventoryController {
         }
     }
 
+    async bulkUpdateSellingPrice(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            await inventoryService.bulkUpdateSellingPrice(req.body);
+            successResponse(res, null, 'Inventory selling prices updated successfully');
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async getBatchById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const batch = await inventoryService.getBatchById(Number(req.params.id));

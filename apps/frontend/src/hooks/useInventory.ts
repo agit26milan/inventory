@@ -51,6 +51,8 @@ export const useInventoryBatch = (id: number | null) => {
     });
 };
 
+
+
 export const useDeleteInventoryBatch = () => {
     const queryClient = useQueryClient();
 
@@ -59,6 +61,18 @@ export const useDeleteInventoryBatch = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['inventory'] });
             queryClient.invalidateQueries({ queryKey: ['products'] });
+        },
+    });
+};
+
+export const useBulkUpdateSellingPrice = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: { updates: { id: number; sellingPrice: number }[] }) => 
+            inventoryService.bulkUpdateSellingPrice(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['inventory'] });
         },
     });
 };

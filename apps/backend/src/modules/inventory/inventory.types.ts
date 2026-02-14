@@ -12,6 +12,13 @@ export interface UpdateInventoryBatchDTO {
     sellingPrice?: number;
 }
 
+export interface BulkUpdateSellingPriceDTO {
+    updates: {
+        id: number;
+        sellingPrice: number;
+    }[];
+}
+
 export interface GetInventoryBatchesFilters {
     productName?: string;
     variantName?: string;

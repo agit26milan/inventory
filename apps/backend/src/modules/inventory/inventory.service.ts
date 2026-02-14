@@ -229,6 +229,18 @@ export class InventoryService {
         };
     }
 
+
+    async bulkUpdateSellingPrice(data: { updates: { id: number; sellingPrice: number }[] }) {
+        return await prisma.$transaction(
+            data.updates.map((update) =>
+                prisma.inventoryBatch.update({
+                    where: { id: update.id },
+                    data: { sellingPrice: update.sellingPrice },
+                })
+            )
+        );
+    }
+
     async getBatchById(id: number): Promise<InventoryBatchResponse> {
         const batch = await prisma.inventoryBatch.findUnique({
             where: { id },
