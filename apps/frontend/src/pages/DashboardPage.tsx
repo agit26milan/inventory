@@ -68,12 +68,6 @@ export const DashboardPage = () => {
               <span className="text-danger">{summary ? formatCurrency(summary.totalCogs) : formatCurrency(0)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted">Low Stock Products:</span>
-              <span className={lowStockProducts > 0 ? 'text-warning' : 'text-success'}>
-                {lowStockProducts}
-              </span>
-            </div>
-            <div className="flex justify-between">
               <span className="text-muted">Total Products:</span>
               <span>{products?.length || 0}</span>
             </div>
