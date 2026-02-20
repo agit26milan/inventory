@@ -5,6 +5,7 @@ import { useVariantCombinations } from '../hooks/useVariantCombinations';
 import { SaleItem, VariantCombination } from '../types';
 import { formatCurrency } from '../utils/currency';
 import { getSkuName } from '../utils/sku';
+import { SearchableDropdown } from '../components/SearchableDropdown';
 
 // Extend SaleItem for UI display
 interface CartItem extends SaleItem {
@@ -104,42 +105,39 @@ export const SalesPage = () => {
             <div className="grid grid-3 mb-3">
               <div className="form-group">
                 <label className="form-label">Product</label>
-                <select
-                  className="form-select"
+                <SearchableDropdown
+                  options={[
+                    { value: 0, label: 'Select a product' },
+                    ...(products?.map((product) => ({
+                      value: product.id,
+                      label: `${product.name} - Stock: ${product.currentStock}`,
+                    })) || [])
+                  ]}
                   value={currentItem.productId}
-                  onChange={(e) => {
-                    const pid = parseInt(e.target.value);
+                  onChange={(val) => {
+                    const pid = Number(val);
                     setCurrentItem({ ...currentItem, productId: pid, variantCombinationId: undefined });
                     setSelectedProductId(pid);
                   }}
-                >
-                  <option value={0}>Select a product</option>
-                  {products?.map((product) => (
-                    <option key={product.id} value={product.id}>
-                      {product.name} - Stock: {product.currentStock}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="Select a product"
+                />
               </div>
 
                {/* Variant Selection */}
                {variants && variants.length > 0 && (
                   <div className="form-group">
                     <label className="form-label">Variant</label>
-                    <select
-                      className="form-select"
+                    <SearchableDropdown
+                      options={variants.map((variant: VariantCombination) => ({
+                        value: variant.id,
+                        label: getSkuName(variant.sku),
+                      }))}
                       value={currentItem.variantCombinationId || ''}
-                      onChange={(e) =>
-                        setCurrentItem({ ...currentItem, variantCombinationId: parseInt(e.target.value) })
+                      onChange={(val) =>
+                        setCurrentItem({ ...currentItem, variantCombinationId: Number(val) })
                       }
-                    >
-                      <option value="">Select Variant</option>
-                      {variants.map((variant: VariantCombination) => (
-                        <option key={variant.id} value={variant.id}>
-                          {getSkuName(variant.sku)}
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="Select Variant"
+                    />
                   </div>
               )}
 

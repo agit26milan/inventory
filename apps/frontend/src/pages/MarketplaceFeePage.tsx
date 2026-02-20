@@ -4,6 +4,7 @@ import { useFeesByProduct, useSetFee } from '../hooks/useMarketplaceFees';
 import { CreateMarketplaceFeeDTO } from '../types';
 import { formatCurrency } from '../utils/currency';
 import { CurrencyInput } from '../components/CurrencyInput';
+import { SearchableDropdown } from '../components/SearchableDropdown';
 
 export const MarketplaceFeePage = () => {
   const { data: products, isLoading: isLoadingProducts } = useProducts();
@@ -15,10 +16,10 @@ export const MarketplaceFeePage = () => {
   const [percentage, setPercentage] = useState<number>(0);
   const [processFee, setProcessFee] = useState<number>(0);
 
-  const handleProductChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedProductId(Number(e.target.value));
-    setPercentage(0); // Reset form
-    setProcessFee(0); // Reset form
+  const handleProductChange = (val: number | string) => {
+    setSelectedProductId(Number(val));
+    setPercentage(0);
+    setProcessFee(0);
   };
 
   useEffect(() => {
@@ -55,16 +56,18 @@ export const MarketplaceFeePage = () => {
       <div className="card">
         <div className="form-group mb-4">
             <label className="form-label">Select Product</label>
-            <select 
-                className="form-select" 
-                value={selectedProductId || ''} 
+            <SearchableDropdown
+                options={[
+                    { value: '', label: '-- Choose a Product --' },
+                    ...(products?.map(p => ({
+                        value: p.id,
+                        label: `${p.name} (${p.sku})`,
+                    })) || [])
+                ]}
+                value={selectedProductId || ''}
                 onChange={handleProductChange}
-            >
-                <option value="">-- Choose a Product --</option>
-                {products?.map(p => (
-                    <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
-                ))}
-            </select>
+                placeholder="-- Choose a Product --"
+            />
         </div>
 
         {selectedProductId && (

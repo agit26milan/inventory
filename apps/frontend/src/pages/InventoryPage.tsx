@@ -174,24 +174,23 @@ export const InventoryPage = () => {
                 <div className="grid grid-3">
                 <div className="form-group">
                     <label className="form-label">Product</label>
-                    <select
-                    className="form-select"
-                    value={formData.productId}
-                    onChange={(e) => {
-                        const pid = parseInt(e.target.value);
-                        setFormData({ ...formData, productId: pid, variantCombinationId: undefined });
-                        setSelectedProductId(pid);
-                    }}
-                    required
-                    disabled={!!editingBatchId} // Disable product change on edit to simplify logic
-                    >
-                    <option value={0}>Select a product</option>
-                    {products?.map((product) => (
-                        <option key={product.id} value={product.id}>
-                        {product.name} ({product.sku})
-                        </option>
-                    ))}
-                    </select>
+                    <SearchableDropdown
+                        options={[
+                            { value: 0, label: 'Select a product' },
+                            ...(products?.map((product) => ({
+                                value: product.id,
+                                label: `${product.name} (${product.sku})`,
+                            })) || [])
+                        ]}
+                        value={formData.productId}
+                        onChange={(val) => {
+                            const pid = Number(val);
+                            setFormData({ ...formData, productId: pid, variantCombinationId: undefined });
+                            setSelectedProductId(pid);
+                        }}
+                        placeholder="Select a product"
+                        disabled={!!editingBatchId}
+                    />
                 </div>
 
                 {/* Variant Selection if available */}

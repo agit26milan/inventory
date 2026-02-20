@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useProducts, useCreateProduct, useDeleteProduct } from '../hooks/useProducts';
 import { CreateProductDTO, StockMethod } from '../types';
 import { VariantManager } from '../components/VariantManager';
+import { SearchableDropdown } from '../components/SearchableDropdown';
 
 export const ProductsPage = () => {
   const { data: products, isLoading } = useProducts();
@@ -95,16 +96,17 @@ export const ProductsPage = () => {
 
               <div className="form-group">
                 <label className="form-label">Stock Method</label>
-                <select
-                  className="form-select"
+                <SearchableDropdown
+                  options={[
+                    { value: 'FIFO', label: 'FIFO (First In First Out)' },
+                    { value: 'LIFO', label: 'LIFO (Last In First Out)' },
+                  ]}
                   value={formData.stockMethod}
-                  onChange={(e) =>
-                    setFormData({ ...formData, stockMethod: e.target.value as StockMethod })
+                  onChange={(val) =>
+                    setFormData({ ...formData, stockMethod: val as StockMethod })
                   }
-                >
-                  <option value="FIFO">FIFO (First In First Out)</option>
-                  <option value="LIFO">LIFO (Last In First Out)</option>
-                </select>
+                  placeholder="Select Stock Method"
+                />
               </div>
             </div>
 
