@@ -5,6 +5,8 @@ import {
     InventoryValuationReport,
     StockAlertReport,
     PaginatedStockAlerts,
+    VariantPerformanceReport,
+    PaginatedVariantPerformance,
 } from './report.types';
 
 export class ReportService {
@@ -224,6 +226,95 @@ export class ReportService {
 
         // Potong array berdasarkan page & limit
         const paginatedData = alerts.slice(offset, offset + limit);
+
+        return {
+            data: paginatedData,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages,
+            },
+        };
+    }
+
+    /**
+     * Get variant performance report - Total Penjualan per Variant
+     * Mengembalikan metrik penjualan yang dikelompokkan berdasarkan varian
+     */
+    async getVariantPerformance(
+        page: number = 1,
+        limit: number = 10
+    ): Promise<PaginatedVariantPerformance> {
+        const saleItems = await prisma.saleItem.findMany({
+            include: {
+                product: {
+                    select: { id: true, name: true },
+                },
+                variantCombination: {
+                    include: {
+                        values: {
+                            include: {
+                                variantValue: { select: { name: true } },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        const variantMap = new Map<string, VariantPerformanceReport>();
+
+        for (const item of saleItems) {
+            // Group key per product + variant combination
+            const key = `${item.productId}-${item.variantCombinationId || 'null'}`;
+            const revenue = Number(item.sellingPrice) * item.quantity;
+            const cogs = Number(item.cogs);
+            const profit = revenue - cogs;
+
+            if (variantMap.has(key)) {
+                const existing = variantMap.get(key)!;
+                existing.totalQuantitySold += item.quantity;
+                existing.totalRevenue += revenue;
+                existing.totalCogs += cogs;
+                existing.totalProfit += profit;
+            } else {
+                let variantName = '-';
+                let sku = '-';
+
+                if (item.variantCombination) {
+                    variantName =
+                        item.variantCombination.values
+                            .map((v) => v.variantValue.name)
+                            .join(' / ') || item.variantCombination.sku;
+                    sku = item.variantCombination.sku;
+                }
+
+                variantMap.set(key, {
+                    productId: item.productId,
+                    productName: item.product.name,
+                    combinationId: item.variantCombinationId,
+                    variantName,
+                    sku,
+                    totalQuantitySold: item.quantity,
+                    totalRevenue: revenue,
+                    totalCogs: cogs,
+                    totalProfit: profit,
+                });
+            }
+        }
+
+        // Urutkan berdasarkan qty terjual terbanyak (tertinggi pertama)
+        const allData = Array.from(variantMap.values()).sort(
+            (a, b) => b.totalQuantitySold - a.totalQuantitySold
+        );
+
+        // Pagination
+        const total = allData.length;
+        const totalPages = Math.ceil(total / limit);
+        const offset = (page - 1) * limit;
+
+        const paginatedData = allData.slice(offset, offset + limit);
 
         return {
             data: paginatedData,

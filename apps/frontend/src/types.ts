@@ -230,3 +230,25 @@ export interface PaginatedStockAlerts {
         totalPages: number;
     };
 }
+
+export interface VariantPerformance {
+    productId: number;
+    productName: string;
+    combinationId: number | null;
+    variantName: string;
+    sku: string;
+    totalQuantitySold: number;
+    totalRevenue: number;
+    totalCogs: number;
+    totalProfit: number;
+}
+
+export interface PaginatedVariantPerformance {
+    data: VariantPerformance[];
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}

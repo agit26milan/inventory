@@ -4,6 +4,7 @@ import {
     useProductPerformance,
     useInventoryValuation,
     useStockAlerts,
+    useVariantPerformance,
 } from '../hooks/useReports';
 import { useConfigurationByKey } from '../hooks/useConfiguration';
 import { formatCurrency } from '../utils/currency';
@@ -15,6 +16,7 @@ export const ReportsPage = () => {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [variantPage, setVariantPage] = useState(1);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -27,6 +29,7 @@ export const ReportsPage = () => {
     const { data: summary, isLoading: summaryLoading } = useSalesSummary();
     const { data: performance, isLoading: performanceLoading } = useProductPerformance();
     const { data: valuation, isLoading: valuationLoading } = useInventoryValuation();
+    const { data: variantPerfData, isLoading: variantPerfLoading } = useVariantPerformance(variantPage, 10);
 
     // Baca threshold dari konfigurasi; gunakan default jika belum pernah di-set
     const { data: thresholdConfig } = useConfigurationByKey(STOCK_ALERT_KEY);
@@ -39,9 +42,9 @@ export const ReportsPage = () => {
         search: debouncedSearch,
     });
 
-    // if (summaryLoading || performanceLoading || valuationLoading || alertsLoading) {
-    //     return <div className="spinner"></div>;
-    // }
+    if (summaryLoading || performanceLoading || valuationLoading || alertsLoading || variantPerfLoading) {
+        return <div className="spinner"></div>;
+    }
 
     const stockAlerts = stockAlertsData?.data || [];
     const meta = stockAlertsData?.meta;
@@ -249,7 +252,78 @@ export const ReportsPage = () => {
                         </table>
                     </div>
                 ) : (
-                    <p className="text-center text-muted">No sales data available</p>
+                    <p className="text-center text-muted" style={{ padding: '1.5rem' }}>No sales data available</p>
+                )}
+            </div>
+
+            {/* ===== VARIANT PERFORMANCE ===== */}
+            <div className="card mb-4">
+                <div className="card-header">
+                    <h3 className="card-title">📊 Variant Performance</h3>
+                </div>
+                {variantPerfData?.data && variantPerfData.data.length > 0 ? (
+                    <div className="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Variant</th>
+                                    <th>SKU</th>
+                                    <th>Qty Sold</th>
+                                    <th>Revenue</th>
+                                    <th>COGS</th>
+                                    <th>Profit</th>
+                                    <th>Margin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {variantPerfData.data.map((item) => (
+                                    <tr key={`${item.productId}-${item.combinationId || 'base'}`}>
+                                        <td style={{ fontWeight: 600 }}>{item.productName}</td>
+                                        <td>{item.variantName}</td>
+                                        <td><code style={{ fontSize: '0.85em' }}>{item.sku}</code></td>
+                                        <td>{item.totalQuantitySold}</td>
+                                        <td className="text-success">{formatCurrency(item.totalRevenue)}</td>
+                                        <td className="text-danger">{formatCurrency(item.totalCogs)}</td>
+                                        <td className="text-primary-light" style={{ fontWeight: 600 }}>
+                                            {formatCurrency(item.totalProfit)}
+                                        </td>
+                                        <td>
+                                            {item.totalRevenue > 0 ? ((item.totalProfit / item.totalRevenue) * 100).toFixed(1) : '0.0'}%
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        
+                        {variantPerfData.meta && variantPerfData.meta.totalPages > 1 && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderTop: '1px solid var(--border-color)' }}>
+                                <span className="text-muted" style={{ fontSize: '0.9rem' }}>
+                                    Menampilkan {variantPerfData.meta.page} dari {variantPerfData.meta.totalPages} halaman (Total: {variantPerfData.meta.total} variant)
+                                </span>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button
+                                        className="btn btn-secondary btn-sm"
+                                        disabled={variantPerfData.meta.page <= 1}
+                                        onClick={() => setVariantPage(p => Math.max(1, p - 1))}
+                                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
+                                    >
+                                        Sebelumnya
+                                    </button>
+                                    <button
+                                        className="btn btn-secondary btn-sm"
+                                        disabled={variantPerfData.meta.page >= variantPerfData.meta.totalPages}
+                                        onClick={() => setVariantPage(p => Math.min(variantPerfData.meta.totalPages, p + 1))}
+                                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
+                                    >
+                                        Selanjutnya
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <p className="text-center text-muted" style={{ padding: '1.5rem' }}>No variant performance data available</p>
                 )}
             </div>
 
@@ -283,7 +357,7 @@ export const ReportsPage = () => {
                                 <tr style={{ background: 'var(--bg-tertiary)', fontWeight: 'bold' }}>
                                     <td colSpan={3}>Total Inventory Value</td>
                                     <td className="text-warning">
-                                        {formatCurrency(valuation.reduce((sum, item) => sum + item.totalValue, 0))}
+                                        {formatCurrency(valuation.reduce((sum, item: any) => sum + item.totalValue, 0))}
                                     </td>
                                 </tr>
                             </tbody>

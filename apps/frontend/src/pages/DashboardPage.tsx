@@ -79,21 +79,6 @@ export const DashboardPage = () => {
             </div>
           </div>
         </div>
-
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title">⚠️ Alerts</h3>
-          </div>
-          {lowStockProducts > 0 ? (
-            <div className="alert alert-error">
-              {lowStockProducts} product(s) have low stock (less than 10 units)
-            </div>
-          ) : (
-            <div className="alert alert-success">
-              All products have sufficient stock levels
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

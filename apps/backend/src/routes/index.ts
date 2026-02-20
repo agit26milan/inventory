@@ -122,6 +122,7 @@ router.get('/sales/:id', validate(getSaleSchema), salesController.getById);
 // Report routes
 router.get('/reports/sales-summary', reportController.getSalesSummary);
 router.get('/reports/product-performance', reportController.getProductPerformance);
+router.get('/reports/variant-performance', reportController.getVariantPerformance);
 router.get('/reports/inventory-valuation', reportController.getInventoryValuation);
 router.get('/reports/stock-alerts', reportController.getStockAlerts);
 

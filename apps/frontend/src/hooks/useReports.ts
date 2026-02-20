@@ -39,3 +39,10 @@ export const useStockAlerts = (params: {
             ),
     });
 };
+
+export const useVariantPerformance = (page: number = 1, limit: number = 10) => {
+    return useQuery({
+        queryKey: ['reports', 'variant-performance', page, limit],
+        queryFn: () => reportService.getVariantPerformance(page, limit),
+    });
+};
