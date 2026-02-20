@@ -3,6 +3,8 @@ import {
     SalesSummaryReport,
     ProductPerformanceReport,
     InventoryValuationReport,
+    StockAlertReport,
+    PaginatedStockAlerts,
 } from './report.types';
 
 export class ReportService {
@@ -139,6 +141,99 @@ export class ReportService {
             })
             .filter((item): item is InventoryValuationReport => item !== null)
             .sort((a, b) => b.totalValue - a.totalValue);
+    }
+    /**
+     * Get stock alerts — variant combinations with stock below the threshold.
+     * Mengembalikan daftar kombinasi variant yang stoknya kurang dari batas minimum,
+     * berdasarkan akumulasi remainingQuantity dari inventoryBatches.
+     * Mendukung pencarian (search) dan pagination.
+     */
+    async getStockAlerts(
+        threshold: number,
+        page: number = 1,
+        limit: number = 10,
+        search?: string
+    ): Promise<PaginatedStockAlerts> {
+        // Query dasar mengambil seluruh data yang relevan (karena kalkulasi dilakukan di memory)
+        const combinations = await prisma.variantCombination.findMany({
+            include: {
+                product: {
+                    select: { id: true, name: true },
+                },
+                values: {
+                    include: {
+                        variantValue: {
+                            select: { name: true },
+                        },
+                    },
+                },
+                inventoryBatches: {
+                    where: {
+                        remainingQuantity: { gt: 0 },
+                    },
+                    select: {
+                        remainingQuantity: true,
+                    },
+                },
+            },
+        });
+
+        const searchLower = search ? search.toLowerCase() : '';
+
+        // Transformasi dan Kalkulasi Stok
+        let alerts: StockAlertReport[] = combinations.map((combo) => {
+            const variantName =
+                combo.values.map((v) => v.variantValue.name).join(' / ') || combo.sku;
+
+            const currentStock = combo.inventoryBatches.reduce(
+                (sum, batch) => sum + batch.remainingQuantity,
+                0
+            );
+
+            return {
+                productId: combo.product.id,
+                productName: combo.product.name,
+                combinationId: combo.id,
+                variantName,
+                sku: combo.sku,
+                currentStock,
+                threshold,
+            };
+        });
+
+        // Filter 1: Cek threshold stok
+        alerts = alerts.filter((alert) => alert.currentStock < threshold);
+
+        // Filter 2: Pencarian text
+        if (searchLower) {
+            alerts = alerts.filter(
+                (alert) =>
+                    alert.productName.toLowerCase().includes(searchLower) ||
+                    alert.variantName.toLowerCase().includes(searchLower) ||
+                    alert.sku.toLowerCase().includes(searchLower)
+            );
+        }
+
+        // Urutkan default dari stok paling sedikit
+        alerts.sort((a, b) => a.currentStock - b.currentStock);
+
+        // Pagination metadata
+        const total = alerts.length;
+        const totalPages = Math.ceil(total / limit);
+        const offset = (page - 1) * limit;
+
+        // Potong array berdasarkan page & limit
+        const paginatedData = alerts.slice(offset, offset + limit);
+
+        return {
+            data: paginatedData,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages,
+            },
+        };
     }
 }
 

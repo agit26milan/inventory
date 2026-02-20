@@ -202,3 +202,31 @@ export interface UpdateStoreExpenseDTO {
     description?: string;
     category?: string;
 }
+
+export interface Configuration {
+    id: number;
+    key: string;
+    value: string;
+    description?: string;
+    updatedAt: string;
+}
+
+export interface StockAlert {
+    productId: number;
+    productName: string;
+    combinationId: number;
+    variantName: string;
+    sku: string;
+    currentStock: number;
+    threshold: number;
+}
+
+export interface PaginatedStockAlerts {
+    data: StockAlert[];
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}

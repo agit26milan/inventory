@@ -3,6 +3,7 @@ import productController from '../modules/product/product.controller';
 import inventoryController from '../modules/inventory/inventory.controller';
 import salesController from '../modules/sales/sales.controller';
 import reportController from '../modules/report/report.controller';
+import configurationController from '../modules/configuration/configuration.controller';
 import variantRoutes from '../modules/variant/variant.routes';
 import variantCombinationRoutes from '../modules/variant-combination/variant-combination.routes';
 import marketplaceFeeRoutes from './marketplace-fee.routes';
@@ -122,5 +123,11 @@ router.get('/sales/:id', validate(getSaleSchema), salesController.getById);
 router.get('/reports/sales-summary', reportController.getSalesSummary);
 router.get('/reports/product-performance', reportController.getProductPerformance);
 router.get('/reports/inventory-valuation', reportController.getInventoryValuation);
+router.get('/reports/stock-alerts', reportController.getStockAlerts);
+
+// Configuration routes
+router.get('/configurations', configurationController.getAll);
+router.get('/configurations/:key', configurationController.getByKey);
+router.put('/configurations/:key', configurationController.upsert);
 
 export default router;

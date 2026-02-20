@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import reportService from './report.service';
+import configurationService from '../configuration/configuration.service';
 import { successResponse } from '../../utils/response';
 
 export class ReportController {
@@ -38,6 +39,31 @@ export class ReportController {
                 valuation,
                 'Inventory valuation retrieved successfully'
             );
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getStockAlerts(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            let threshold: number;
+
+            // Jika threshold dari query param tersedia, gunakan itu
+            if (req.query['threshold']) {
+                threshold = parseInt(req.query['threshold'] as string, 10);
+            } else {
+                // Fallback: baca dari tabel konfigurasi, default 5
+                const config = await configurationService.getByKey('stock_alert_threshold');
+                threshold = config ? parseInt(config.value, 10) : 5;
+            }
+
+            // Parse pagination & search params
+            const page = req.query['page'] ? parseInt(req.query['page'] as string, 10) : 1;
+            const limit = req.query['limit'] ? parseInt(req.query['limit'] as string, 10) : 10;
+            const search = req.query['search'] ? (req.query['search'] as string) : undefined;
+
+            const alerts = await reportService.getStockAlerts(threshold, page, limit, search);
+            successResponse(res, alerts, 'Stock alerts retrieved successfully');
         } catch (error) {
             next(error);
         }

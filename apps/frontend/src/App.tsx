@@ -9,6 +9,7 @@ import StoreExpensePage from './pages/StoreExpensePage';
 import { Sidebar } from './components/Sidebar';
 import { DashboardPage } from './pages/DashboardPage';
 import { ReportsPage } from './pages/ReportsPage';
+import { ConfigurationPage } from './pages/ConfigurationPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,6 +37,7 @@ function App() {
               <Route path="/equity" element={<EquityPage />} />
               <Route path="/store-expenses" element={<StoreExpensePage />} />
               <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/configuration" element={<ConfigurationPage />} />
             </Routes>
           </main>
         </div>

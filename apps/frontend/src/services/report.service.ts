@@ -3,6 +3,7 @@ import {
     SalesSummary,
     ProductPerformance,
     InventoryValuation,
+    PaginatedStockAlerts,
     ApiResponse,
 } from '../types';
 
@@ -31,6 +32,24 @@ export const reportService = {
     getInventoryValuation: async (): Promise<InventoryValuation[]> => {
         const response = await api.get<ApiResponse<InventoryValuation[]>>(
             '/reports/inventory-valuation'
+        );
+        return response.data.data;
+    },
+
+    getStockAlerts: async (
+        threshold?: number,
+        page: number = 1,
+        limit: number = 10,
+        search?: string
+    ): Promise<PaginatedStockAlerts> => {
+        const params = new URLSearchParams();
+        if (threshold !== undefined) params.append('threshold', threshold.toString());
+        params.append('page', page.toString());
+        params.append('limit', limit.toString());
+        if (search) params.append('search', search);
+
+        const response = await api.get<ApiResponse<PaginatedStockAlerts>>(
+            `/reports/stock-alerts?${params.toString()}`
         );
         return response.data.data;
     },

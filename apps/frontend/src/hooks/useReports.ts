@@ -21,3 +21,21 @@ export const useInventoryValuation = () => {
         queryFn: reportService.getInventoryValuation,
     });
 };
+
+export const useStockAlerts = (params: {
+    threshold?: number;
+    page?: number;
+    limit?: number;
+    search?: string;
+}) => {
+    return useQuery({
+        queryKey: ['reports', 'stock-alerts', params],
+        queryFn: () =>
+            reportService.getStockAlerts(
+                params.threshold,
+                params.page,
+                params.limit,
+                params.search
+            ),
+    });
+};

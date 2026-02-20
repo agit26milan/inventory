@@ -182,3 +182,13 @@ model SaleItem {
   @@index([productId])
   @@map("sale_items")
 }
+
+model Configuration {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique @db.VarChar(100)
+  value       String   @db.VarChar(255)
+  description String?  @db.VarChar(255)
+  updatedAt   DateTime @updatedAt
+
+  @@map("configurations")
+}
