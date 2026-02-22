@@ -105,7 +105,9 @@ export class InventoryService {
     }
 
     async getAllBatches(filters?: { productName?: string; variantName?: string }): Promise<InventoryBatchResponse[]> {
-        const whereClause: any = {};
+        const whereClause: any = {
+            remainingQuantity: { gt: 0 },
+        };
 
         // Build where clause based on filters
         // Note: MySQL is case-insensitive by default, so we don't need mode: 'insensitive'
