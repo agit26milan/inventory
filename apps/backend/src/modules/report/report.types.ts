@@ -65,3 +65,39 @@ export interface PaginatedVariantPerformance {
     };
 }
 
+export interface SalesTimeframeReport {
+    productId: number;
+    productName: string;
+    sold1Day: number;
+    sold7Days: number;
+    sold30Days: number;
+}
+
+export interface PaginatedSalesTimeframe {
+    data: SalesTimeframeReport[];
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}
+
+export interface SalesTimeframeReport {
+    productId: number;
+    productName: string;
+    sold1Day: number;
+    sold7Days: number;
+    sold30Days: number;
+}
+
+export interface PaginatedSalesTimeframe {
+    data: SalesTimeframeReport[];
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}
+

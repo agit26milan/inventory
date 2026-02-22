@@ -46,3 +46,19 @@ export const useVariantPerformance = (page: number = 1, limit: number = 10) => {
         queryFn: () => reportService.getVariantPerformance(page, limit),
     });
 };
+
+export const useSalesTimeframe = (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+}) => {
+    return useQuery({
+        queryKey: ['reports', 'sales-timeframe', params],
+        queryFn: () =>
+            reportService.getSalesTimeframe(
+                params.page,
+                params.limit,
+                params.search
+            ),
+    });
+};

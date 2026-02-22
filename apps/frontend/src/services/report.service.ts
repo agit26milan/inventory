@@ -5,6 +5,7 @@ import {
     InventoryValuation,
     PaginatedStockAlerts,
     PaginatedVariantPerformance,
+    PaginatedSalesTimeframe,
     ApiResponse,
 } from '../types';
 
@@ -65,6 +66,24 @@ export const reportService = {
 
         const response = await api.get<ApiResponse<PaginatedVariantPerformance>>(
             `/reports/variant-performance?${params.toString()}`
+        );
+        return response.data.data;
+    },
+
+    getSalesTimeframe: async (
+        page: number = 1,
+        limit: number = 10,
+        search?: string
+    ): Promise<PaginatedSalesTimeframe> => {
+        const params = new URLSearchParams();
+        params.append('page', page.toString());
+        params.append('limit', limit.toString());
+        if (search) {
+            params.append('search', search);
+        }
+
+        const response = await api.get<ApiResponse<PaginatedSalesTimeframe>>(
+            `/reports/sales-timeframe?${params.toString()}`
         );
         return response.data.data;
     },

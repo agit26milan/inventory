@@ -125,6 +125,7 @@ router.get('/reports/product-performance', reportController.getProductPerformanc
 router.get('/reports/variant-performance', reportController.getVariantPerformance);
 router.get('/reports/inventory-valuation', reportController.getInventoryValuation);
 router.get('/reports/stock-alerts', reportController.getStockAlerts);
+router.get('/reports/sales-timeframe', reportController.getSalesTimeframe);
 
 // Configuration routes
 router.get('/configurations', configurationController.getAll);

@@ -7,6 +7,7 @@ import {
     PaginatedStockAlerts,
     VariantPerformanceReport,
     PaginatedVariantPerformance,
+    PaginatedSalesTimeframe,
 } from './report.types';
 
 export class ReportService {
@@ -318,6 +319,110 @@ export class ReportService {
 
         return {
             data: paginatedData,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages,
+            },
+        };
+    }
+
+    /**
+     * Get Sales Timeframe Report - Penjualan dalam 1 Hari, 7 Hari, 30 Hari per produk
+     */
+    async getSalesTimeframe(
+        page: number = 1,
+        limit: number = 10,
+        search?: string
+    ): Promise<PaginatedSalesTimeframe> {
+        // Build product criteria
+        const productWhere: any = {};
+        if (search) {
+            productWhere.name = { contains: search };
+        }
+
+        // Hitung total products untuk pagination
+        const total = await prisma.product.count({ where: productWhere });
+        const totalPages = Math.ceil(total / limit);
+        const offset = (page - 1) * limit;
+
+        // Ambil produk halaman ini
+        const products = await prisma.product.findMany({
+            where: productWhere,
+            skip: offset,
+            take: limit,
+            select: {
+                id: true,
+                name: true,
+            },
+            orderBy: { name: 'asc' },
+        });
+
+        if (products.length === 0) {
+            return {
+                data: [],
+                meta: { total, page, limit, totalPages },
+            };
+        }
+
+        const productIds = products.map((p) => p.id);
+
+        // Ambil sale items 30 hari terakhir untuk produk-produk ini
+        const now = new Date();
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+        const saleItems = await prisma.saleItem.findMany({
+            where: {
+                productId: { in: productIds },
+                sale: {
+                    createdAt: { gte: thirtyDaysAgo },
+                },
+            },
+            include: {
+                sale: {
+                    select: { createdAt: true },
+                },
+            },
+        });
+
+        // Grouping sales berdasarkan ID Produk dan Waktu
+        const results = products.map((product) => {
+            const itemsForProduct = saleItems.filter((item) => item.productId === product.id);
+
+            let sold1Day = 0;
+            let sold7Days = 0;
+            let sold30Days = 0;
+
+            for (const item of itemsForProduct) {
+                const saleDate = item.sale?.createdAt;
+                if (!saleDate) continue;
+
+                const qty = item.quantity;
+                sold30Days += qty;
+
+                if (saleDate >= sevenDaysAgo) {
+                    sold7Days += qty;
+                }
+
+                if (saleDate >= oneDayAgo) {
+                    sold1Day += qty;
+                }
+            }
+
+            return {
+                productId: product.id,
+                productName: product.name,
+                sold1Day,
+                sold7Days,
+                sold30Days,
+            };
+        });
+
+        return {
+            data: results,
             meta: {
                 total,
                 page,

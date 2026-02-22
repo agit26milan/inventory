@@ -252,3 +252,21 @@ export interface PaginatedVariantPerformance {
         totalPages: number;
     };
 }
+
+export interface SalesTimeframe {
+    productId: number;
+    productName: string;
+    sold1Day: number;
+    sold7Days: number;
+    sold30Days: number;
+}
+
+export interface PaginatedSalesTimeframe {
+    data: SalesTimeframe[];
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}

@@ -79,6 +79,19 @@ export class ReportController {
             next(error);
         }
     }
+
+    async getSalesTimeframe(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const page = req.query['page'] ? parseInt(req.query['page'] as string, 10) : 1;
+            const limit = req.query['limit'] ? parseInt(req.query['limit'] as string, 10) : 10;
+            const search = req.query['search'] ? (req.query['search'] as string) : undefined;
+
+            const timeframeReport = await reportService.getSalesTimeframe(page, limit, search);
+            successResponse(res, timeframeReport, 'Sales timeframe report retrieved successfully');
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new ReportController();
