@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSalesTimeframe } from '../hooks/useReports';
+import { useSalesTimeframe } from '../../hooks/useReports';
 import {
     BarChart,
     Bar,
@@ -32,9 +32,7 @@ export const SalesReportPage: React.FC = () => {
         search: debouncedSearch,
     });
 
-    if (isLoading) {
-        return <div className="spinner"></div>;
-    }
+
 
     const data = reportData?.data || [];
     const meta = reportData?.meta;

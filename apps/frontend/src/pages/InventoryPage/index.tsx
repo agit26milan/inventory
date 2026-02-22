@@ -5,15 +5,15 @@ import {
     useUpdateInventoryBatch, 
     useDeleteInventoryBatch,
     useInventoryBatch
-} from '../hooks/useInventory';
-import { useProducts } from '../hooks/useProducts';
-import { useVariantCombinations } from '../hooks/useVariantCombinations';
-import { CreateInventoryBatchDTO, VariantCombination, InventoryBatch } from '../types';
-import { formatCurrency } from '../utils/currency';
-import { getSkuName } from '../utils/sku';
-import { CurrencyInput } from '../components/CurrencyInput';
-import { BulkEditInventoryModal } from '../components/BulkEditInventoryModal';
-import { SearchableDropdown } from '../components/SearchableDropdown';
+} from '../../hooks/useInventory';
+import { useProducts } from '../../hooks/useProducts';
+import { useVariantCombinations } from '../../hooks/useVariantCombinations';
+import { CreateInventoryBatchDTO, VariantCombination, InventoryBatch } from '../../types';
+import { formatCurrency } from '../../utils/currency';
+import { getSkuName } from '../../utils/sku';
+import { CurrencyInput } from '../../components/CurrencyInput';
+import { BulkEditInventoryModal } from '../../components/BulkEditInventoryModal';
+import { SearchableDropdown } from '../../components/SearchableDropdown';
 
 export const InventoryPage = () => {
   // Filter state
@@ -26,8 +26,8 @@ export const InventoryPage = () => {
     variantName: filterVariantName || undefined,
   };
 
-  const { data: batches, isLoading: batchesLoading, refetch: refetchBatches } = useInventoryBatches(filters);
-  const { data: products, isLoading: productsLoading } = useProducts();
+  const { data: batches, refetch: refetchBatches } = useInventoryBatches(filters);
+  const { data: products } = useProducts();
   const createBatch = useCreateInventoryBatch();
   const updateBatch = useUpdateInventoryBatch();
   const deleteBatch = useDeleteInventoryBatch();

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useConfigurationByKey, useUpsertConfiguration } from '../hooks/useConfiguration';
+import { useConfigurationByKey, useUpsertConfiguration } from '../../hooks/useConfiguration';
 
 const STOCK_ALERT_KEY = 'stock_alert_threshold';
 

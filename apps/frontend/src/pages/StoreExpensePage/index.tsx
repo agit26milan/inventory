@@ -5,9 +5,9 @@ import {
     useUpdateStoreExpense,
     useDeleteStoreExpense,
     useTotalExpenses,
-} from '../hooks/useStoreExpense';
-import { formatCurrency } from '../utils/currency';
-import { CurrencyInput } from '../components/CurrencyInput';
+} from '../../hooks/useStoreExpense';
+import { formatCurrency } from '../../utils/currency';
+import { CurrencyInput } from '../../components/CurrencyInput';
 
 export default function StoreExpensePage() {
     const [amount, setAmount] = useState(0);

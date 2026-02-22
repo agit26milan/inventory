@@ -5,9 +5,9 @@ import {
     useInventoryValuation,
     useStockAlerts,
     useVariantPerformance,
-} from '../hooks/useReports';
-import { useConfigurationByKey } from '../hooks/useConfiguration';
-import { formatCurrency } from '../utils/currency';
+} from '../../hooks/useReports';
+import { useConfigurationByKey } from '../../hooks/useConfiguration';
+import { formatCurrency } from '../../utils/currency';
 
 const STOCK_ALERT_KEY = 'stock_alert_threshold';
 const DEFAULT_THRESHOLD = 5;

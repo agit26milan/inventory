@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { useSales, useCreateSale } from '../hooks/useSales';
-import { useProducts } from '../hooks/useProducts';
-import { useVariantCombinations } from '../hooks/useVariantCombinations';
-import { SaleItem, VariantCombination } from '../types';
-import { formatCurrency } from '../utils/currency';
-import { getSkuName } from '../utils/sku';
-import { SearchableDropdown } from '../components/SearchableDropdown';
+import { useSales, useCreateSale } from '../../hooks/useSales';
+import { useProducts } from '../../hooks/useProducts';
+import { useVariantCombinations } from '../../hooks/useVariantCombinations';
+import { SaleItem, VariantCombination } from '../../types';
+import { formatCurrency } from '../../utils/currency';
+import { getSkuName } from '../../utils/sku';
+import { SearchableDropdown } from '../../components/SearchableDropdown';
 
 // Extend SaleItem for UI display
 interface CartItem extends SaleItem {
@@ -22,7 +22,7 @@ export const SalesPage = () => {
     variantName: filterVariantName || undefined,
   };
 
-  const { data: sales, isLoading } = useSales(filters);
+  const { data: sales } = useSales(filters);
   const { data: products } = useProducts();
   const createSale = useCreateSale();
 

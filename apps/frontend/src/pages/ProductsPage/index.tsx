@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
-import { useProducts, useCreateProduct, useDeleteProduct } from '../hooks/useProducts';
-import { CreateProductDTO, StockMethod } from '../types';
-import { VariantManager } from '../components/VariantManager';
-import { SearchableDropdown } from '../components/SearchableDropdown';
+import { useProducts, useCreateProduct, useDeleteProduct } from '../../hooks/useProducts';
+import { CreateProductDTO, StockMethod } from '../../types';
+import { VariantManager } from '../../components/VariantManager';
+import { SearchableDropdown } from '../../components/SearchableDropdown';
 
 export const ProductsPage = () => {
   const { data: products, isLoading } = useProducts();

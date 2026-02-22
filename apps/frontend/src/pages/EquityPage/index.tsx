@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useEquities, useCreateEquity, useTotalEquity } from '../hooks/useEquity';
-import { useTotalExpenses } from '../hooks/useStoreExpense';
-import { formatCurrency } from '../utils/currency';
-import { CurrencyInput } from '../components/CurrencyInput';
+import { useEquities, useCreateEquity, useTotalEquity } from '../../hooks/useEquity';
+import { useTotalExpenses } from '../../hooks/useStoreExpense';
+import { formatCurrency } from '../../utils/currency';
+import { CurrencyInput } from '../../components/CurrencyInput';
 
 export default function EquityPage() {
     const [amount, setAmount] = useState(0);

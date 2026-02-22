@@ -1,6 +1,6 @@
-import { useSalesSummary, useInventoryValuation } from '../hooks/useReports';
-import { useProducts } from '../hooks/useProducts';
-import { formatCurrency } from '../utils/currency';
+import { useSalesSummary, useInventoryValuation } from '../../hooks/useReports';
+import { useProducts } from '../../hooks/useProducts';
+import { formatCurrency } from '../../utils/currency';
 
 export const DashboardPage = () => {
   const { data: summary, isLoading: summaryLoading } = useSalesSummary();
@@ -12,7 +12,6 @@ export const DashboardPage = () => {
   }
 
   const totalInventoryValue = valuation?.reduce((sum, item) => sum + item.totalValue, 0) || 0;
-  const lowStockProducts = products?.filter(p => p.currentStock < 10).length || 0;
 
   return (
     <div>
