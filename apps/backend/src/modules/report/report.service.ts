@@ -8,6 +8,8 @@ import {
     VariantPerformanceReport,
     PaginatedVariantPerformance,
     PaginatedSalesTimeframe,
+    AnnualSalesDataPoint,
+    PaginatedAnnualSales
 } from './report.types';
 
 export class ReportService {
@@ -418,6 +420,133 @@ export class ReportService {
                 sold1Day,
                 sold7Days,
                 sold30Days,
+            };
+        });
+
+        return {
+            data: results,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages,
+            },
+        };
+    }
+
+    async getAnnualSales(
+        year: number,
+        month?: number,
+        page: number = 1,
+        limit: number = 10,
+        search?: string
+    ): Promise<PaginatedAnnualSales> {
+        const offset = (page - 1) * limit;
+
+        // Base query for products (similar to other reports)
+        const productWhere: any = {};
+        if (search) {
+            productWhere.name = {
+                contains: search,
+            };
+        }
+
+        // Hitung total data product untuk pagination
+        const total = await prisma.product.count({ where: productWhere });
+        const totalPages = Math.ceil(total / limit);
+
+        // Ambil produk halaman ini
+        const products = await prisma.product.findMany({
+            where: productWhere,
+            skip: offset,
+            take: limit,
+            select: {
+                id: true,
+                name: true,
+            },
+            orderBy: { name: 'asc' },
+        });
+
+        if (products.length === 0) {
+            return {
+                data: [],
+                meta: { total, page, limit, totalPages },
+            };
+        }
+
+        const productIds = products.map((p) => p.id);
+
+        // Date range based on year and optional month
+        let startDate: Date;
+        let endDate: Date;
+
+        if (month !== undefined && month >= 1 && month <= 12) {
+            // Specific month
+            startDate = new Date(year, month - 1, 1);
+            endDate = new Date(year, month, 0, 23, 59, 59, 999);
+        } else {
+            // Full calendar year
+            startDate = new Date(year, 0, 1);
+            endDate = new Date(year, 11, 31, 23, 59, 59, 999);
+        }
+
+        // Ambil sale items untuk produk-produk ini dalam rentang waktu yang ditentukan
+        const saleItems = await prisma.saleItem.findMany({
+            where: {
+                productId: { in: productIds },
+                sale: {
+                    createdAt: {
+                        gte: startDate,
+                        lte: endDate,
+                    },
+                },
+            },
+            include: {
+                sale: {
+                    select: { createdAt: true },
+                },
+            },
+        });
+
+        // Grouping sales berdasarkan ID Produk dan Bulan (1-12)
+        const results = products.map((product) => {
+            const itemsForProduct = saleItems.filter((item) => item.productId === product.id);
+
+            // Inisialisasi array 12 bulan (index 0 = Jan, 11 = Dec)
+            // Jika filter month aktif, kita tetap bisa merender array 12 bulan yg kosong selain bulan tsb,
+            // atau menyesuaikan UI. Disini kembalikan 12 bulan penuh selalu untuk konsistensi Chart. 
+            const monthlyData: AnnualSalesDataPoint[] = Array.from({ length: 12 }, (_, i) => ({
+                month: i + 1,
+                totalQuantity: 0,
+                totalRevenue: 0,
+            }));
+
+            let totalYearQuantity = 0;
+            let totalYearRevenue = 0;
+
+            for (const item of itemsForProduct) {
+                const saleDate = item.sale?.createdAt;
+                if (!saleDate) continue;
+
+                // getMonth() returns 0-11
+                const itemMonth = saleDate.getMonth();
+                
+                const qty = item.quantity;
+                const revenue = Number(item.sellingPrice) * qty;
+
+                monthlyData[itemMonth].totalQuantity += qty;
+                monthlyData[itemMonth].totalRevenue += revenue;
+                
+                totalYearQuantity += qty;
+                totalYearRevenue += revenue;
+            }
+
+            return {
+                productId: product.id,
+                productName: product.name,
+                totalYearQuantity,
+                totalYearRevenue,
+                monthlyData,
             };
         });
 

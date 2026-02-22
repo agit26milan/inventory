@@ -270,3 +270,27 @@ export interface PaginatedSalesTimeframe {
         totalPages: number;
     };
 }
+
+export interface AnnualSalesDataPoint {
+    month: number;
+    totalQuantity: number;
+    totalRevenue: number;
+}
+
+export interface AnnualSales {
+    productId: number;
+    productName: string;
+    totalYearQuantity: number;
+    totalYearRevenue: number;
+    monthlyData: AnnualSalesDataPoint[];
+}
+
+export interface PaginatedAnnualSales {
+    data: AnnualSales[];
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}

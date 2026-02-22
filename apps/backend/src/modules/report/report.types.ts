@@ -83,6 +83,30 @@ export interface PaginatedSalesTimeframe {
     };
 }
 
+export interface AnnualSalesDataPoint {
+    month: number;
+    totalQuantity: number;
+    totalRevenue: number;
+}
+
+export interface AnnualSalesReport {
+    productId: number;
+    productName: string;
+    totalYearQuantity: number;
+    totalYearRevenue: number;
+    monthlyData: AnnualSalesDataPoint[];
+}
+
+export interface PaginatedAnnualSales {
+    data: AnnualSalesReport[];
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}
+
 export interface SalesTimeframeReport {
     productId: number;
     productName: string;

@@ -92,6 +92,21 @@ export class ReportController {
             next(error);
         }
     }
+
+    async getAnnualSales(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const year = req.query['year'] ? parseInt(req.query['year'] as string, 10) : new Date().getFullYear();
+            const month = req.query['month'] ? parseInt(req.query['month'] as string, 10) : undefined;
+            const page = req.query['page'] ? parseInt(req.query['page'] as string, 10) : 1;
+            const limit = req.query['limit'] ? parseInt(req.query['limit'] as string, 10) : 10;
+            const search = req.query['search'] ? (req.query['search'] as string) : undefined;
+
+            const annualReport = await reportService.getAnnualSales(year, month, page, limit, search);
+            successResponse(res, annualReport, 'Annual sales report retrieved successfully');
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new ReportController();

@@ -62,3 +62,23 @@ export const useSalesTimeframe = (params: {
             ),
     });
 };
+
+export const useAnnualSales = (params: {
+    year: number;
+    month?: number;
+    page?: number;
+    limit?: number;
+    search?: string;
+}) => {
+    return useQuery({
+        queryKey: ['reports', 'annual-sales', params],
+        queryFn: () =>
+            reportService.getAnnualSales(
+                params.year,
+                params.month,
+                params.page,
+                params.limit,
+                params.search
+            ),
+    });
+};
