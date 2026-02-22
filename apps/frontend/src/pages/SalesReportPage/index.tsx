@@ -64,6 +64,9 @@ export const SalesReportPage: React.FC = () => {
     // Custom Tooltip based on active tab
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
+            // Menghitung total semua produk yang terjual (khusus tab tahunan)
+            const total = payload.reduce((sum: number, entry: any) => sum + (Number(entry.value) || 0), 0);
+
             return (
                 <div style={{
                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -78,6 +81,15 @@ export const SalesReportPage: React.FC = () => {
                             {entry.name}: <strong>{entry.value} unit</strong>
                         </p>
                     ))}
+                    {/* Menampilkan total hanya untuk chart tahunan / bulanan */}
+                    {activeTab === 'annual' && (
+                        <>
+                            <hr style={{ margin: '8px 0', borderColor: '#e2e8f0', borderTop: 'none' }} />
+                            <p style={{ fontWeight: 600, margin: 0, fontSize: '0.95rem', color: '#333' }}>
+                                Total Penjualan: <strong>{total} unit</strong>
+                            </p>
+                        </>
+                    )}
                 </div>
             );
         }
