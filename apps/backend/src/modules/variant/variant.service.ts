@@ -309,7 +309,6 @@ export class VariantService {
                     data: {
                         productId,
                         sku,
-                        price: product.sellingPrice,
                         stock: 0,
                         values: {
                             create: combinationValues.map((v: any) => ({

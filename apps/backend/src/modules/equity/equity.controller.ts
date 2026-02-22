@@ -11,7 +11,7 @@ export const createEquity = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
-export const getAllEquities = async (req: Request, res: Response, next: NextFunction) => {
+export const getAllEquities = async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const equities = await equityService.getAllEquities();
         successResponse(res, equities, 'Equities retrieved successfully');
@@ -20,7 +20,7 @@ export const getAllEquities = async (req: Request, res: Response, next: NextFunc
     }
 };
 
-export const getTotalEquity = async (req: Request, res: Response, next: NextFunction) => {
+export const getTotalEquity = async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const total = await equityService.getTotalEquity();
         successResponse(res, { total }, 'Total equity calculated successfully');

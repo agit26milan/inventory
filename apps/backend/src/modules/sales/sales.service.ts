@@ -2,7 +2,6 @@ import prisma from '../../database/client';
 import { CreateSaleDTO, SaleResponse } from './sales.types';
 import { AppError } from '../../utils/error-handler';
 import { StockMethod } from '@prisma/client';
-import { equityService } from '../equity/equity.service';
 
 export class SalesService {
     /**
@@ -14,6 +13,8 @@ export class SalesService {
             let totalAmount = 0;
             let totalCogs = 0;
             const saleItemsData = [];
+
+            let isProcessFeeApplied = false;
 
             // Process each item in the sale
             for (const item of data.items) {
@@ -65,11 +66,16 @@ export class SalesService {
                 let netRevenue = revenue;
                 
                 if (shopeeFee) {
-                    // "harga selling price ... akan di kurangi biaya admin"
                     // We reduce the revenue (total selling price) by the fee percentage
                     const feeAmount = (revenue * Number(shopeeFee.percentage)) / 100;
-                    const processFeeAmount = Number(shopeeFee.processFee);
-                    netRevenue = revenue - feeAmount - processFeeAmount;
+                    netRevenue = revenue - feeAmount;
+
+                    // Apply process fee only once per Sale transaction
+                    if (!isProcessFeeApplied) {
+                        const processFeeAmount = Number(shopeeFee.processFee);
+                        netRevenue -= processFeeAmount;
+                        isProcessFeeApplied = true;
+                    }
                 }
 
                 totalAmount += netRevenue;

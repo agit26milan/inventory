@@ -11,7 +11,7 @@ export const createExpense = async (req: Request, res: Response, next: NextFunct
     }
 };
 
-export const getAllExpenses = async (req: Request, res: Response, next: NextFunction) => {
+export const getAllExpenses = async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const expenses = await storeExpenseService.getAllExpenses();
         successResponse(res, expenses, 'Store expenses retrieved successfully');
@@ -40,7 +40,7 @@ export const deleteExpense = async (req: Request, res: Response, next: NextFunct
     }
 };
 
-export const getTotalExpenses = async (req: Request, res: Response, next: NextFunction) => {
+export const getTotalExpenses = async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const total = await storeExpenseService.getTotalExpenses();
         successResponse(res, { total }, 'Total expenses calculated successfully');

@@ -50,7 +50,6 @@ export class VariantCombinationService {
             data: {
                 productId: data.productId,
                 sku: data.sku,
-                price: data.price,
                 stock: data.stock,
                 values: {
                     create: data.variantValueIds.map(valueId => ({
