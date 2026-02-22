@@ -62,7 +62,7 @@ export const BulkEditInventoryModal: React.FC<BulkEditInventoryModalProps> = ({
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div className="modal-body">
-                        <div className="mb-4 p-3 bg-light rounded">
+                        <div className="mb-4 p-3  rounded">
                             <label className="form-label">Set same price for all:</label>
                             <div className="flex gap-2">
                                 <CurrencyInput 
@@ -126,7 +126,7 @@ export const BulkEditInventoryModal: React.FC<BulkEditInventoryModalProps> = ({
                     z-index: 1000;
                 }
                 .modal-content {
-                    background: white;
+                    background: black;
                     padding: 20px;
                     border-radius: 8px;
                     width: 90%;
