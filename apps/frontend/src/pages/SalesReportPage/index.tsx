@@ -186,7 +186,6 @@ export const SalesReportPage: React.FC = () => {
     const annualChartData = prepareAnnualChartData();
     // Use stable predefined colors for up to 10 products on the screen
     const productColors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#64748B'];
-
     const renderAnnualTab = () => (
         <div className="card">
             <div className="card-header" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

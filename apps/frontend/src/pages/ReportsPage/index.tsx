@@ -42,9 +42,9 @@ export const ReportsPage = () => {
         search: debouncedSearch,
     });
 
-    if (summaryLoading || performanceLoading || valuationLoading || alertsLoading || variantPerfLoading) {
-        return <div className="spinner"></div>;
-    }
+    // if (summaryLoading || performanceLoading || valuationLoading || alertsLoading || variantPerfLoading) {
+    //     return <div className="spinner"></div>;
+    // }
 
     const stockAlerts = stockAlertsData?.data || [];
     const meta = stockAlertsData?.meta;
