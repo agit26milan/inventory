@@ -1,0 +1,32 @@
+/* ─── SalesPage ──────────────────────────────────────────────────────────── */
+
+/* Remove button di dalam cart item table — ukuran lebih kecil dari default */
+.sp-btn-remove {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+/* Section filter riwayat penjualan */
+.sp-filter-section {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 0;
+}
+
+/* Grid 3 kolom: Product filter | Variant filter | Clear button */
+.sp-filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+/* Tombol Clear Filters sejajar bawah dengan input */
+.sp-filter-clear {
+    margin-bottom: 0.5rem;
+}
+
+/* Kolom profit di tabel — bold agar lebih menonjol */
+.sp-profit-cell {
+    font-weight: 600;
+}

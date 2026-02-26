@@ -6,6 +6,7 @@ import { SaleItem, VariantCombination } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { getSkuName } from '../../utils/sku';
 import { SearchableDropdown } from '../../components/SearchableDropdown';
+import './style.css';
 
 // Extend SaleItem for UI display
 interface CartItem extends SaleItem {
@@ -81,8 +82,6 @@ export const SalesPage = () => {
       alert(error.response?.data?.message || 'Failed to create sale');
     }
   };
-
-
 
   return (
     <div>
@@ -192,8 +191,7 @@ export const SalesPage = () => {
                             <td>
                               <button
                                 type="button"
-                                className="btn btn-danger"
-                                style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
+                                className="btn btn-danger sp-btn-remove"
                                 onClick={() => removeItem(index)}
                               >
                                 Remove
@@ -225,8 +223,8 @@ export const SalesPage = () => {
         </div>
 
         {/* Filter Section */}
-        <div className="card-body" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
+        <div className="sp-filter-section">
+          <div className="sp-filter-grid">
             <div className="form-group">
               <label className="form-label">Filter by Product Name</label>
               <input
@@ -248,12 +246,11 @@ export const SalesPage = () => {
               />
             </div>
             <button
-              className="btn btn-secondary"
+              className="btn btn-secondary sp-filter-clear"
               onClick={() => {
                 setFilterProductName('');
                 setFilterVariantName('');
               }}
-              style={{ marginBottom: '0.5rem' }}
             >
               Clear Filters
             </button>
@@ -282,7 +279,7 @@ export const SalesPage = () => {
                     <td>{sale.items.map((item) => `${item.productName} - ${getSkuName(item.variantName || '') || '-'} x ${item.quantity}`).join(' | ')} </td>
                     <td className="text-success">{formatCurrency(sale.totalAmount)}</td>
                     <td className="text-danger">{formatCurrency(sale.totalCogs)}</td>
-                    <td className="text-primary-light" style={{ fontWeight: 600 }}>
+                    <td className="text-primary-light sp-profit-cell">
                       {formatCurrency(sale.profit)}
                     </td>
                     <td>

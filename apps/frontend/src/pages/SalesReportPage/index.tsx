@@ -10,14 +10,15 @@ import {
     Legend,
     ResponsiveContainer,
 } from 'recharts';
+import './style.css';
 
 type ReportTab = 'timeframe' | 'annual' | 'profit';
 
 export const SalesReportPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<ReportTab>('timeframe');
-    
+
     // Shared filters
-    const [search, setSearch] = useState('');
+    const [search] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
 
     // Pagination
@@ -68,31 +69,29 @@ export const SalesReportPage: React.FC = () => {
     const annualData = annualReportData?.data || [];
     const annualMeta = annualReportData?.meta;
 
-    // Custom Tooltip based on active tab
+    // ─── Custom Tooltip (Timeframe & Annual) ──────────────────────────────────
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
             // Menghitung total semua produk yang terjual (khusus tab tahunan)
             const total = payload.reduce((sum: number, entry: any) => sum + (Number(entry.value) || 0), 0);
 
             return (
-                <div style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    padding: '10px',
-                    border: '1px solid #ccc',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-                }}>
-                    <p style={{ fontWeight: 600, marginBottom: '5px', color: '#333' }}>{label}</p>
+                <div className="srp-tooltip">
+                    <p className="srp-tooltip__title">{label}</p>
                     {payload.map((entry: any, index: number) => (
-                        <p key={`item-${index}`} style={{ color: entry.color, margin: 0, fontSize: '0.9rem' }}>
+                        <p
+                            key={`item-${index}`}
+                            className="srp-tooltip__item"
+                            style={{ color: entry.color }}
+                        >
                             {entry.name}: <strong>{entry.value} unit</strong>
                         </p>
                     ))}
                     {/* Menampilkan total hanya untuk chart tahunan / bulanan */}
                     {activeTab === 'annual' && (
                         <>
-                            <hr style={{ margin: '8px 0', borderColor: '#e2e8f0', borderTop: 'none' }} />
-                            <p style={{ fontWeight: 600, margin: 0, fontSize: '0.95rem', color: '#333' }}>
+                            <hr className="srp-tooltip__divider" />
+                            <p className="srp-tooltip__total">
                                 Total Penjualan: <strong>{total} unit</strong>
                             </p>
                         </>
@@ -103,35 +102,36 @@ export const SalesReportPage: React.FC = () => {
         return null;
     };
 
+    // ─── TAB: TIMEFRAME ───────────────────────────────────────────────────────
     const renderTimeframeTab = () => (
         <div className="card">
             <div className="card-header">
                 <h3 className="card-title">Bar Chart Penjualan (Unit) - Timeframe</h3>
             </div>
-            
+
             {timeframeData.length > 0 ? (
-                <div style={{ padding: '1rem' }}>
-                    <div style={{ width: '100%', height: '400px' }}>
+                <div className="srp-chart-body">
+                    <div className="srp-chart-container">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                                 data={timeframeData}
                                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                             >
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                                <XAxis 
-                                    dataKey="productName" 
+                                <XAxis
+                                    dataKey="productName"
                                     tick={{ fill: '#64748b', fontSize: 12 }}
                                     tickLine={false}
                                     axisLine={{ stroke: '#cbd5e1' }}
                                 />
-                                <YAxis 
+                                <YAxis
                                     tick={{ fill: '#64748b', fontSize: 12 }}
                                     tickLine={false}
                                     axisLine={{ stroke: '#cbd5e1' }}
                                 />
                                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(226, 232, 240, 0.4)' }} />
                                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                                
+
                                 <Bar dataKey="sold1Day" name="1 Hari Terakhir" fill="#10B981" radius={[4, 4, 0, 0]} />
                                 <Bar dataKey="sold7Days" name="7 Hari Terakhir" fill="#6366F1" radius={[4, 4, 0, 0]} />
                                 <Bar dataKey="sold30Days" name="30 Hari Terakhir" fill="#F59E0B" radius={[4, 4, 0, 0]} />
@@ -140,24 +140,22 @@ export const SalesReportPage: React.FC = () => {
                     </div>
 
                     {timeframeMeta && timeframeMeta.totalPages > 1 && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
-                            <span className="text-muted" style={{ fontSize: '0.9rem' }}>
+                        <div className="srp-pagination">
+                            <span className="text-muted srp-pagination__info">
                                 Halaman {timeframeMeta.page} dari {timeframeMeta.totalPages} (Total: {timeframeMeta.total} produk)
                             </span>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <div className="srp-pagination__controls">
                                 <button
-                                    className="btn btn-secondary btn-sm"
+                                    className="btn btn-secondary srp-pagination__btn"
                                     disabled={timeframeMeta.page <= 1}
                                     onClick={() => setTimeframePage(p => Math.max(1, p - 1))}
-                                    style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
                                 >
                                     Sebelumnya
                                 </button>
                                 <button
-                                    className="btn btn-secondary btn-sm"
+                                    className="btn btn-secondary srp-pagination__btn"
                                     disabled={timeframeMeta.page >= timeframeMeta.totalPages}
                                     onClick={() => setTimeframePage(p => Math.min(timeframeMeta.totalPages, p + 1))}
-                                    style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
                                 >
                                     Selanjutnya
                                 </button>
@@ -166,7 +164,7 @@ export const SalesReportPage: React.FC = () => {
                     )}
                 </div>
             ) : (
-                <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <div className="srp-empty">
                     {search ? (
                         <p>Tidak ada produk yang cocok dengan pencarian "<strong>{search}</strong>"</p>
                     ) : (
@@ -177,20 +175,16 @@ export const SalesReportPage: React.FC = () => {
         </div>
     );
 
-    // Transforming backend Annual Data for Recharts
-    // If "All Months", display Months on X-Axis. 
-    // To make it clear for multiple products, we'll average or sum it? 
-    // Wait, the requirement was to display sales by month. 
-    // A grouped bar chart with month on X-Axis and each bar represents a product's sales in that month.
+    // ─── TAB: PENJUALAN BULANAN (ANNUAL) ──────────────────────────────────────
+    // Transforming backend Annual Data for Recharts:
+    // Tampilkan bulan di sumbu X, setiap batang mewakili jumlah terjual per produk per bulan.
     const prepareAnnualChartData = () => {
         if (!annualData || annualData.length === 0) return [];
-        
-        // Construct an array of 12 objects, one for each month
+
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        
-        const chartData = months.map((monthName, index) => {
+
+        return months.map((monthName, index) => {
             const monthObj: any = { month: monthName };
-            // For each product, extract its sales quantity for this month
             annualData.forEach((product: any) => {
                 // index + 1 maps to month 1-12
                 const monthData = product.monthlyData.find((m: any) => m.month === index + 1);
@@ -198,72 +192,59 @@ export const SalesReportPage: React.FC = () => {
             });
             return monthObj;
         });
-
-        return chartData;
     };
 
     const annualChartData = prepareAnnualChartData();
     // Use stable predefined colors for up to 10 products on the screen
     const productColors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#64748B'];
+
     const renderAnnualTab = () => (
         <div className="card">
-            <div className="card-header" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="card-header srp-annual-header">
                 <h3 className="card-title">Bar Chart Penjualan (Unit) - Tahunan</h3>
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <div className="srp-annual-filters">
                     <select
-                        className="form-control"
+                        className="form-control srp-annual-year-select"
                         value={selectedYear}
                         onChange={(e) => setSelectedYear(Number(e.target.value))}
-                        style={{ width: '150px' }}
                     >
                         {Array.from({ length: 5 }, (_, i) => currentYear - i).map(year => (
                             <option key={year} value={year}>{year}</option>
                         ))}
                     </select>
-                    {/* <select
-                        className="form-control"
-                        value={selectedMonth}
-                        onChange={(e) => setSelectedMonth(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                        style={{ width: '150px' }}
-                    >
-                        <option value="all">Semua Bulan</option>
-                        {['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'].map((month, index) => (
-                            <option key={index + 1} value={index + 1}>{month}</option>
-                        ))}
-                    </select> */}
                 </div>
             </div>
-            
+
             {annualData.length > 0 ? (
-                <div style={{ padding: '1rem' }}>
-                    <div style={{ width: '100%', height: '400px' }}>
+                <div className="srp-chart-body">
+                    <div className="srp-chart-container">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                                 data={annualChartData}
                                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                             >
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                                <XAxis 
-                                    dataKey="month" 
+                                <XAxis
+                                    dataKey="month"
                                     tick={{ fill: '#64748b', fontSize: 12 }}
                                     tickLine={false}
                                     axisLine={{ stroke: '#cbd5e1' }}
                                 />
-                                <YAxis 
+                                <YAxis
                                     tick={{ fill: '#64748b', fontSize: 12 }}
                                     tickLine={false}
                                     axisLine={{ stroke: '#cbd5e1' }}
                                 />
                                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(226, 232, 240, 0.4)' }} />
                                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                                
+
                                 {annualData.map((product: any, index: number) => (
-                                    <Bar 
-                                        key={product.productId} 
-                                        dataKey={product.productName} 
-                                        name={product.productName} 
-                                        fill={productColors[index % productColors.length]} 
-                                        radius={[4, 4, 0, 0]} 
+                                    <Bar
+                                        key={product.productId}
+                                        dataKey={product.productName}
+                                        name={product.productName}
+                                        fill={productColors[index % productColors.length]}
+                                        radius={[4, 4, 0, 0]}
                                     />
                                 ))}
                             </BarChart>
@@ -271,24 +252,22 @@ export const SalesReportPage: React.FC = () => {
                     </div>
 
                     {annualMeta && annualMeta.totalPages > 1 && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
-                            <span className="text-muted" style={{ fontSize: '0.9rem' }}>
+                        <div className="srp-pagination">
+                            <span className="text-muted srp-pagination__info">
                                 Halaman {annualMeta.page} dari {annualMeta.totalPages} (Total: {annualMeta.total} produk)
                             </span>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <div className="srp-pagination__controls">
                                 <button
-                                    className="btn btn-secondary btn-sm"
+                                    className="btn btn-secondary srp-pagination__btn"
                                     disabled={annualMeta.page <= 1}
                                     onClick={() => setAnnualPage(p => Math.max(1, p - 1))}
-                                    style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
                                 >
                                     Sebelumnya
                                 </button>
                                 <button
-                                    className="btn btn-secondary btn-sm"
+                                    className="btn btn-secondary srp-pagination__btn"
                                     disabled={annualMeta.page >= annualMeta.totalPages}
                                     onClick={() => setAnnualPage(p => Math.min(annualMeta.totalPages, p + 1))}
-                                    style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
                                 >
                                     Selanjutnya
                                 </button>
@@ -297,7 +276,7 @@ export const SalesReportPage: React.FC = () => {
                     )}
                 </div>
             ) : (
-                <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <div className="srp-empty">
                     {search ? (
                         <p>Tidak ada produk yang cocok dengan pencarian "<strong>{search}</strong>"</p>
                     ) : (
@@ -340,7 +319,7 @@ export const SalesReportPage: React.FC = () => {
     };
 
     /**
-     * Tooltip kustom yang menampilkan:
+     * Tooltip kustom untuk chart laba:
      * - Laba Kotor (totalRevenue)
      * - Laba Bersih (totalProfit)
      * - Persentase laba bersih dibanding laba kotor
@@ -348,7 +327,7 @@ export const SalesReportPage: React.FC = () => {
     const ProfitTooltip = ({ active, payload, label }: any) => {
         if (!active || !payload?.length) return null;
 
-        // payload[0] = Laba Kotor, payload[1] = Laba Bersih (sesuai urutan <Bar>)
+        // Cari masing-masing nilai berdasarkan dataKey untuk keamanan urutan
         const revenue: number = payload.find((p: any) => p.dataKey === 'totalRevenue')?.value ?? 0;
         const profit: number = payload.find((p: any) => p.dataKey === 'totalProfit')?.value ?? 0;
         // Hitung margin persen laba bersih terhadap laba kotor
@@ -414,14 +393,14 @@ export const SalesReportPage: React.FC = () => {
                         />
                         <Tooltip content={<ProfitTooltip />} cursor={{ fill: 'rgba(226,232,240,0.4)' }} />
                         <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                        {/* Laba Kotor — hijau, lebih terang */}
+                        {/* Laba Kotor — hijau */}
                         <Bar
                             dataKey="totalRevenue"
                             name="Laba Kotor"
                             fill="#10B981"
                             radius={[4, 4, 0, 0]}
                         />
-                        {/* Laba Bersih — indigo/ungu */}
+                        {/* Laba Bersih — indigo */}
                         <Bar
                             dataKey="totalProfit"
                             name="Laba Bersih"
@@ -436,22 +415,11 @@ export const SalesReportPage: React.FC = () => {
 
     return (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div className="srp-header">
                 <div>
                     <h1>📈 Sales Report</h1>
-                    <p className="text-muted" style={{ margin: 0 }}>Product sales performance over time</p>
+                    <p className="text-muted srp-header__subtitle">Product sales performance over time</p>
                 </div>
-                
-                {/* <div style={{ flex: '1 1 auto', maxWidth: '300px' }}>
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Search product name..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', width: '100%' }}
-                    />
-                </div> */}
             </div>
 
             {/* Tabs */}
