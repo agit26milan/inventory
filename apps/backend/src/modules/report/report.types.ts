@@ -107,21 +107,14 @@ export interface PaginatedAnnualSales {
     };
 }
 
-export interface SalesTimeframeReport {
-    productId: number;
-    productName: string;
-    sold1Day: number;
-    sold7Days: number;
-    sold30Days: number;
+// Data profit per bulan untuk bar chart
+export interface MonthlyProfitDataPoint {
+    month: number;         // 1–12
+    totalRevenue: number;  // Laba Kotor = akumulasi Sale.totalAmount per bulan
+    totalProfit: number;   // Laba Bersih = akumulasi Sale.profit per bulan
 }
 
-export interface PaginatedSalesTimeframe {
-    data: SalesTimeframeReport[];
-    meta: {
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
-    };
+export interface MonthlyProfitReport {
+    year: number;
+    data: MonthlyProfitDataPoint[];
 }
-

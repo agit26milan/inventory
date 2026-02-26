@@ -340,3 +340,69 @@ tbody tr:hover {
   border-color: var(--primary);
   color: var(--primary-light);
 }
+
+/* ─── Profit Chart (SalesReportPage) ─────────────────────────────────────── */
+
+/* Tab row untuk tombol-tombol navigasi laporan */
+.report-tab-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* Baris filter tahun di atas chart laba */
+.profit-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.profit-filter-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.profit-year-select {
+  width: 110px;
+}
+
+/* Container chart laba */
+.profit-chart-wrapper {
+  padding: 1rem 0;
+}
+
+/* Custom Recharts tooltip untuk chart laba */
+.profit-tooltip {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+}
+
+.profit-tooltip__label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.profit-tooltip__row {
+  font-size: 0.875rem;
+  margin: 0.2rem 0;
+}
+
+.profit-tooltip__divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0.5rem 0;
+}
+
+.profit-tooltip__margin {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}

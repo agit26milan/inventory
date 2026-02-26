@@ -127,6 +127,7 @@ router.get('/reports/inventory-valuation', reportController.getInventoryValuatio
 router.get('/reports/stock-alerts', reportController.getStockAlerts);
 router.get('/reports/sales-timeframe', reportController.getSalesTimeframe);
 router.get('/reports/annual-sales', reportController.getAnnualSales);
+router.get('/reports/monthly-profit', reportController.getMonthlyProfit);
 
 // Configuration routes
 router.get('/configurations', configurationController.getAll);

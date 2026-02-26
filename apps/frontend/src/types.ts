@@ -294,3 +294,15 @@ export interface PaginatedAnnualSales {
         totalPages: number;
     };
 }
+
+// Data profit per bulan untuk bar chart laba bulanan
+export interface MonthlyProfitDataPoint {
+    month: number;         // 1–12
+    totalRevenue: number;  // Laba Kotor = akumulasi Sale.totalAmount per bulan
+    totalProfit: number;   // Laba Bersih = akumulasi Sale.profit per bulan
+}
+
+export interface MonthlyProfitReport {
+    year: number;
+    data: MonthlyProfitDataPoint[];
+}

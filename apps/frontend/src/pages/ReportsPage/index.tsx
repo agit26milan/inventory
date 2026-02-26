@@ -26,16 +26,16 @@ export const ReportsPage = () => {
         return () => clearTimeout(timer);
     }, [search]);
 
-    const { data: summary, isLoading: summaryLoading } = useSalesSummary();
-    const { data: performance, isLoading: performanceLoading } = useProductPerformance();
-    const { data: valuation, isLoading: valuationLoading } = useInventoryValuation();
-    const { data: variantPerfData, isLoading: variantPerfLoading } = useVariantPerformance(variantPage, 10);
+    const { data: summary } = useSalesSummary();
+    const { data: performance } = useProductPerformance();
+    const { data: valuation } = useInventoryValuation();
+    const { data: variantPerfData } = useVariantPerformance(variantPage, 10);
 
     // Baca threshold dari konfigurasi; gunakan default jika belum pernah di-set
     const { data: thresholdConfig } = useConfigurationByKey(STOCK_ALERT_KEY);
     const threshold = thresholdConfig ? parseInt(thresholdConfig.value, 10) : DEFAULT_THRESHOLD;
 
-    const { data: stockAlertsData, isLoading: alertsLoading } = useStockAlerts({
+    const { data: stockAlertsData } = useStockAlerts({
         threshold,
         page,
         limit: 10,

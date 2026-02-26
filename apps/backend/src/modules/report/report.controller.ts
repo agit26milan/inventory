@@ -107,6 +107,20 @@ export class ReportController {
             next(error);
         }
     }
+
+    async getMonthlyProfit(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            // Gunakan tahun saat ini sebagai default jika query year tidak ada
+            const year = req.query['year']
+                ? parseInt(req.query['year'] as string, 10)
+                : new Date().getFullYear();
+
+            const report = await reportService.getMonthlyProfit(year);
+            successResponse(res, report, 'Monthly profit report retrieved successfully');
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new ReportController();

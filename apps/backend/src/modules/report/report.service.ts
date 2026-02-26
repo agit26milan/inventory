@@ -9,7 +9,9 @@ import {
     PaginatedVariantPerformance,
     PaginatedSalesTimeframe,
     AnnualSalesDataPoint,
-    PaginatedAnnualSales
+    PaginatedAnnualSales,
+    MonthlyProfitReport,
+    MonthlyProfitDataPoint,
 } from './report.types';
 
 export class ReportService {
@@ -559,6 +561,45 @@ export class ReportService {
                 totalPages,
             },
         };
+    }
+    /**
+     * Akumulasi Sale.profit (laba bersih) dan Sale.totalAmount (laba kotor)
+     * per bulan untuk chart laba bulanan.
+     */
+    async getMonthlyProfit(year: number): Promise<MonthlyProfitReport> {
+        // Inisialisasi 12 bulan dengan nilai 0
+        const data: MonthlyProfitDataPoint[] = Array.from({ length: 12 }, (_, i) => ({
+            month: i + 1,
+            totalRevenue: 0,
+            totalProfit: 0,
+        }));
+
+        const startDate = new Date(year, 0, 1);
+        const endDate = new Date(year, 11, 31, 23, 59, 59, 999);
+
+        // Ambil semua penjualan dalam rentang tahun yang dipilih
+        const sales = await prisma.sale.findMany({
+            where: {
+                saleDate: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+            },
+            select: {
+                saleDate: true,
+                totalAmount: true, // Laba Kotor (gross revenue)
+                profit: true,      // Laba Bersih (net profit)
+            },
+        });
+
+        // Akumulasikan totalAmount dan profit ke bulan yang sesuai
+        sales.forEach((sale) => {
+            const monthIndex = sale.saleDate.getMonth(); // 0–11
+            data[monthIndex].totalRevenue += Number(sale.totalAmount);
+            data[monthIndex].totalProfit += Number(sale.profit);
+        });
+
+        return { year, data };
     }
 }
 

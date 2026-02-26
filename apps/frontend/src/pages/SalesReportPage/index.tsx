@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSalesTimeframe, useAnnualSales } from '../../hooks/useReports';
+import { useSalesTimeframe, useAnnualSales, useMonthlyProfit } from '../../hooks/useReports';
 import {
     BarChart,
     Bar,
@@ -11,7 +11,7 @@ import {
     ResponsiveContainer,
 } from 'recharts';
 
-type ReportTab = 'timeframe' | 'annual';
+type ReportTab = 'timeframe' | 'annual' | 'profit';
 
 export const SalesReportPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<ReportTab>('timeframe');
@@ -27,7 +27,11 @@ export const SalesReportPage: React.FC = () => {
     // Annual specific filters
     const currentYear = new Date().getFullYear();
     const [selectedYear, setSelectedYear] = useState<number>(currentYear);
-    const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
+    const [selectedMonth] = useState<number | 'all'>('all');
+
+    // State filter tahun untuk chart laba bulanan (mulai dari 2026)
+    const PROFIT_START_YEAR = 2026;
+    const [profitYear, setProfitYear] = useState<number>(currentYear);
 
     // Debounce search input
     useEffect(() => {
@@ -54,6 +58,9 @@ export const SalesReportPage: React.FC = () => {
         limit: 10,
         search: debouncedSearch,
     });
+
+    // Data laba bulanan — di-fetch ulang otomatis setiap profitYear berubah
+    const { data: monthlyProfitData } = useMonthlyProfit(profitYear);
 
     const timeframeData = timeframeReportData?.data || [];
     const timeframeMeta = timeframeReportData?.meta;
@@ -301,6 +308,132 @@ export const SalesReportPage: React.FC = () => {
         </div>
     );
 
+    // ─── TAB: LABA BULANAN ────────────────────────────────────────────────────
+    // Mapping index bulan (0–11) ke nama singkat bahasa Indonesia
+    const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+    const profitChartData = (monthlyProfitData?.data ?? []).map((d) => ({
+        month: MONTH_LABELS[d.month - 1],
+        totalRevenue: d.totalRevenue,
+        totalProfit: d.totalProfit,
+    }));
+
+    // Daftar tahun filter dimulai dari PROFIT_START_YEAR hingga tahun saat ini
+    const profitYearOptions = Array.from(
+        { length: Math.max(1, currentYear - PROFIT_START_YEAR + 1) },
+        (_, i) => PROFIT_START_YEAR + i
+    );
+
+    // Helper: format angka ke mata uang Rupiah
+    const formatRupiah = (value: number) =>
+        new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            maximumFractionDigits: 0,
+        }).format(value);
+
+    // Helper: ringkas angka besar untuk sumbu Y
+    const formatYAxis = (value: number) => {
+        if (value >= 1_000_000) return `Rp ${(value / 1_000_000).toFixed(1)}Jt`;
+        if (value >= 1_000) return `Rp ${(value / 1_000).toFixed(0)}K`;
+        return `Rp ${value}`;
+    };
+
+    /**
+     * Tooltip kustom yang menampilkan:
+     * - Laba Kotor (totalRevenue)
+     * - Laba Bersih (totalProfit)
+     * - Persentase laba bersih dibanding laba kotor
+     */
+    const ProfitTooltip = ({ active, payload, label }: any) => {
+        if (!active || !payload?.length) return null;
+
+        // payload[0] = Laba Kotor, payload[1] = Laba Bersih (sesuai urutan <Bar>)
+        const revenue: number = payload.find((p: any) => p.dataKey === 'totalRevenue')?.value ?? 0;
+        const profit: number = payload.find((p: any) => p.dataKey === 'totalProfit')?.value ?? 0;
+        // Hitung margin persen laba bersih terhadap laba kotor
+        const margin = revenue > 0 ? ((profit / revenue) * 100).toFixed(1) : '0.0';
+
+        return (
+            <div className="profit-tooltip">
+                <p className="profit-tooltip__label">{label}</p>
+                <p className="profit-tooltip__row" style={{ color: '#10B981' }}>
+                    Laba Kotor: <strong>{formatRupiah(revenue)}</strong>
+                </p>
+                <p className="profit-tooltip__row" style={{ color: '#6366F1' }}>
+                    Laba Bersih: <strong>{formatRupiah(profit)}</strong>
+                </p>
+                <hr className="profit-tooltip__divider" />
+                <p className="profit-tooltip__margin">
+                    Margin Laba Bersih: <strong>{margin}%</strong>
+                </p>
+            </div>
+        );
+    };
+
+    const renderProfitTab = () => (
+        <div className="card">
+            <div className="card-header">
+                <h3 className="card-title">Laba Kotor vs Laba Bersih — Bulanan (Rp)</h3>
+                <div className="profit-filter-row">
+                    <label htmlFor="profit-year-select" className="profit-filter-label">Tahun:</label>
+                    <select
+                        id="profit-year-select"
+                        className="form-control profit-year-select"
+                        value={profitYear}
+                        onChange={(e) => setProfitYear(Number(e.target.value))}
+                    >
+                        {profitYearOptions.map((year) => (
+                            <option key={year} value={year}>{year}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
+            <div className="profit-chart-wrapper">
+                <ResponsiveContainer width="100%" height={400}>
+                    <BarChart
+                        data={profitChartData}
+                        margin={{ top: 20, right: 30, left: 10, bottom: 5 }}
+                        barCategoryGap="20%"
+                        barGap={4}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                        <XAxis
+                            dataKey="month"
+                            tick={{ fill: '#64748b', fontSize: 12 }}
+                            tickLine={false}
+                            axisLine={{ stroke: '#cbd5e1' }}
+                        />
+                        <YAxis
+                            tickFormatter={formatYAxis}
+                            tick={{ fill: '#64748b', fontSize: 11 }}
+                            tickLine={false}
+                            axisLine={{ stroke: '#cbd5e1' }}
+                            width={95}
+                        />
+                        <Tooltip content={<ProfitTooltip />} cursor={{ fill: 'rgba(226,232,240,0.4)' }} />
+                        <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                        {/* Laba Kotor — hijau, lebih terang */}
+                        <Bar
+                            dataKey="totalRevenue"
+                            name="Laba Kotor"
+                            fill="#10B981"
+                            radius={[4, 4, 0, 0]}
+                        />
+                        {/* Laba Bersih — indigo/ungu */}
+                        <Bar
+                            dataKey="totalProfit"
+                            name="Laba Bersih"
+                            fill="#6366F1"
+                            radius={[4, 4, 0, 0]}
+                        />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
+    );
+
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -309,7 +442,7 @@ export const SalesReportPage: React.FC = () => {
                     <p className="text-muted" style={{ margin: 0 }}>Product sales performance over time</p>
                 </div>
                 
-                <div style={{ flex: '1 1 auto', maxWidth: '300px' }}>
+                {/* <div style={{ flex: '1 1 auto', maxWidth: '300px' }}>
                     <input
                         type="text"
                         className="form-control"
@@ -318,26 +451,34 @@ export const SalesReportPage: React.FC = () => {
                         onChange={(e) => setSearch(e.target.value)}
                         style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', width: '100%' }}
                     />
-                </div>
+                </div> */}
             </div>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-                <button 
+            <div className="report-tab-row">
+                <button
                     className={`btn ${activeTab === 'timeframe' ? 'btn-primary' : 'btn-outline-primary'}`}
                     onClick={() => setActiveTab('timeframe')}
                 >
                     1 Hari / 7 Hari / 30 Hari
                 </button>
-                <button 
+                <button
                     className={`btn ${activeTab === 'annual' ? 'btn-primary' : 'btn-outline-primary'}`}
                     onClick={() => setActiveTab('annual')}
                 >
-                    Tahunan (Bulanan)
+                    Penjualan Bulanan
+                </button>
+                <button
+                    className={`btn ${activeTab === 'profit' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => setActiveTab('profit')}
+                >
+                    Laba Bulanan
                 </button>
             </div>
 
-            {activeTab === 'timeframe' ? renderTimeframeTab() : renderAnnualTab()}
+            {activeTab === 'timeframe' && renderTimeframeTab()}
+            {activeTab === 'annual' && renderAnnualTab()}
+            {activeTab === 'profit' && renderProfitTab()}
         </div>
     );
 };

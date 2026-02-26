@@ -7,6 +7,7 @@ import {
     PaginatedVariantPerformance,
     PaginatedSalesTimeframe,
     PaginatedAnnualSales,
+    MonthlyProfitReport,
     ApiResponse,
 } from '../types';
 
@@ -105,6 +106,17 @@ export const reportService = {
 
         const response = await api.get<ApiResponse<PaginatedAnnualSales>>(
             `/reports/annual-sales?${params.toString()}`
+        );
+        return response.data.data;
+    },
+
+    // Ambil akumulasi profit per bulan berdasarkan tahun yang dipilih
+    getMonthlyProfit: async (year: number): Promise<MonthlyProfitReport> => {
+        const params = new URLSearchParams();
+        params.append('year', year.toString());
+
+        const response = await api.get<ApiResponse<MonthlyProfitReport>>(
+            `/reports/monthly-profit?${params.toString()}`
         );
         return response.data.data;
     },

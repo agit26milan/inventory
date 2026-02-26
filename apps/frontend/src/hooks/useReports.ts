@@ -82,3 +82,11 @@ export const useAnnualSales = (params: {
             ),
     });
 };
+
+// Hook untuk chart laba bulanan — re-fetch otomatis ketika year berubah
+export const useMonthlyProfit = (year: number) => {
+    return useQuery({
+        queryKey: ['reports', 'monthly-profit', year],
+        queryFn: () => reportService.getMonthlyProfit(year),
+    });
+};
