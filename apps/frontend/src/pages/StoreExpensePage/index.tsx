@@ -8,6 +8,8 @@ import {
 } from '../../hooks/useStoreExpense';
 import { formatCurrency } from '../../utils/currency';
 import { CurrencyInput } from '../../components/CurrencyInput';
+import { SearchableDropdown } from '../../components/SearchableDropdown';
+import { EXPENSE_CATEGORIES } from './constants';
 
 export default function StoreExpensePage() {
     const [amount, setAmount] = useState(0);
@@ -36,7 +38,7 @@ export default function StoreExpensePage() {
                     data: {
                         amount: amount,
                         description,
-                        category: category || undefined,
+                        category: category ? category.toUpperCase() : undefined,
                     },
                 });
                 alert('Expense updated successfully!');
@@ -44,7 +46,7 @@ export default function StoreExpensePage() {
                 await createExpense.mutateAsync({
                     amount: amount,
                     description,
-                    category: category || undefined,
+                    category: category ? category.toUpperCase() : undefined,
                 });
                 alert('Expense created successfully!');
             }
@@ -130,12 +132,11 @@ export default function StoreExpensePage() {
                         </div>
                         <div className="form-group">
                             <label className="form-label">Category</label>
-                            <input
-                                type="text"
-                                className="form-input"
-                                placeholder="e.g., Rent, Utilities"
+                            <SearchableDropdown
+                                options={EXPENSE_CATEGORIES}
                                 value={category}
-                                onChange={(e) => setCategory(e.target.value)}
+                                onChange={(val) => setCategory(String(val))}
+                                placeholder="Select category"
                             />
                         </div>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
