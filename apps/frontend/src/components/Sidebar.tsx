@@ -19,7 +19,7 @@ export const Sidebar = () => {
               className={`nav-link ${isActive('/') ? 'active' : ''}`}
             >
               <span className="nav-icon">📊</span>
-              Dashboard
+              Dasbor
             </Link>
           </li>
           <li>
@@ -28,7 +28,7 @@ export const Sidebar = () => {
               className={`nav-link ${isActive('/products') ? 'active' : ''}`}
             >
               <span className="nav-icon">📦</span>
-              Products
+              Produk
             </Link>
           </li>
           <li>
@@ -37,7 +37,7 @@ export const Sidebar = () => {
               className={`nav-link ${isActive('/inventory') ? 'active' : ''}`}
             >
               <span className="nav-icon">📥</span>
-              Inventory
+              Inventaris
             </Link>
           </li>
           <li>
@@ -46,7 +46,7 @@ export const Sidebar = () => {
               className={`nav-link ${isActive('/sales') ? 'active' : ''}`}
             >
               <span className="nav-icon">💰</span>
-              Sales
+              Penjualan
             </Link>
           </li>
           <li>
@@ -64,7 +64,7 @@ export const Sidebar = () => {
               className={`nav-link ${isActive('/equity') ? 'active' : ''}`}
             >
               <span className="nav-icon">💰</span>
-              Equity
+              Ekuitas (Modal)
             </Link>
           </li>
           <li>
@@ -73,7 +73,7 @@ export const Sidebar = () => {
               className={`nav-link ${isActive('/store-expenses') ? 'active' : ''}`}
             >
               <span className="nav-icon">🏪</span>
-              Store Expenses
+              Pengeluaran Toko
             </Link>
           </li>
           <li>
@@ -82,7 +82,7 @@ export const Sidebar = () => {
               className={`nav-link ${isActive('/reports') ? 'active' : ''}`}
             >
               <span className="nav-icon">📈</span>
-              Reports
+              Laporan
             </Link>
           </li>
           <li>
@@ -91,7 +91,7 @@ export const Sidebar = () => {
               className={`nav-link ${isActive('/sales-report') ? 'active' : ''}`}
             >
               <span className="nav-icon">📈</span>
-              Sales Reports
+              Laporan Penjualan
             </Link>
           </li>
           <li>

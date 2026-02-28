@@ -17,7 +17,7 @@ export default function EquityPage() {
         e.preventDefault();
 
         if (!amount || !description) {
-            alert('Please fill in all fields');
+            alert('Harap isi semua kolom');
             return;
         }
 
@@ -30,9 +30,9 @@ export default function EquityPage() {
             // Reset form
             setAmount(0);
             setDescription('');
-            alert('Equity entry created successfully!');
+            alert('Data ekuitas berhasil ditambahkan!');
         } catch (error: any) {
-            alert(error.response?.data?.message || 'Failed to create equity entry');
+            alert(error.response?.data?.message || 'Gagal menambahkan data ekuitas');
         }
     };
 
@@ -42,24 +42,24 @@ export default function EquityPage() {
 
     return (
         <div>
-            <h1>💰 Equity Management</h1>
+            <h1>💰 Manajemen Ekuitas (Modal)</h1>
 
             {/* Summary Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
                 <div className="card" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
-                    <h3 style={{ marginBottom: '0.5rem', fontSize: '0.9rem', opacity: 0.9 }}>Total Equity</h3>
+                    <h3 style={{ marginBottom: '0.5rem', fontSize: '0.9rem', opacity: 0.9 }}>Total Ekuitas</h3>
                     <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>
                         {formatCurrency(totalEquity || 0)}
                     </p>
                 </div>
                 <div className="card" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', color: 'white' }}>
-                    <h3 style={{ marginBottom: '0.5rem', fontSize: '0.9rem', opacity: 0.9 }}>Total Expenses</h3>
+                    <h3 style={{ marginBottom: '0.5rem', fontSize: '0.9rem', opacity: 0.9 }}>Total Pengeluaran</h3>
                     <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>
                         {formatCurrency(totalExpenses || 0)}
                     </p>
                 </div>
                 <div className="card" style={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', color: 'white' }}>
-                    <h3 style={{ marginBottom: '0.5rem', fontSize: '0.9rem', opacity: 0.9 }}>Net Equity</h3>
+                    <h3 style={{ marginBottom: '0.5rem', fontSize: '0.9rem', opacity: 0.9 }}>Ekuitas Bersih</h3>
                     <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>
                         {formatCurrency((totalEquity || 0) - (totalExpenses || 0))}
                     </p>
@@ -68,33 +68,33 @@ export default function EquityPage() {
 
             {/* Add Equity Form */}
             <div className="card mb-4">
-                <h2 className="mb-4">➕ Add Equity Entry</h2>
+                <h2 className="mb-4">➕ Tambah Data Ekuitas</h2>
                 <form onSubmit={handleSubmit}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: '1rem', alignItems: 'end' }}>
                         <div className="form-group">
-                            <label className="form-label">Amount (Rp)</label>
+                            <label className="form-label">Jumlah (Rp)</label>
                             <CurrencyInput
                                 className="form-input"
-                                placeholder="Can be positive or negative"
+                                placeholder="Bisa positif atau negatif"
                                 value={amount}
                                 onChange={(value) => setAmount(value)}
                             />
                             <small style={{ color: '#888', fontSize: '0.85rem' }}>
-                                Positive for capital injection, negative for withdrawal
+                                Positif untuk penambahan modal, negatif untuk penarikan
                             </small>
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Description</label>
+                            <label className="form-label">Deskripsi</label>
                             <input
                                 type="text"
                                 className="form-input"
-                                placeholder="e.g., Initial capital, Owner withdrawal"
+                                placeholder="misal: Modal awal, Penarikan pemilik"
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                             />
                         </div>
                         <button type="submit" className="btn btn-primary" disabled={createEquity.isPending}>
-                            {createEquity.isPending ? 'Adding...' : 'Add Entry'}
+                            {createEquity.isPending ? 'Menambahkan...' : 'Tambah Data'}
                         </button>
                     </div>
                 </form>
@@ -102,16 +102,16 @@ export default function EquityPage() {
 
             {/* Equity History */}
             <div className="card">
-                <h2 className="mb-4">📋 Equity History</h2>
+                <h2 className="mb-4">📋 Riwayat Ekuitas</h2>
                 {equities && equities.length > 0 ? (
                     <div className="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Description</th>
-                                    <th>Amount</th>
-                                    <th>Type</th>
+                                    <th>Tanggal</th>
+                                    <th>Deskripsi</th>
+                                    <th>Jumlah</th>
+                                    <th>Jenis</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -124,7 +124,7 @@ export default function EquityPage() {
                                         </td>
                                         <td>
                                             <span className={`badge ${equity.amount >= 0 ? 'badge-success' : 'badge-danger'}`}>
-                                                {equity.amount >= 0 ? 'Capital In' : 'Withdrawal'}
+                                                {equity.amount >= 0 ? 'Modal Masuk' : 'Penarikan'}
                                             </span>
                                         </td>
                                     </tr>
@@ -133,7 +133,7 @@ export default function EquityPage() {
                         </table>
                     </div>
                 ) : (
-                    <p className="text-muted">No equity entries yet. Add your first entry above.</p>
+                    <p className="text-muted">Belum ada data ekuitas. Tambahkan data pertama Anda di atas.</p>
                 )}
             </div>
         </div>

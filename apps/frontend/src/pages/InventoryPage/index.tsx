@@ -106,11 +106,11 @@ export const InventoryPage = () => {
   };
 
   const handleDelete = async (id: number) => {
-      if (window.confirm('Are you sure you want to delete this inventory batch? This cannot be undone.')) {
+      if (window.confirm('Apakah Anda yakin ingin menghapus stok masuk ini? Tindakan ini tidak dapat dibatalkan.')) {
           try {
               await deleteBatch.mutateAsync(id);
           } catch (error: any) {
-              alert(error.response?.data?.message || 'Failed to delete batch');
+              alert(error.response?.data?.message || 'Gagal menghapus stok');
           }
       }
   };
@@ -133,7 +133,7 @@ export const InventoryPage = () => {
       refetchBatches();
       resetForm();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to save inventory batch');
+      alert(error.response?.data?.message || 'Gagal menyimpan stok masuk');
     }
   };
 
@@ -147,8 +147,8 @@ export const InventoryPage = () => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h1>📥 Inventory</h1>
-          <p className="text-muted">Manage stock batches and track inventory</p>
+          <h1>📥 Inventaris</h1>
+          <p className="text-muted">Kelola stok barang masuk dan pantau inventaris</p>
         </div>
         <button 
             className="btn btn-primary" 
@@ -157,26 +157,26 @@ export const InventoryPage = () => {
                 else setShowForm(true);
             }}
         >
-          {showForm ? '✕ Cancel' : '+ Stock In'}
+          {showForm ? '✕ Batal' : '+ Stok Masuk'}
         </button>
       </div>
 
       {showForm && (
         <div className="card mb-4">
           <div className="card-header">
-            <h3 className="card-title">{editingBatchId ? 'Edit Batch' : 'Add Stock Batch'}</h3>
+            <h3 className="card-title">{editingBatchId ? 'Ubah Stok' : 'Tambah Stok Masuk'}</h3>
           </div>
           
           {isLoadingDetail && editingBatchId ? (
-              <div className="p-4 text-center">Loading batch details...</div>
+              <div className="p-4 text-center">Memuat detail stok...</div>
           ) : (
             <form onSubmit={handleSubmit}>
                 <div className="grid grid-3">
                 <div className="form-group">
-                    <label className="form-label">Product</label>
+                    <label className="form-label">Produk</label>
                     <SearchableDropdown
                         options={[
-                            { value: 0, label: 'Select a product' },
+                            { value: 0, label: 'Pilih produk' },
                             ...(products?.map((product) => ({
                                 value: product.id,
                                 label: `${product.name} (${product.sku})`,
@@ -188,7 +188,7 @@ export const InventoryPage = () => {
                             setFormData({ ...formData, productId: pid, variantCombinationId: undefined });
                             setSelectedProductId(pid);
                         }}
-                        placeholder="Select a product"
+                        placeholder="Pilih produk"
                         disabled={!!editingBatchId}
                     />
                 </div>
@@ -196,7 +196,7 @@ export const InventoryPage = () => {
                 {/* Variant Selection if available */}
                 {variants && variants.length > 0 && (
                     <div className="form-group">
-                        <label className="form-label">Variant</label>
+                        <label className="form-label">Varian</label>
                         <SearchableDropdown
                             options={variants.map((variant: VariantCombination) => ({
                                 value: variant.id,
@@ -206,13 +206,13 @@ export const InventoryPage = () => {
                             onChange={(value) =>
                                 setFormData({ ...formData, variantCombinationId: Number(value) })
                             }
-                            placeholder="Select Variant"
+                            placeholder="Pilih Varian"
                         />
                     </div>
                 )}
 
                 <div className="form-group">
-                    <label className="form-label">Quantity</label>
+                    <label className="form-label">Jumlah</label>
                     <input
                     type="number"
                     className="form-input"
@@ -226,7 +226,7 @@ export const InventoryPage = () => {
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">Cost Price</label>
+                    <label className="form-label">Harga Beli (Modal)</label>
                     <CurrencyInput
                         className="form-input"
                         value={formData.costPrice}
@@ -236,7 +236,7 @@ export const InventoryPage = () => {
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">Selling Price</label>
+                    <label className="form-label">Harga Jual</label>
                     <CurrencyInput
                         className="form-input"
                         value={formData.sellingPrice}
@@ -248,11 +248,11 @@ export const InventoryPage = () => {
 
                 <div className="flex gap-2">
                     <button type="submit" className="btn btn-success" disabled={createBatch.isPending || updateBatch.isPending}>
-                    {createBatch.isPending || updateBatch.isPending ? 'Saving...' : (editingBatchId ? 'Update Batch' : 'Add Stock')}
+                    {createBatch.isPending || updateBatch.isPending ? 'Menyimpan...' : (editingBatchId ? 'Simpan Perubahan' : 'Tambah Stok')}
                     </button>
                     {editingBatchId && (
                         <button type="button" className="btn btn-secondary" onClick={resetForm}>
-                            Cancel
+                            Batal
                         </button>
                     )}
                 </div>
@@ -263,24 +263,24 @@ export const InventoryPage = () => {
 
       {/* Filter Section */}
       <div className="card mb-4">
-          <h3 className="mb-3">🔍 Filter Inventory</h3>
+          <h3 className="mb-3">🔍 Saring Inventaris</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
               <div className="form-group">
-                  <label className="form-label">Product Name</label>
+                  <label className="form-label">Nama Produk</label>
                   <input
                       type="text"
                       className="form-input"
-                      placeholder="Search by product name..."
+                      placeholder="Cari berdasarkan nama produk..."
                       value={filterProductName}
                       onChange={(e) => setFilterProductName(e.target.value)}
                   />
               </div>
               <div className="form-group">
-                  <label className="form-label">Variant Name</label>
+                  <label className="form-label">Nama Varian</label>
                   <input
                       type="text"
                       className="form-input"
-                      placeholder="Search by variant..."
+                      placeholder="Cari berdasarkan varian..."
                       value={filterVariantName}
                       onChange={(e) => setFilterVariantName(e.target.value)}
                   />
@@ -291,7 +291,7 @@ export const InventoryPage = () => {
                       onClick={clearFilters}
                       disabled={!filterProductName && !filterVariantName}
                   >
-                      Clear Filters
+                      Hapus Penyaring
                   </button>
               </div>
           </div>
@@ -299,13 +299,13 @@ export const InventoryPage = () => {
 
       <div className="card">
         <div className="card-header flex justify-between items-center">
-          <h3 className="card-title">Inventory Batches ({batches?.length || 0})</h3>
+          <h3 className="card-title">Daftar Stok Masuk ({batches?.length || 0})</h3>
           {selectedBatchIds.length > 0 && (
               <button 
                   className="btn btn-warning btn-sm"
                   onClick={() => setShowBulkEditModal(true)}
               >
-                  ✏️ Bulk Edit Selling Price ({selectedBatchIds.length})
+                  ✏️ Ubah Harga Jual Sekaligus ({selectedBatchIds.length})
               </button>
           )}
         </div>
@@ -322,15 +322,15 @@ export const InventoryPage = () => {
                           onChange={toggleAllSelection}
                       />
                   </th>
-                  <th>Product</th>
-                  <th>Variant</th>
-                  <th>Original Qty</th>
-                  <th>Remaining Qty</th>
-                  <th>Cost Price</th>
-                  <th>Selling Price</th>
-                  <th>Total Value</th>
-                  <th>Date Added</th>
-                  <th>Actions</th>
+                  <th>Produk</th>
+                  <th>Varian</th>
+                  <th>Jml Awal</th>
+                  <th>Sisa Stok</th>
+                  <th>Harga Beli</th>
+                  <th>Harga Jual</th>
+                  <th>Total Nilai</th>
+                  <th>Tgl Masuk</th>
+                  <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -385,7 +385,7 @@ export const InventoryPage = () => {
             </table>
           </div>
         ) : (
-          <p className="text-center text-muted">No inventory batches found. Add your first stock!</p>
+          <p className="text-center text-muted">Belum ada stok barang. Tambahkan stok pertama Anda!</p>
         )}
       </div>
 

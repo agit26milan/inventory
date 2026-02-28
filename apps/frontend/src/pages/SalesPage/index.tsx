@@ -42,7 +42,7 @@ export const SalesPage = () => {
     if (currentItem.productId && currentItem.quantity > 0) {
       // Check if variant is required but not selected
       if (variants && variants.length > 0 && !currentItem.variantCombinationId) {
-          alert('Please select a variant');
+          alert('Silakan pilih varian');
           return;
       }
 
@@ -68,7 +68,7 @@ export const SalesPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (saleItems.length === 0) {
-      alert('Please add at least one item to the sale');
+      alert('Silakan tambahkan minimal satu barang ke dalam penjualan');
       return;
     }
 
@@ -79,7 +79,7 @@ export const SalesPage = () => {
       setSaleItems([]);
       setShowForm(false);
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Failed to create sale');
+      alert(error.response?.data?.message || 'Gagal membuat penjualan');
     }
   };
 
@@ -87,29 +87,29 @@ export const SalesPage = () => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h1>💰 Sales</h1>
-          <p className="text-muted">Process sales transactions</p>
+          <h1>💰 Penjualan</h1>
+          <p className="text-muted">Proses transaksi penjualan</p>
         </div>
         <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-          {showForm ? '✕ Cancel' : '+ New Sale'}
+          {showForm ? '✕ Batal' : '+ Penjualan Baru'}
         </button>
       </div>
 
       {showForm && (
         <div className="card mb-4">
           <div className="card-header">
-            <h3 className="card-title">Create New Sale</h3>
+            <h3 className="card-title">Buat Penjualan Baru</h3>
           </div>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-3 mb-3">
               <div className="form-group">
-                <label className="form-label">Product</label>
+                <label className="form-label">Produk</label>
                 <SearchableDropdown
                   options={[
-                    { value: 0, label: 'Select a product' },
+                    { value: 0, label: 'Pilih produk' },
                     ...(products?.map((product) => ({
                       value: product.id,
-                      label: `${product.name} - Stock: ${product.currentStock}`,
+                      label: `${product.name} - Stok: ${product.currentStock}`,
                     })) || [])
                   ]}
                   value={currentItem.productId}
@@ -118,14 +118,14 @@ export const SalesPage = () => {
                     setCurrentItem({ ...currentItem, productId: pid, variantCombinationId: undefined });
                     setSelectedProductId(pid);
                   }}
-                  placeholder="Select a product"
+                  placeholder="Pilih produk"
                 />
               </div>
 
                {/* Variant Selection */}
                {variants && variants.length > 0 && (
                   <div className="form-group">
-                    <label className="form-label">Variant</label>
+                    <label className="form-label">Varian</label>
                     <SearchableDropdown
                       options={variants.map((variant: VariantCombination) => ({
                         value: variant.id,
@@ -135,13 +135,13 @@ export const SalesPage = () => {
                       onChange={(val) =>
                         setCurrentItem({ ...currentItem, variantCombinationId: Number(val) })
                       }
-                      placeholder="Select Variant"
+                      placeholder="Pilih Varian"
                     />
                   </div>
               )}
 
               <div className="form-group">
-                <label className="form-label">Quantity</label>
+                <label className="form-label">Jumlah</label>
                 <input
                   type="number"
                   className="form-input"
@@ -156,22 +156,22 @@ export const SalesPage = () => {
               <div className="form-group">
                 <label className="form-label">&nbsp;</label>
                 <button type="button" className="btn btn-secondary" onClick={addItem}>
-                  + Add Item
+                  + Tambah Barang
                 </button>
               </div>
             </div>
 
             {saleItems.length > 0 && (
               <div className="mb-3">
-                <h4>Sale Items:</h4>
+                <h4>Barang Penjualan:</h4>
                 <div className="table-container">
                   <table>
                     <thead>
                       <tr>
-                        <th>Product</th>
-                        <th>Variant</th>
-                        <th>Quantity</th>
-                        <th>Actions</th>
+                        <th>Produk</th>
+                        <th>Varian</th>
+                        <th>Jumlah</th>
+                        <th>Aksi</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -194,7 +194,7 @@ export const SalesPage = () => {
                                 className="btn btn-danger sp-btn-remove"
                                 onClick={() => removeItem(index)}
                               >
-                                Remove
+                                Hapus
                               </button>
                             </td>
                           </tr>
@@ -211,7 +211,7 @@ export const SalesPage = () => {
               className="btn btn-success"
               disabled={createSale.isPending || saleItems.length === 0}
             >
-              {createSale.isPending ? 'Processing...' : 'Complete Sale'}
+              {createSale.isPending ? 'Memproses...' : 'Selesaikan Penjualan'}
             </button>
           </form>
         </div>
@@ -219,28 +219,28 @@ export const SalesPage = () => {
 
       <div className="card">
         <div className="card-header">
-          <h3 className="card-title">Sales History ({sales?.length || 0})</h3>
+          <h3 className="card-title">Riwayat Penjualan ({sales?.length || 0})</h3>
         </div>
 
         {/* Filter Section */}
         <div className="sp-filter-section">
           <div className="sp-filter-grid">
             <div className="form-group">
-              <label className="form-label">Filter by Product Name</label>
+              <label className="form-label">Cari berdasarkan Nama Produk</label>
               <input
                 type="text"
                 className="form-input"
-                placeholder="Search product..."
+                placeholder="Cari produk..."
                 value={filterProductName}
                 onChange={(e) => setFilterProductName(e.target.value)}
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Filter by Variant</label>
+              <label className="form-label">Cari berdasarkan Varian</label>
               <input
                 type="text"
                 className="form-input"
-                placeholder="Search variant..."
+                placeholder="Cari varian..."
                 value={filterVariantName}
                 onChange={(e) => setFilterVariantName(e.target.value)}
               />
@@ -252,7 +252,7 @@ export const SalesPage = () => {
                 setFilterVariantName('');
               }}
             >
-              Clear Filters
+              Hapus Penyaring
             </button>
           </div>
         </div>
@@ -262,12 +262,12 @@ export const SalesPage = () => {
             <table>
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Items</th>
-                  <th>Sale Item</th>
-                  <th>Total Amount</th>
-                  <th>COGS</th>
-                  <th>Profit</th>
+                  <th>Tanggal</th>
+                  <th>Jumlah Barang</th>
+                  <th>Detail Barang</th>
+                  <th>Total Tagihan</th>
+                  <th>HPP (COGS)</th>
+                  <th>Laba Bersih</th>
                   <th>Margin</th>
                 </tr>
               </thead>
@@ -275,7 +275,7 @@ export const SalesPage = () => {
                 {sales.map((sale) => (
                   <tr key={sale.id}>
                     <td>{new Date(sale.saleDate).toLocaleString()}</td>
-                    <td>{sale.items.length} item(s)</td>
+                    <td>{sale.items.length} barang</td>
                     <td>{sale.items.map((item) => `${item.productName} - ${getSkuName(item.variantName || '') || '-'} x ${item.quantity}`).join(' | ')} </td>
                     <td className="text-success">{formatCurrency(sale.totalAmount)}</td>
                     <td className="text-danger">{formatCurrency(sale.totalCogs)}</td>
@@ -291,7 +291,7 @@ export const SalesPage = () => {
             </table>
           </div>
         ) : (
-          <p className="text-center text-muted">No sales found. Create your first sale!</p>
+          <p className="text-center text-muted">Belum ada penjualan. Buat penjualan pertama Anda!</p>
         )}
       </div>
     </div>

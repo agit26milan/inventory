@@ -18,7 +18,7 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
     options,
     value,
     onChange,
-    placeholder = 'Select...',
+    placeholder = 'Pilih...',
     className = '',
     disabled = false,
 }) => {
@@ -82,7 +82,7 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
                         <input
                             type="text"
                             className="form-input"
-                            placeholder="Search..."
+                            placeholder="Cari..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             autoFocus
@@ -110,7 +110,7 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
                             </div>
                         ))
                     ) : (
-                        <div style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>No options found</div>
+                        <div style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>Pilihan tidak ditemukan</div>
                     )}
                 </div>
             )}

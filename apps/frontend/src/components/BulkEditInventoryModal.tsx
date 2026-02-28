@@ -49,7 +49,7 @@ export const BulkEditInventoryModal: React.FC<BulkEditInventoryModalProps> = ({
             onSuccess();
             onClose();
         } catch (error: any) {
-            alert(error.response?.data?.message || 'Failed to update selling prices');
+            alert(error.response?.data?.message || 'Gagal memperbarui harga jual');
         }
     };
 
@@ -57,20 +57,20 @@ export const BulkEditInventoryModal: React.FC<BulkEditInventoryModalProps> = ({
         <div className="modal-overlay">
             <div className="modal-content" style={{ maxWidth: '800px' }}>
                 <div className="modal-header">
-                    <h3>Batch Edit Selling Prices</h3>
+                    <h3>Ubah Harga Jual Sekaligus</h3>
                     <button className="close-button" onClick={onClose}>&times;</button>
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div className="modal-body">
                         <div className="mb-4 p-3  rounded">
-                            <label className="form-label">Set same price for all:</label>
+                            <label className="form-label">Tetapkan harga yang sama untuk semua:</label>
                             <div className="flex gap-2">
                                 <CurrencyInput 
                                     className="form-input" 
                                     value={0}
                                     onChange={handleApplyAll}
                                 />
-                                <button type="button" className="btn btn-secondary btn-sm">Apply</button>
+                                <button type="button" className="btn btn-secondary btn-sm">Terapkan</button>
                             </div>
                         </div>
 
@@ -78,10 +78,10 @@ export const BulkEditInventoryModal: React.FC<BulkEditInventoryModalProps> = ({
                             <table className="table">
                                 <thead>
                                     <tr>
-                                        <th>Product</th>
-                                        <th>Variant</th>
-                                        <th>Current Price</th>
-                                        <th>New Selling Price</th>
+                                        <th>Produk</th>
+                                        <th>Varian</th>
+                                        <th>Harga Saat Ini</th>
+                                        <th>Harga Jual Baru</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -105,9 +105,9 @@ export const BulkEditInventoryModal: React.FC<BulkEditInventoryModalProps> = ({
                         </div>
                     </div>
                     <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                        <button type="button" className="btn btn-secondary" onClick={onClose}>Batal</button>
                         <button type="submit" className="btn btn-primary" disabled={updateMutation.isPending}>
-                            {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+                            {updateMutation.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
                         </button>
                     </div>
                 </form>

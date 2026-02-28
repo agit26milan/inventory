@@ -40,7 +40,7 @@ export const VariantManager = ({ productId }: VariantManagerProps) => {
             });
             setNewVariantName('');
         } catch (error: any) {
-             alert(error.response?.data?.message || 'Failed to create variant');
+             alert(error.response?.data?.message || 'Gagal membuat varian');
         }
     };
 
@@ -56,7 +56,7 @@ export const VariantManager = ({ productId }: VariantManagerProps) => {
             });
             setNewValueNames({ ...newValueNames, [variantId]: '' });
         } catch (error: any) {
-             alert(error.response?.data?.message || 'Failed to create variant value');
+             alert(error.response?.data?.message || 'Gagal membuat nilai varian');
         }
     };
 
@@ -69,7 +69,7 @@ export const VariantManager = ({ productId }: VariantManagerProps) => {
             });
             setEditingVariant(null);
         } catch (error: any) {
-            alert(error.response?.data?.message || 'Failed to update variant');
+            alert(error.response?.data?.message || 'Gagal memperbarui varian');
         }
     };
 
@@ -82,46 +82,46 @@ export const VariantManager = ({ productId }: VariantManagerProps) => {
             });
             setEditingValue(null);
         } catch (error: any) {
-            alert(error.response?.data?.message || 'Failed to update variant value');
+            alert(error.response?.data?.message || 'Gagal memperbarui nilai varian');
         }
     };
 
     const handleDeleteVariant = async (id: number) => {
-        if (window.confirm('Are you sure you want to delete this variant? All related values will be deleted.')) {
+        if (window.confirm('Apakah Anda yakin ingin menghapus varian ini? Semua nilai yang terkait juga akan dihapus.')) {
              try {
                 await deleteVariant.mutateAsync(id);
              } catch (error: any) {
-                alert(error.response?.data?.message || 'Failed to delete variant');
+                alert(error.response?.data?.message || 'Gagal menghapus varian');
              }
         }
     };
 
     const handleDeleteVariantValue = async (id: number) => {
-        if (window.confirm('Are you sure you want to delete this value?')) {
+        if (window.confirm('Apakah Anda yakin ingin menghapus nilai ini?')) {
              try {
                 await deleteVariantValue.mutateAsync(id);
              } catch (error: any) {
-                alert(error.response?.data?.message || 'Failed to delete variant value');
+                alert(error.response?.data?.message || 'Gagal menghapus nilai varian');
              }
         }
     };
 
-    if (isLoading) return <div className="text-center py-4">Loading variants...</div>;
+    if (isLoading) return <div className="text-center py-4">Memuat varian...</div>;
 
     return (
         <div className="variant-manager">
-            <h4 className="mb-3">Manage Variants</h4>
+            <h4 className="mb-3">Kelola Varian</h4>
             
             <form onSubmit={handleCreateVariant} className="flex gap-2 mb-4">
                 <input 
                     type="text" 
                     className="form-input flex-1"
-                    placeholder="New Variant Name (e.g. Size, Color)"
+                    placeholder="Nama Varian Baru (mis. Ukuran, Warna)"
                     value={newVariantName}
                     onChange={(e) => setNewVariantName(e.target.value)}
                 />
                 <button type="submit" className="btn btn-primary" disabled={createVariant.isPending}>
-                    {createVariant.isPending ? 'Adding...' : 'Add Variant'}
+                    {createVariant.isPending ? 'Menambahkan...' : 'Tambah Varian'}
                 </button>
             </form>
 
@@ -142,13 +142,13 @@ export const VariantManager = ({ productId }: VariantManagerProps) => {
                                         onClick={handleUpdateVariant}
                                         disabled={updateVariant.isPending}
                                     >
-                                        Save
+                                        Simpan
                                     </button>
                                     <button 
                                         className="btn btn-secondary btn-sm" 
                                         onClick={() => setEditingVariant(null)}
                                     >
-                                        Cancel
+                                        Batal
                                     </button>
                                 </div>
                             ) : (
@@ -161,13 +161,13 @@ export const VariantManager = ({ productId }: VariantManagerProps) => {
                                         className="text-primary text-sm hover:underline"
                                         onClick={() => setEditingVariant({ id: variant.id, name: variant.name })}
                                     >
-                                        Edit
+                                        Ubah
                                     </button>
                                     <button 
                                         className="text-danger text-sm hover:underline"
                                         onClick={() => handleDeleteVariant(variant.id)}
                                     >
-                                        Delete
+                                        Hapus
                                     </button>
                                 </div>
                             )}
@@ -195,7 +195,7 @@ export const VariantManager = ({ productId }: VariantManagerProps) => {
                                             <span 
                                                 className="cursor-pointer" 
                                                 onClick={() => setEditingValue({ id: value.id, name: value.name })}
-                                                title="Click to edit"
+                                                title="Klik untuk mengubah"
                                             >
                                                 {value.name}
                                             </span>
@@ -217,7 +217,7 @@ export const VariantManager = ({ productId }: VariantManagerProps) => {
                                 <input 
                                     type="text" 
                                     className="form-input form-input-sm flex-1"
-                                    placeholder={`Add ${variant.name} value...`}
+                                    placeholder={`Tambah nilai ${variant.name}...`}
                                     value={newValueNames[variant.id] || ''}
                                     onChange={(e) => setNewValueNames({ ...newValueNames, [variant.id]: e.target.value })}
                                 />
@@ -226,7 +226,7 @@ export const VariantManager = ({ productId }: VariantManagerProps) => {
                                     className="btn btn-secondary btn-sm"
                                     disabled={createVariantValue.isPending}
                                 >
-                                    Add Value
+                                    Tambah Nilai
                                 </button>
                             </form>
                         </div>
@@ -234,7 +234,7 @@ export const VariantManager = ({ productId }: VariantManagerProps) => {
                 ))}
 
                 {variants?.length === 0 && (
-                    <p className="text-muted text-sm text-center italic">No variants created yet.</p>
+                    <p className="text-muted text-sm text-center italic">Belum ada varian yang dibuat.</p>
                 )}
             </div>
         </div>
