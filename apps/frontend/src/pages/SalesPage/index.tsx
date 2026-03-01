@@ -17,10 +17,28 @@ export const SalesPage = () => {
   // Filter state
   const [filterProductName, setFilterProductName] = useState('');
   const [filterVariantName, setFilterVariantName] = useState('');
+  const [filterMonth, setFilterMonth] = useState<number | ''>('');
+
+  // Daftar opsi bulan Januari–Desember
+  const MONTH_OPTIONS = [
+    { value: 1, label: 'Januari' },
+    { value: 2, label: 'Februari' },
+    { value: 3, label: 'Maret' },
+    { value: 4, label: 'April' },
+    { value: 5, label: 'Mei' },
+    { value: 6, label: 'Juni' },
+    { value: 7, label: 'Juli' },
+    { value: 8, label: 'Agustus' },
+    { value: 9, label: 'September' },
+    { value: 10, label: 'Oktober' },
+    { value: 11, label: 'November' },
+    { value: 12, label: 'Desember' },
+  ];
 
   const filters = {
     productName: filterProductName || undefined,
     variantName: filterVariantName || undefined,
+    month: filterMonth || undefined,
   };
 
   const { data: sales } = useSales(filters);
@@ -245,11 +263,21 @@ export const SalesPage = () => {
                 onChange={(e) => setFilterVariantName(e.target.value)}
               />
             </div>
+            <div className="form-group">
+              <label className="form-label">Filter Bulan</label>
+              <SearchableDropdown
+                options={MONTH_OPTIONS}
+                value={filterMonth}
+                onChange={(val) => setFilterMonth(val === '' ? '' : Number(val))}
+                placeholder="Semua Bulan"
+              />
+            </div>
             <button
               className="btn btn-secondary sp-filter-clear"
               onClick={() => {
                 setFilterProductName('');
                 setFilterVariantName('');
+                setFilterMonth('');
               }}
             >
               Hapus Penyaring

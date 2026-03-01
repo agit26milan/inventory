@@ -31,4 +31,6 @@ export interface SaleItemResponse {
 export interface GetSalesFilters {
     productName?: string;
     variantName?: string;
+    /** Bulan untuk filter (1 = Januari, 12 = Desember) */
+    month?: number;
 }

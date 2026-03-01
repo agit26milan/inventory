@@ -2,10 +2,11 @@ import api from './api';
 import { Sale, CreateSaleDTO, ApiResponse } from '../types';
 
 export const salesService = {
-    getAll: async (filters?: { productName?: string; variantName?: string }): Promise<Sale[]> => {
+    getAll: async (filters?: { productName?: string; variantName?: string; month?: number }): Promise<Sale[]> => {
         const params = new URLSearchParams();
         if (filters?.productName) params.append('productName', filters.productName);
         if (filters?.variantName) params.append('variantName', filters.variantName);
+        if (filters?.month) params.append('month', String(filters.month));
         
         const queryString = params.toString();
         const url = queryString ? `/sales?${queryString}` : `/sales`;

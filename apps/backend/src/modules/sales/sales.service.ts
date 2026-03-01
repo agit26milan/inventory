@@ -271,10 +271,21 @@ export class SalesService {
     /**
      * Get all sales
      */
-    async getAllSales(filters?: { productName?: string; variantName?: string }): Promise<SaleResponse[]> {
-        const whereClause: any = {};
+    async getAllSales(filters?: { productName?: string; variantName?: string; month?: number }): Promise<SaleResponse[]> {
+        const whereClause: Record<string, unknown> = {};
 
-        // Build where clause to filter sales by items
+        // Filter berdasarkan bulan: buat range awal dan akhir bulan pada tahun berjalan
+        if (filters?.month) {
+            const year = new Date().getFullYear();
+            const startOfMonth = new Date(year, filters.month - 1, 1);
+            const endOfMonth = new Date(year, filters.month, 0, 23, 59, 59, 999);
+            whereClause.saleDate = {
+                gte: startOfMonth,
+                lte: endOfMonth,
+            };
+        }
+
+        // Build where clause untuk filter berdasarkan item penjualan
         if (filters?.productName || filters?.variantName) {
             whereClause.saleItems = {
                 some: {

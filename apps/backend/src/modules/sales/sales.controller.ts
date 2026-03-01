@@ -17,6 +17,8 @@ export class SalesController {
             const filters = {
                 productName: req.query.productName as string | undefined,
                 variantName: req.query.variantName as string | undefined,
+                // Parse month dari string query param menjadi number
+                month: req.query.month ? Number(req.query.month) : undefined,
             };
             const sales = await salesService.getAllSales(filters);
             successResponse(res, sales, 'Sales retrieved successfully');
