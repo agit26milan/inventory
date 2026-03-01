@@ -14,10 +14,13 @@ interface CartItem extends SaleItem {
 }
 
 export const SalesPage = () => {
+    // Daftar opsi tahun secara dinamis: dari 3 tahun lalu hingga tahun berjalan
+  const CURRENT_YEAR = new Date().getFullYear();
   // Filter state
   const [filterProductName, setFilterProductName] = useState('');
   const [filterVariantName, setFilterVariantName] = useState('');
   const [filterMonth, setFilterMonth] = useState<number | ''>('');
+  const [filterYear, setFilterYear] = useState<number | ''>(CURRENT_YEAR);
 
   // Daftar opsi bulan Januari–Desember
   const MONTH_OPTIONS = [
@@ -35,10 +38,17 @@ export const SalesPage = () => {
     { value: 12, label: 'Desember' },
   ];
 
+
+  const YEAR_OPTIONS = Array.from({ length: 2026 - CURRENT_YEAR + 1 }, (_, i) => {
+    const year = CURRENT_YEAR + i;
+    return { value: year, label: String(year) };
+  }).reverse();
+
   const filters = {
     productName: filterProductName || undefined,
     variantName: filterVariantName || undefined,
     month: filterMonth || undefined,
+    year: filterYear || undefined,
   };
 
   const { data: sales } = useSales(filters);
@@ -272,12 +282,22 @@ export const SalesPage = () => {
                 placeholder="Semua Bulan"
               />
             </div>
+            <div className="form-group">
+              <label className="form-label">Filter Tahun</label>
+              <SearchableDropdown
+                options={YEAR_OPTIONS}
+                value={filterYear}
+                onChange={(val) => setFilterYear(val === '' ? '' : Number(val))}
+                placeholder="Semua Tahun"
+              />
+            </div>
             <button
               className="btn btn-secondary sp-filter-clear"
               onClick={() => {
                 setFilterProductName('');
                 setFilterVariantName('');
                 setFilterMonth('');
+                setFilterYear('');
               }}
             >
               Hapus Penyaring

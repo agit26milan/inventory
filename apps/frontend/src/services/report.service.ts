@@ -60,11 +60,15 @@ export const reportService = {
 
     getVariantPerformance: async (
         page: number = 1,
-        limit: number = 10
+        limit: number = 10,
+        productName?: string,
+        variantName?: string
     ): Promise<PaginatedVariantPerformance> => {
         const params = new URLSearchParams();
         params.append('page', page.toString());
         params.append('limit', limit.toString());
+        if (productName) params.append('productName', productName);
+        if (variantName) params.append('variantName', variantName);
 
         const response = await api.get<ApiResponse<PaginatedVariantPerformance>>(
             `/reports/variant-performance?${params.toString()}`

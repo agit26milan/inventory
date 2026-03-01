@@ -271,18 +271,29 @@ export class SalesService {
     /**
      * Get all sales
      */
-    async getAllSales(filters?: { productName?: string; variantName?: string; month?: number }): Promise<SaleResponse[]> {
+    async getAllSales(filters?: { productName?: string; variantName?: string; month?: number; year?: number }): Promise<SaleResponse[]> {
         const whereClause: Record<string, unknown> = {};
 
-        // Filter berdasarkan bulan: buat range awal dan akhir bulan pada tahun berjalan
-        if (filters?.month) {
-            const year = new Date().getFullYear();
-            const startOfMonth = new Date(year, filters.month - 1, 1);
-            const endOfMonth = new Date(year, filters.month, 0, 23, 59, 59, 999);
-            whereClause.saleDate = {
-                gte: startOfMonth,
-                lte: endOfMonth,
-            };
+        /**
+         * Logika filter tanggal penjualan:
+         * - month + year → range bulan spesifik pada tahun yang dipilih
+         * - year saja    → range seluruh tahun (1 Jan – 31 Des)
+         * - month saja   → range bulan pada tahun berjalan (fallback)
+         */
+        if (filters?.month || filters?.year) {
+            const targetYear = filters.year ?? new Date().getFullYear();
+
+            if (filters?.month) {
+                // Filter bulan spesifik pada tahun target
+                const startOfMonth = new Date(targetYear, filters.month - 1, 1);
+                const endOfMonth = new Date(targetYear, filters.month, 0, 23, 59, 59, 999);
+                whereClause.saleDate = { gte: startOfMonth, lte: endOfMonth };
+            } else {
+                // Filter seluruh tahun target
+                const startOfYear = new Date(targetYear, 0, 1);
+                const endOfYear = new Date(targetYear, 11, 31, 23, 59, 59, 999);
+                whereClause.saleDate = { gte: startOfYear, lte: endOfYear };
+            }
         }
 
         // Build where clause untuk filter berdasarkan item penjualan

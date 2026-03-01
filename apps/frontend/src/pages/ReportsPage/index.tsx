@@ -17,6 +17,10 @@ export const ReportsPage = () => {
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [variantPage, setVariantPage] = useState(1);
+    const [variantSearchProduct, setVariantSearchProduct] = useState('');
+    const [variantSearchVariant, setVariantSearchVariant] = useState('');
+    const [debouncedVariantProduct, setDebouncedVariantProduct] = useState('');
+    const [debouncedVariantVariant, setDebouncedVariantVariant] = useState('');
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -26,10 +30,25 @@ export const ReportsPage = () => {
         return () => clearTimeout(timer);
     }, [search]);
 
+    // Debounce untuk search Variant Performance
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedVariantProduct(variantSearchProduct);
+            setDebouncedVariantVariant(variantSearchVariant);
+            setVariantPage(1); // Reset ke halaman 1 saat search berubah
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [variantSearchProduct, variantSearchVariant]);
+
     const { data: summary } = useSalesSummary();
     const { data: performance } = useProductPerformance();
     const { data: valuation } = useInventoryValuation();
-    const { data: variantPerfData } = useVariantPerformance(variantPage, 10);
+    const { data: variantPerfData } = useVariantPerformance(
+        variantPage,
+        10,
+        debouncedVariantProduct || undefined,
+        debouncedVariantVariant || undefined
+    );
 
     // Baca threshold dari konfigurasi; gunakan default jika belum pernah di-set
     const { data: thresholdConfig } = useConfigurationByKey(STOCK_ALERT_KEY);
@@ -258,8 +277,26 @@ export const ReportsPage = () => {
 
             {/* ===== VARIANT PERFORMANCE ===== */}
             <div className="card mb-4">
-                <div className="card-header">
+                <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                     <h3 className="card-title">📊 Variant Performance</h3>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Cari produk..."
+                            value={variantSearchProduct}
+                            onChange={(e) => setVariantSearchProduct(e.target.value)}
+                            style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', minWidth: '160px' }}
+                        />
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Cari variant / SKU..."
+                            value={variantSearchVariant}
+                            onChange={(e) => setVariantSearchVariant(e.target.value)}
+                            style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', minWidth: '160px' }}
+                        />
+                    </div>
                 </div>
                 {variantPerfData?.data && variantPerfData.data.length > 0 ? (
                     <div className="table-container">

@@ -28,5 +28,10 @@ export const getAllSalesSchema = z.object({
             .string()
             .regex(/^([1-9]|1[0-2])$/, 'Month must be a number between 1 and 12')
             .optional(),
+        // Tahun dalam 4 digit angka, misal 2024
+        year: z
+            .string()
+            .regex(/^\d{4}$/, 'Year must be a 4-digit number')
+            .optional(),
     }),
 });

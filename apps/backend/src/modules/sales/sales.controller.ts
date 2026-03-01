@@ -19,6 +19,8 @@ export class SalesController {
                 variantName: req.query.variantName as string | undefined,
                 // Parse month dari string query param menjadi number
                 month: req.query.month ? Number(req.query.month) : undefined,
+                // Parse year dari string query param menjadi number
+                year: req.query.year ? Number(req.query.year) : undefined,
             };
             const sales = await salesService.getAllSales(filters);
             successResponse(res, sales, 'Sales retrieved successfully');

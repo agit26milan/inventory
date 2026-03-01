@@ -33,4 +33,6 @@ export interface GetSalesFilters {
     variantName?: string;
     /** Bulan untuk filter (1 = Januari, 12 = Desember) */
     month?: number;
+    /** Tahun untuk filter, misal: 2024, 2025 */
+    year?: number;
 }

@@ -72,8 +72,10 @@ export class ReportController {
         try {
             const page = req.query['page'] ? parseInt(req.query['page'] as string, 10) : 1;
             const limit = req.query['limit'] ? parseInt(req.query['limit'] as string, 10) : 10;
+            const productName = req.query['productName'] ? (req.query['productName'] as string) : undefined;
+            const variantName = req.query['variantName'] ? (req.query['variantName'] as string) : undefined;
 
-            const performance = await reportService.getVariantPerformance(page, limit);
+            const performance = await reportService.getVariantPerformance(page, limit, productName, variantName);
             successResponse(res, performance, 'Variant performance retrieved successfully');
         } catch (error) {
             next(error);

@@ -245,11 +245,14 @@ export class ReportService {
 
     /**
      * Get variant performance report - Total Penjualan per Variant
-     * Mengembalikan metrik penjualan yang dikelompokkan berdasarkan varian
+     * Mengembalikan metrik penjualan yang dikelompokkan berdasarkan varian.
+     * Mendukung filter teks berdasarkan nama produk dan nama variant.
      */
     async getVariantPerformance(
         page: number = 1,
-        limit: number = 10
+        limit: number = 10,
+        productName?: string,
+        variantName?: string
     ): Promise<PaginatedVariantPerformance> {
         const saleItems = await prisma.saleItem.findMany({
             include: {
@@ -284,11 +287,11 @@ export class ReportService {
                 existing.totalCogs += cogs;
                 existing.totalProfit += profit;
             } else {
-                let variantName = '-';
+                let resolvedVariantName = '-';
                 let sku = '-';
 
                 if (item.variantCombination) {
-                    variantName =
+                    resolvedVariantName =
                         item.variantCombination.values
                             .map((v) => v.variantValue.name)
                             .join(' / ') || item.variantCombination.sku;
@@ -299,7 +302,7 @@ export class ReportService {
                     productId: item.productId,
                     productName: item.product.name,
                     combinationId: item.variantCombinationId,
-                    variantName,
+                    variantName: resolvedVariantName,
                     sku,
                     totalQuantitySold: item.quantity,
                     totalRevenue: revenue,
@@ -310,9 +313,26 @@ export class ReportService {
         }
 
         // Urutkan berdasarkan qty terjual terbanyak (tertinggi pertama)
-        const allData = Array.from(variantMap.values()).sort(
+        let allData = Array.from(variantMap.values()).sort(
             (a, b) => b.totalQuantitySold - a.totalQuantitySold
         );
+
+        // Filter berdasarkan nama produk (case-insensitive contains)
+        if (productName) {
+            const productNameLower = productName.toLowerCase();
+            allData = allData.filter((item) =>
+                item.productName.toLowerCase().includes(productNameLower)
+            );
+        }
+
+        // Filter berdasarkan nama variant (case-insensitive contains)
+        if (variantName) {
+            const variantNameLower = variantName.toLowerCase();
+            allData = allData.filter((item) =>
+                item.variantName.toLowerCase().includes(variantNameLower) ||
+                item.sku.toLowerCase().includes(variantNameLower)
+            );
+        }
 
         // Pagination
         const total = allData.length;
