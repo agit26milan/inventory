@@ -208,7 +208,7 @@ export const SalesReportPage: React.FC = () => {
                         value={selectedYear}
                         onChange={(e) => setSelectedYear(Number(e.target.value))}
                     >
-                        {Array.from({ length: 5 }, (_, i) => currentYear - i).map(year => (
+                        {Array.from({ length: 2026 - currentYear + 1 }, (_, i) => currentYear - i).map(year => (
                             <option key={year} value={year}>{year}</option>
                         ))}
                     </select>
