@@ -307,6 +307,7 @@ export const ReportsPage = () => {
                                     <th>Variant</th>
                                     <th>SKU</th>
                                     <th>Qty Sold</th>
+                                    <th>Stok Tersisa</th>
                                     <th>Revenue</th>
                                     <th>COGS</th>
                                     <th>Profit</th>
@@ -320,6 +321,11 @@ export const ReportsPage = () => {
                                         <td>{item.variantName}</td>
                                         <td><code style={{ fontSize: '0.85em' }}>{item.sku}</code></td>
                                         <td>{item.totalQuantitySold}</td>
+                                        <td>
+                                            <span style={{ fontWeight: 600, color: item.remainingQuantity === 0 ? 'var(--danger)' : 'inherit' }}>
+                                                {item.remainingQuantity} unit
+                                            </span>
+                                        </td>
                                         <td className="text-success">{formatCurrency(item.totalRevenue)}</td>
                                         <td className="text-danger">{formatCurrency(item.totalCogs)}</td>
                                         <td className="text-primary-light" style={{ fontWeight: 600 }}>

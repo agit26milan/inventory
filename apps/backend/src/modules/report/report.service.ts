@@ -308,8 +308,35 @@ export class ReportService {
                     totalRevenue: revenue,
                     totalCogs: cogs,
                     totalProfit: profit,
+                    remainingQuantity: 0, // diisi setelah query inventory_batches
                 });
             }
+        }
+
+        /**
+         * Ambil remaining quantity dari inventory_batches.
+         * Satu query untuk semua batch, lalu akumulasi per combinationId (atau productId jika tanpa variant).
+         * Menggunakan Map<string, number> dengan key yang sama (productId-combinationId)
+         * agar bisa di-join ke variantMap secara efisien.
+         */
+        const batches = await prisma.inventoryBatch.findMany({
+            select: {
+                productId: true,
+                variantCombinationId: true,
+                remainingQuantity: true,
+            },
+        });
+
+        // Akumulasi remainingQuantity dari semua batch per key
+        const stockMap = new Map<string, number>();
+        for (const batch of batches) {
+            const key = `${batch.productId}-${batch.variantCombinationId || 'null'}`;
+            stockMap.set(key, (stockMap.get(key) ?? 0) + batch.remainingQuantity);
+        }
+
+        // Inject remainingQuantity ke setiap entry variantMap
+        for (const [key, entry] of variantMap) {
+            entry.remainingQuantity = stockMap.get(key) ?? 0;
         }
 
         // Urutkan berdasarkan qty terjual terbanyak (tertinggi pertama)

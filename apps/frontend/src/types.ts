@@ -241,6 +241,8 @@ export interface VariantPerformance {
     totalRevenue: number;
     totalCogs: number;
     totalProfit: number;
+    /** Total stok tersisa dari semua inventory batch variant ini */
+    remainingQuantity: number;
 }
 
 export interface PaginatedVariantPerformance {
