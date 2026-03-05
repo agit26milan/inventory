@@ -11,9 +11,13 @@ export const createExpense = async (req: Request, res: Response, next: NextFunct
     }
 };
 
-export const getAllExpenses = async (_req: Request, res: Response, next: NextFunction) => {
+export const getAllExpenses = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const expenses = await storeExpenseService.getAllExpenses();
+        // Baca query parameter month dan year (opsional)
+        const month = req.query.month ? parseInt(req.query.month as string, 10) : undefined;
+        const year = req.query.year ? parseInt(req.query.year as string, 10) : undefined;
+
+        const expenses = await storeExpenseService.getAllExpenses(month, year);
         successResponse(res, expenses, 'Store expenses retrieved successfully');
     } catch (error) {
         next(error);

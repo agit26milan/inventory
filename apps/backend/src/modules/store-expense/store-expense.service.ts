@@ -22,10 +22,24 @@ export class StoreExpenseService {
         };
     }
 
-    async getAllExpenses(): Promise<StoreExpenseResponse[]> {
+    async getAllExpenses(month?: number, year?: number): Promise<StoreExpenseResponse[]> {
+        // Buat filter tanggal jika bulan dan tahun disediakan
+        let dateFilter = {};
+        if (month !== undefined && year !== undefined) {
+            const startDate = new Date(year, month - 1, 1);
+            const endDate = new Date(year, month, 1); // Awal bulan berikutnya (eksklusif)
+            dateFilter = {
+                createdAt: {
+                    gte: startDate,
+                    lt: endDate,
+                },
+            };
+        }
+
         const expenses = await prisma.storeExpense.findMany({
             where: {
-                deletedAt: null, // Only non-deleted expenses
+                deletedAt: null, // Hanya pengeluaran yang belum dihapus
+                ...dateFilter,
             },
             orderBy: {
                 createdAt: 'desc',

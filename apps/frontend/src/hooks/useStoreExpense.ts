@@ -2,10 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { storeExpenseService } from '../services/store-expense.service';
 import { CreateStoreExpenseDTO, UpdateStoreExpenseDTO } from '../types';
 
-export const useStoreExpenses = () => {
+export const useStoreExpenses = (month?: number, year?: number) => {
     return useQuery({
-        queryKey: ['storeExpenses'],
-        queryFn: storeExpenseService.getAllExpenses,
+        // Sertakan filter di queryKey agar refetch otomatis saat filter berubah
+        queryKey: ['storeExpenses', month, year],
+        queryFn: () => storeExpenseService.getAllExpenses(month, year),
     });
 };
 

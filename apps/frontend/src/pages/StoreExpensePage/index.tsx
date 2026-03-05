@@ -11,13 +11,47 @@ import { CurrencyInput } from '../../components/CurrencyInput';
 import { SearchableDropdown } from '../../components/SearchableDropdown';
 import { EXPENSE_CATEGORIES } from './constants';
 
+// Daftar bulan dalam bahasa Indonesia
+const DAFTAR_BULAN = [
+    { value: 1, label: 'Januari' },
+    { value: 2, label: 'Februari' },
+    { value: 3, label: 'Maret' },
+    { value: 4, label: 'April' },
+    { value: 5, label: 'Mei' },
+    { value: 6, label: 'Juni' },
+    { value: 7, label: 'Juli' },
+    { value: 8, label: 'Agustus' },
+    { value: 9, label: 'September' },
+    { value: 10, label: 'Oktober' },
+    { value: 11, label: 'November' },
+    { value: 12, label: 'Desember' },
+];
+
+// Daftar tahun dinamis: mulai dari 2026 sampai tahun sekarang (inklusif)
+const generateDaftarTahun = (): number[] => {
+    const tahunMulai = 2026;
+    const tahunSekarang = new Date().getFullYear();
+    const akhir = Math.max(tahunMulai, tahunSekarang);
+    const tahunList: number[] = [];
+    for (let t = tahunMulai; t <= akhir; t++) {
+        tahunList.push(t);
+    }
+    return tahunList;
+};
+
+const DAFTAR_TAHUN = generateDaftarTahun();
+
 export default function StoreExpensePage() {
     const [amount, setAmount] = useState(0);
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
     const [editingId, setEditingId] = useState<number | null>(null);
 
-    const { data: expenses, isLoading } = useStoreExpenses();
+    // State filter bulan dan tahun (undefined = tampilkan semua)
+    const [filterBulan, setFilterBulan] = useState<number | undefined>(undefined);
+    const [filterTahun, setFilterTahun] = useState<number | undefined>(undefined);
+
+    const { data: expenses, isLoading } = useStoreExpenses(filterBulan, filterTahun);
     const { data: totalExpenses } = useTotalExpenses();
     const createExpense = useCreateStoreExpense();
     const updateExpense = useUpdateStoreExpense();
@@ -56,12 +90,13 @@ export default function StoreExpensePage() {
             setDescription('');
             setCategory('');
             setEditingId(null);
-        } catch (error: any) {
-            alert(error.response?.data?.message || 'Gagal menyimpan pengeluaran');
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            alert(err.response?.data?.message || 'Gagal menyimpan pengeluaran');
         }
     };
 
-    const handleEdit = (expense: any) => {
+    const handleEdit = (expense: { id: number; amount: number; description: string; category?: string }) => {
         setEditingId(expense.id);
         setAmount(expense.amount);
         setDescription(expense.description);
@@ -76,8 +111,9 @@ export default function StoreExpensePage() {
         try {
             await deleteExpense.mutateAsync(id);
             alert('Pengeluaran berhasil dihapus!');
-        } catch (error: any) {
-            alert(error.response?.data?.message || 'Gagal menghapus pengeluaran');
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            alert(err.response?.data?.message || 'Gagal menghapus pengeluaran');
         }
     };
 
@@ -88,9 +124,14 @@ export default function StoreExpensePage() {
         setCategory('');
     };
 
-    if (isLoading) {
-        return <div className="spinner"></div>;
-    }
+    const handleResetFilter = () => {
+        setFilterBulan(undefined);
+        setFilterTahun(undefined);
+    };
+
+    // if (isLoading) {
+    //     return <div className="spinner"></div>;
+    // }
 
     return (
         <div>
@@ -163,7 +204,54 @@ export default function StoreExpensePage() {
 
             {/* Expenses List */}
             <div className="card">
-                <h2 className="mb-4">📋 Daftar Pengeluaran</h2>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                    <h2>📋 Daftar Pengeluaran</h2>
+
+                    {/* Filter Bulan & Tahun */}
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>🔍 Filter:</span>
+
+                        <select
+                            className="form-input"
+                            style={{ width: 'auto', minWidth: '140px' }}
+                            value={filterBulan ?? ''}
+                            onChange={(e) => setFilterBulan(e.target.value ? Number(e.target.value) : undefined)}
+                        >
+                            <option value="">Semua Bulan</option>
+                            {DAFTAR_BULAN.map((bulan) => (
+                                <option key={bulan.value} value={bulan.value}>
+                                    {bulan.label}
+                                </option>
+                            ))}
+                        </select>
+
+                        <select
+                            className="form-input"
+                            style={{ width: 'auto', minWidth: '110px' }}
+                            value={filterTahun ?? ''}
+                            onChange={(e) => setFilterTahun(e.target.value ? Number(e.target.value) : undefined)}
+                        >
+                            <option value="">Semua Tahun</option>
+                            {DAFTAR_TAHUN.map((tahun) => (
+                                <option key={tahun} value={tahun}>
+                                    {tahun}
+                                </option>
+                            ))}
+                        </select>
+
+                        {/* Tombol reset filter hanya muncul jika ada filter aktif */}
+                        {(filterBulan !== undefined || filterTahun !== undefined) && (
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={handleResetFilter}
+                            >
+                                Reset Filter
+                            </button>
+                        )}
+                    </div>
+                </div>
+
                 {expenses && expenses.length > 0 ? (
                     <div className="table-container">
                         <table>
@@ -212,7 +300,11 @@ export default function StoreExpensePage() {
                         </table>
                     </div>
                 ) : (
-                    <p className="text-muted">Belum ada pengeluaran. Tambahkan pengeluaran pertama Anda di atas.</p>
+                    <p className="text-muted">
+                        {filterBulan !== undefined || filterTahun !== undefined
+                            ? 'Tidak ada pengeluaran untuk filter yang dipilih.'
+                            : 'Belum ada pengeluaran. Tambahkan pengeluaran pertama Anda di atas.'}
+                    </p>
                 )}
             </div>
         </div>

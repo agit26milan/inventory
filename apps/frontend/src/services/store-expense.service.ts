@@ -7,8 +7,12 @@ export const storeExpenseService = {
         return response.data.data;
     },
 
-    getAllExpenses: async (): Promise<StoreExpense[]> => {
-        const response = await api.get<ApiResponse<StoreExpense[]>>('/store-expenses');
+    getAllExpenses: async (month?: number, year?: number): Promise<StoreExpense[]> => {
+        const params: Record<string, number> = {};
+        if (month !== undefined) params.month = month;
+        if (year !== undefined) params.year = year;
+
+        const response = await api.get<ApiResponse<StoreExpense[]>>('/store-expenses', { params });
         return response.data.data;
     },
 
