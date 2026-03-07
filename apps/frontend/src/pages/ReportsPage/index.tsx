@@ -71,8 +71,8 @@ export const ReportsPage = () => {
 
     return (
         <div>
-            <h1>📈 Reports &amp; Analytics</h1>
-            <p className="text-muted mb-4">Comprehensive business insights</p>
+            <h1>📈 Laporan & Analitik</h1>
+            <p className="text-muted mb-4">Wawasan bisnis secara menyeluruh</p>
 
             {/* ===== STOCK ALERT SECTION ===== */}
             <div
@@ -204,29 +204,29 @@ export const ReportsPage = () => {
             {/* ===== SALES SUMMARY ===== */}
             <div className="card mb-4">
                 <div className="card-header">
-                    <h3 className="card-title">💰 Sales Summary</h3>
+                    <h3 className="card-title">💰 Ringkasan Penjualan</h3>
                 </div>
                 <div className="grid grid-2">
                     <div>
-                        <p className="text-muted">Total Sales</p>
+                        <p className="text-muted">Total Penjualan</p>
                         <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--success)' }}>
                             {summary ? formatCurrency(summary.totalSales) : formatCurrency(0)}
                         </p>
                     </div>
                     <div>
-                        <p className="text-muted">Total Profit</p>
+                        <p className="text-muted">Total Keuntungan</p>
                         <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary-light)' }}>
                             {summary ? formatCurrency(summary.totalProfit) : formatCurrency(0)}
                         </p>
                     </div>
                     <div>
-                        <p className="text-muted">Total COGS</p>
+                        <p className="text-muted">Total HPP</p>
                         <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--danger)' }}>
                             {summary ? formatCurrency(summary.totalCogs) : formatCurrency(0)}
                         </p>
                     </div>
                     <div>
-                        <p className="text-muted">Profit Margin</p>
+                        <p className="text-muted">Margin Keuntungan</p>
                         <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--warning)' }}>
                             {summary?.profitMargin.toFixed(2) || '0'}%
                         </p>
@@ -237,18 +237,18 @@ export const ReportsPage = () => {
             {/* ===== PRODUCT PERFORMANCE ===== */}
             <div className="card mb-4">
                 <div className="card-header">
-                    <h3 className="card-title">🏆 Product Performance</h3>
+                    <h3 className="card-title">🏆 Performa Produk</h3>
                 </div>
                 {performance && performance.length > 0 ? (
                     <div className="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Product</th>
-                                    <th>Qty Sold</th>
-                                    <th>Revenue</th>
-                                    <th>COGS</th>
-                                    <th>Profit</th>
+                                    <th>Produk</th>
+                                    <th>Qty Terjual</th>
+                                    <th>Pendapatan</th>
+                                    <th>HPP</th>
+                                    <th>Keuntungan</th>
                                     <th>Margin</th>
                                 </tr>
                             </thead>
@@ -271,14 +271,14 @@ export const ReportsPage = () => {
                         </table>
                     </div>
                 ) : (
-                    <p className="text-center text-muted" style={{ padding: '1.5rem' }}>No sales data available</p>
+                    <p className="text-center text-muted" style={{ padding: '1.5rem' }}>Belum ada data penjualan</p>
                 )}
             </div>
 
             {/* ===== VARIANT PERFORMANCE ===== */}
             <div className="card mb-4">
                 <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-                    <h3 className="card-title">📊 Variant Performance</h3>
+                    <h3 className="card-title">📊 Performa Varian</h3>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                         <input
                             type="text"
@@ -303,14 +303,14 @@ export const ReportsPage = () => {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Product</th>
-                                    <th>Variant</th>
+                                    <th>Produk</th>
+                                    <th>Varian</th>
                                     <th>SKU</th>
-                                    <th>Qty Sold</th>
+                                    <th>Qty Terjual</th>
                                     <th>Stok Tersisa</th>
-                                    <th>Revenue</th>
-                                    <th>COGS</th>
-                                    <th>Profit</th>
+                                    <th>Pendapatan</th>
+                                    <th>HPP</th>
+                                    <th>Keuntungan</th>
                                     <th>Margin</th>
                                 </tr>
                             </thead>
@@ -366,31 +366,31 @@ export const ReportsPage = () => {
                         )}
                     </div>
                 ) : (
-                    <p className="text-center text-muted" style={{ padding: '1.5rem' }}>No variant performance data available</p>
+                    <p className="text-center text-muted" style={{ padding: '1.5rem' }}>Belum ada data performa varian</p>
                 )}
             </div>
 
             {/* ===== INVENTORY VALUATION ===== */}
             <div className="card">
                 <div className="card-header">
-                    <h3 className="card-title">📦 Inventory Valuation</h3>
+                    <h3 className="card-title">📦 Valuasi Inventori</h3>
                 </div>
                 {valuation && valuation.length > 0 ? (
                     <div className="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Product</th>
-                                    <th>Current Stock</th>
-                                    <th>Avg Cost Price</th>
-                                    <th>Total Value</th>
+                                    <th>Produk</th>
+                                    <th>Stok Saat Ini</th>
+                                    <th>Rata-rata HPP</th>
+                                    <th>Total Nilai</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {valuation.map((item) => (
                                     <tr key={item.productId}>
                                         <td style={{ fontWeight: 600 }}>{item.productName}</td>
-                                        <td>{item.currentStock} units</td>
+                                        <td>{item.currentStock} unit</td>
                                         <td>{formatCurrency(item.averageCostPrice)}</td>
                                         <td className="text-warning" style={{ fontWeight: 600 }}>
                                             {formatCurrency(item.totalValue)}
@@ -398,7 +398,7 @@ export const ReportsPage = () => {
                                     </tr>
                                 ))}
                                 <tr style={{ background: 'var(--bg-tertiary)', fontWeight: 'bold' }}>
-                                    <td colSpan={3}>Total Inventory Value</td>
+                                    <td colSpan={3}>Total Nilai Inventori</td>
                                     <td className="text-warning">
                                         {formatCurrency(valuation.reduce((sum, item: any) => sum + item.totalValue, 0))}
                                     </td>
@@ -407,7 +407,7 @@ export const ReportsPage = () => {
                         </table>
                     </div>
                 ) : (
-                    <p className="text-center text-muted">No inventory data available</p>
+                    <p className="text-center text-muted">Belum ada data inventori</p>
                 )}
             </div>
         </div>
