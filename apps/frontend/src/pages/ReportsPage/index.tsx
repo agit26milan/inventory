@@ -322,7 +322,15 @@ export const ReportsPage = () => {
                                         <td><code style={{ fontSize: '0.85em' }}>{item.sku}</code></td>
                                         <td>{item.totalQuantitySold}</td>
                                         <td>
-                                            <span style={{ fontWeight: 600, color: item.remainingQuantity === 0 ? 'var(--danger)' : 'inherit' }}>
+                                            <span style={{
+                                                fontWeight: 600,
+                                                // Merah jika stok habis, amber jika stok kritis (≤ 2), default jika aman
+                                                color: item.remainingQuantity === 0
+                                                    ? 'var(--danger)'
+                                                    : item.remainingQuantity <= 2
+                                                        ? '#f59e0b'
+                                                        : 'inherit',
+                                            }}>
                                                 {item.remainingQuantity} unit
                                             </span>
                                         </td>
