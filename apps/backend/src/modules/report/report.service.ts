@@ -252,7 +252,8 @@ export class ReportService {
         page: number = 1,
         limit: number = 10,
         productName?: string,
-        variantName?: string
+        variantName?: string,
+        stockSort?: 'asc' | 'desc'
     ): Promise<PaginatedVariantPerformance> {
         const saleItems = await prisma.saleItem.findMany({
             include: {
@@ -339,10 +340,12 @@ export class ReportService {
             entry.remainingQuantity = stockMap.get(key) ?? 0;
         }
 
-        // Urutkan berdasarkan qty terjual terbanyak (tertinggi pertama)
-        let allData = Array.from(variantMap.values()).sort(
-            (a, b) => b.totalQuantitySold - a.totalQuantitySold
-        );
+        // Jika stockSort aktif, urutkan berdasarkan stok tersisa; jika tidak, default by qty terjual
+        let allData = Array.from(variantMap.values()).sort((a, b) => {
+            if (stockSort === 'asc') return a.remainingQuantity - b.remainingQuantity;
+            if (stockSort === 'desc') return b.remainingQuantity - a.remainingQuantity;
+            return b.totalQuantitySold - a.totalQuantitySold;
+        });
 
         // Filter berdasarkan nama produk (case-insensitive contains)
         if (productName) {

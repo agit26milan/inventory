@@ -21,6 +21,7 @@ export const ReportsPage = () => {
     const [variantSearchVariant, setVariantSearchVariant] = useState('');
     const [debouncedVariantProduct, setDebouncedVariantProduct] = useState('');
     const [debouncedVariantVariant, setDebouncedVariantVariant] = useState('');
+    const [variantStockSort, setVariantStockSort] = useState<'asc' | 'desc' | undefined>(undefined);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -47,7 +48,8 @@ export const ReportsPage = () => {
         variantPage,
         10,
         debouncedVariantProduct || undefined,
-        debouncedVariantVariant || undefined
+        debouncedVariantVariant || undefined,
+        variantStockSort
     );
 
     // Baca threshold dari konfigurasi; gunakan default jika belum pernah di-set
@@ -279,7 +281,7 @@ export const ReportsPage = () => {
             <div className="card mb-4">
                 <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                     <h3 className="card-title">📊 Performa Varian</h3>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
                         <input
                             type="text"
                             className="form-control"
@@ -296,6 +298,21 @@ export const ReportsPage = () => {
                             onChange={(e) => setVariantSearchVariant(e.target.value)}
                             style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', minWidth: '160px' }}
                         />
+                        <select
+                            className="form-control"
+                            value={variantStockSort ?? ''}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                // Reset ke halaman 1 saat urutan diganti
+                                setVariantPage(1);
+                                setVariantStockSort(val === 'asc' || val === 'desc' ? val : undefined);
+                            }}
+                            style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', minWidth: '170px' }}
+                        >
+                            <option value="">Urutkan Stok (Default)</option>
+                            <option value="asc">⬆ Stok Terendah</option>
+                            <option value="desc">⬇ Stok Tertinggi</option>
+                        </select>
                     </div>
                 </div>
                 {variantPerfData?.data && variantPerfData.data.length > 0 ? (

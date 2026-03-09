@@ -75,7 +75,12 @@ export class ReportController {
             const productName = req.query['productName'] ? (req.query['productName'] as string) : undefined;
             const variantName = req.query['variantName'] ? (req.query['variantName'] as string) : undefined;
 
-            const performance = await reportService.getVariantPerformance(page, limit, productName, variantName);
+            // Validasi nilai stockSort hanya boleh 'asc' atau 'desc'
+            const rawStockSort = req.query['stockSort'] as string | undefined;
+            const stockSort: 'asc' | 'desc' | undefined =
+                rawStockSort === 'asc' || rawStockSort === 'desc' ? rawStockSort : undefined;
+
+            const performance = await reportService.getVariantPerformance(page, limit, productName, variantName, stockSort);
             successResponse(res, performance, 'Variant performance retrieved successfully');
         } catch (error) {
             next(error);
