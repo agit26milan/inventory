@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useConfigurationByKey, useUpsertConfiguration } from '../../hooks/useConfiguration';
+import './styles.css';
 
 const STOCK_ALERT_KEY = 'stock_alert_threshold';
 
@@ -41,18 +42,18 @@ export const ConfigurationPage = () => {
                 {isLoading ? (
                     <div className="spinner"></div>
                 ) : (
-                    <div style={{ padding: '1.5rem' }}>
+                    <div className="cp-card-body">
                         <p className="text-muted mb-4">
                             Tentukan batas minimum stok variant. Jika stok sebuah variant berada
                             di bawah angka ini, sistem akan memunculkan peringatan di halaman
                             <strong> Reports</strong>.
                         </p>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <div className="cp-input-row">
+                            <div className="cp-input-col">
                                 <label
                                     htmlFor="stock-threshold"
-                                    style={{ fontWeight: 600, fontSize: '0.9rem' }}
+                                    className="cp-input-label"
                                 >
                                     Batas minimum stok (unit)
                                 </label>
@@ -62,15 +63,14 @@ export const ConfigurationPage = () => {
                                     min={1}
                                     value={threshold}
                                     onChange={(e) => setThreshold(e.target.value)}
-                                    style={{ width: '140px' }}
+                                    className="cp-threshold-input"
                                 />
                             </div>
 
                             <button
-                                className="btn btn-primary"
+                                className="btn btn-primary cp-save-btn"
                                 onClick={handleSave}
                                 disabled={isPending}
-                                style={{ alignSelf: 'flex-end' }}
                             >
                                 {isPending ? 'Menyimpan...' : '💾 Simpan'}
                             </button>
@@ -78,24 +78,12 @@ export const ConfigurationPage = () => {
 
                         {/* Feedback pesan sukses / error */}
                         {isSuccess && (
-                            <p
-                                style={{
-                                    marginTop: '1rem',
-                                    color: 'var(--success)',
-                                    fontWeight: 600,
-                                }}
-                            >
+                            <p className="cp-feedback--success">
                                 ✅ Konfigurasi berhasil disimpan!
                             </p>
                         )}
                         {isError && (
-                            <p
-                                style={{
-                                    marginTop: '1rem',
-                                    color: 'var(--danger)',
-                                    fontWeight: 600,
-                                }}
-                            >
+                            <p className="cp-feedback--error">
                                 ❌ Gagal menyimpan konfigurasi. Silakan coba lagi.
                             </p>
                         )}

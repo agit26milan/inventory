@@ -1,0 +1,24 @@
+/* ─── DashboardPage ───────────────────────────────────────────────────────── */
+
+/* ─── Stat Cards (angka besar di card ringkasan) ─────────────────────────── */
+
+/* Total Penjualan — hijau */
+.dp-stat--sales {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--success);
+}
+
+/* Total Laba Bersih — primary light */
+.dp-stat--profit {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary-light);
+}
+
+/* Nilai Inventaris — kuning/warning */
+.dp-stat--inventory {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--warning);
+}

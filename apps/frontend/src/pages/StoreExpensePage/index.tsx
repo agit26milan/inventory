@@ -10,6 +10,7 @@ import { formatCurrency } from '../../utils/currency';
 import { CurrencyInput } from '../../components/CurrencyInput';
 import { SearchableDropdown } from '../../components/SearchableDropdown';
 import { EXPENSE_CATEGORIES } from './constants';
+import './styles.css';
 
 // Daftar bulan dalam bahasa Indonesia
 const DAFTAR_BULAN = [
@@ -138,9 +139,9 @@ export default function StoreExpensePage() {
             <h1>🏪 Pengeluaran Toko</h1>
 
             {/* Total Expenses Card */}
-            <div className="card mb-4" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', color: 'white' }}>
-                <h3 style={{ marginBottom: '0.5rem', fontSize: '0.9rem', opacity: 0.9 }}>Total Pengeluaran Aktif</h3>
-                <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: 0 }}>
+            <div className="card mb-4 sep-total-card">
+                <h3 className="sep-total-label">Total Pengeluaran Aktif</h3>
+                <p className="sep-total-amount">
                     {formatCurrency(totalExpenses || 0)}
                 </p>
             </div>
@@ -149,7 +150,7 @@ export default function StoreExpensePage() {
             <div className="card mb-4">
                 <h2 className="mb-4">{editingId ? '✏️ Ubah Pengeluaran' : '➕ Tambah Pengeluaran Baru'}</h2>
                 <form onSubmit={handleSubmit}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
+                <div className="sep-form-grid">
                         <div className="form-group">
                             <label className="form-label">Jumlah (Rp) *</label>
                             <CurrencyInput
@@ -180,7 +181,7 @@ export default function StoreExpensePage() {
                                 placeholder="Pilih kategori"
                             />
                         </div>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <div className="sep-form-actions">
                             <button
                                 type="submit"
                                 className="btn btn-primary"
@@ -204,16 +205,15 @@ export default function StoreExpensePage() {
 
             {/* Expenses List */}
             <div className="card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div className="sep-list-header">
                     <h2>📋 Daftar Pengeluaran</h2>
 
                     {/* Filter Bulan & Tahun */}
-                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>🔍 Filter:</span>
+                    <div className="sep-filter-group">
+                        <span className="sep-filter-label">🔍 Filter:</span>
 
                         <select
-                            className="form-input"
-                            style={{ width: 'auto', minWidth: '140px' }}
+                            className="form-input sep-filter-select--month"
                             value={filterBulan ?? ''}
                             onChange={(e) => setFilterBulan(e.target.value ? Number(e.target.value) : undefined)}
                         >
@@ -226,8 +226,7 @@ export default function StoreExpensePage() {
                         </select>
 
                         <select
-                            className="form-input"
-                            style={{ width: 'auto', minWidth: '110px' }}
+                            className="form-input sep-filter-select--year"
                             value={filterTahun ?? ''}
                             onChange={(e) => setFilterTahun(e.target.value ? Number(e.target.value) : undefined)}
                         >
@@ -278,7 +277,7 @@ export default function StoreExpensePage() {
                                         </td>
                                         <td className="text-danger">{formatCurrency(expense.amount)}</td>
                                         <td>
-                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <div className="sep-action-btns">
                                                 <button
                                                     className="btn btn-sm btn-secondary"
                                                     onClick={() => handleEdit(expense)}

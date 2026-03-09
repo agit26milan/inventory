@@ -8,6 +8,7 @@ import {
 } from '../../hooks/useReports';
 import { useConfigurationByKey } from '../../hooks/useConfiguration';
 import { formatCurrency } from '../../utils/currency';
+import './styles.css';
 
 const STOCK_ALERT_KEY = 'stock_alert_threshold';
 const DEFAULT_THRESHOLD = 5;
@@ -63,17 +64,13 @@ export const ReportsPage = () => {
         search: debouncedSearch,
     });
 
-    // if (summaryLoading || performanceLoading || valuationLoading || alertsLoading || variantPerfLoading) {
-    //     return <div className="spinner"></div>;
-    // }
-
     const stockAlerts = stockAlertsData?.data || [];
     const meta = stockAlertsData?.meta;
     const hasAlerts = stockAlerts.length > 0;
 
     return (
         <div>
-            <h1>📈 Laporan & Analitik</h1>
+            <h1>📈 Laporan &amp; Analitik</h1>
             <p className="text-muted mb-4">Wawasan bisnis secara menyeluruh</p>
 
             {/* ===== STOCK ALERT SECTION ===== */}
@@ -85,28 +82,22 @@ export const ReportsPage = () => {
                         : '4px solid var(--success)',
                 }}
             >
-                <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div className="card-header rp-alert-header">
                     <div>
                         <h3 className="card-title">
                             {hasAlerts || search || (meta?.total ?? 0) > 0 ? '⚠️ Peringatan Stok Rendah' : '✅ Status Stok'}
                         </h3>
-                        <span
-                            style={{
-                                fontSize: '0.85rem',
-                                color: 'var(--text-muted)',
-                            }}
-                        >
+                        <span className="text-muted" style={{ fontSize: '0.85rem' }}>
                             Batas minimum: <strong>{threshold} unit</strong>
                         </span>
                     </div>
-                    <div style={{ flex: '1 1 auto', maxWidth: '300px' }}>
+                    <div className="rp-alert-search">
                         <input
                             type="text"
                             className="form-control"
                             placeholder="Cari produk / variant..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', width: '100%' }}
                         />
                     </div>
                 </div>
@@ -133,31 +124,20 @@ export const ReportsPage = () => {
                                     return (
                                         <tr
                                             key={alert.combinationId}
-                                            style={{
-                                                background: isCritical
-                                                    ? 'rgba(var(--danger-rgb, 220,53,69), 0.12)'
-                                                    : 'rgba(var(--warning-rgb, 255,193,7), 0.08)',
-                                            }}
+                                            className={isCritical ? 'rp-alert-row--critical' : 'rp-alert-row--warning'}
                                         >
-                                            <td style={{ fontWeight: 600 }}>{alert.productName}</td>
+                                            <td className="rp-alert-product-name">{alert.productName}</td>
                                             <td>{alert.variantName}</td>
                                             <td>
                                                 <code style={{ fontSize: '0.85em' }}>{alert.sku}</code>
                                             </td>
                                             <td>
-                                                <span
-                                                    style={{
-                                                        fontWeight: 700,
-                                                        color: isCritical
-                                                            ? 'var(--danger)'
-                                                            : 'var(--warning)',
-                                                    }}
-                                                >
+                                                <span className={`rp-alert-stock ${isCritical ? 'rp-alert-stock--critical' : 'rp-alert-stock--warning'}`}>
                                                     {alert.currentStock} unit
                                                 </span>
                                             </td>
                                             <td>{alert.threshold} unit</td>
-                                            <td className="text-danger" style={{ fontWeight: 600 }}>
+                                            <td className="text-danger rp-alert-deficit">
                                                 -{deficit} unit
                                             </td>
                                         </tr>
@@ -165,26 +145,24 @@ export const ReportsPage = () => {
                                 })}
                             </tbody>
                         </table>
-                        
+
                         {meta && meta.totalPages > 1 && (
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderTop: '1px solid var(--border-color)' }}>
-                                <span className="text-muted" style={{ fontSize: '0.9rem' }}>
+                            <div className="rp-pagination">
+                                <span className="text-muted rp-pagination__info">
                                     Menampilkan {meta.page} dari {meta.totalPages} halaman (Total: {meta.total} variant)
                                 </span>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <div className="rp-pagination__controls">
                                     <button
-                                        className="btn btn-secondary btn-sm"
+                                        className="btn btn-secondary btn-sm rp-pagination__btn"
                                         disabled={meta.page <= 1}
                                         onClick={() => setPage(p => Math.max(1, p - 1))}
-                                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
                                     >
                                         Sebelumnya
                                     </button>
                                     <button
-                                        className="btn btn-secondary btn-sm"
+                                        className="btn btn-secondary btn-sm rp-pagination__btn"
                                         disabled={meta.page >= meta.totalPages}
                                         onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
-                                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
                                     >
                                         Selanjutnya
                                     </button>
@@ -193,9 +171,9 @@ export const ReportsPage = () => {
                         )}
                     </div>
                 ) : (
-                    <p className="text-center text-muted" style={{ padding: '1.5rem' }}>
+                    <p className="rp-empty text-muted">
                         {search ? (
-                            <>❌ Tidak ada variant stok rendah yang cocok dengan pencarian "<strong>{search}</strong>"</>
+                            <>❌ Tidak ada variant stok rendah yang cocok dengan pencarian &quot;<strong>{search}</strong>&quot;</>
                         ) : (
                             <>✅ Semua stok variant aman — tidak ada yang di bawah batas minimum ({threshold} unit)</>
                         )}
@@ -211,25 +189,25 @@ export const ReportsPage = () => {
                 <div className="grid grid-2">
                     <div>
                         <p className="text-muted">Total Penjualan</p>
-                        <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--success)' }}>
+                        <p className="rp-summary-total-sales">
                             {summary ? formatCurrency(summary.totalSales) : formatCurrency(0)}
                         </p>
                     </div>
                     <div>
                         <p className="text-muted">Total Keuntungan</p>
-                        <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary-light)' }}>
+                        <p className="rp-summary-total-profit">
                             {summary ? formatCurrency(summary.totalProfit) : formatCurrency(0)}
                         </p>
                     </div>
                     <div>
                         <p className="text-muted">Total HPP</p>
-                        <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--danger)' }}>
+                        <p className="rp-summary-total-cogs">
                             {summary ? formatCurrency(summary.totalCogs) : formatCurrency(0)}
                         </p>
                     </div>
                     <div>
                         <p className="text-muted">Margin Keuntungan</p>
-                        <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--warning)' }}>
+                        <p className="rp-summary-margin">
                             {summary?.profitMargin.toFixed(2) || '0'}%
                         </p>
                     </div>
@@ -257,11 +235,11 @@ export const ReportsPage = () => {
                             <tbody>
                                 {performance.map((item) => (
                                     <tr key={item.productId}>
-                                        <td style={{ fontWeight: 600 }}>{item.productName}</td>
+                                        <td className="rp-product-name">{item.productName}</td>
                                         <td>{item.totalQuantitySold}</td>
                                         <td className="text-success">{formatCurrency(item.totalRevenue)}</td>
                                         <td className="text-danger">{formatCurrency(item.totalCogs)}</td>
-                                        <td className="text-primary-light" style={{ fontWeight: 600 }}>
+                                        <td className="text-primary-light rp-product-profit">
                                             {formatCurrency(item.totalProfit)}
                                         </td>
                                         <td>
@@ -273,33 +251,31 @@ export const ReportsPage = () => {
                         </table>
                     </div>
                 ) : (
-                    <p className="text-center text-muted" style={{ padding: '1.5rem' }}>Belum ada data penjualan</p>
+                    <p className="rp-empty text-muted">Belum ada data penjualan</p>
                 )}
             </div>
 
             {/* ===== VARIANT PERFORMANCE ===== */}
             <div className="card mb-4">
-                <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div className="card-header rp-variant-header">
                     <h3 className="card-title">📊 Performa Varian</h3>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div className="rp-variant-filters">
                         <input
                             type="text"
-                            className="form-control"
+                            className="form-control rp-variant-search-product"
                             placeholder="Cari produk..."
                             value={variantSearchProduct}
                             onChange={(e) => setVariantSearchProduct(e.target.value)}
-                            style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', minWidth: '160px' }}
                         />
                         <input
                             type="text"
-                            className="form-control"
+                            className="form-control rp-variant-search-variant"
                             placeholder="Cari variant / SKU..."
                             value={variantSearchVariant}
                             onChange={(e) => setVariantSearchVariant(e.target.value)}
-                            style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', minWidth: '160px' }}
                         />
                         <select
-                            className="form-control"
+                            className="form-control rp-variant-sort-select"
                             value={variantStockSort ?? ''}
                             onChange={(e) => {
                                 const val = e.target.value;
@@ -307,7 +283,6 @@ export const ReportsPage = () => {
                                 setVariantPage(1);
                                 setVariantStockSort(val === 'asc' || val === 'desc' ? val : undefined);
                             }}
-                            style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', minWidth: '170px' }}
                         >
                             <option value="">Urutkan Stok (Default)</option>
                             <option value="asc">⬆ Stok Terendah</option>
@@ -332,57 +307,57 @@ export const ReportsPage = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {variantPerfData.data.map((item) => (
-                                    <tr key={`${item.productId}-${item.combinationId || 'base'}`}>
-                                        <td style={{ fontWeight: 600 }}>{item.productName}</td>
-                                        <td>{item.variantName}</td>
-                                        <td><code style={{ fontSize: '0.85em' }}>{item.sku}</code></td>
-                                        <td>{item.totalQuantitySold}</td>
-                                        <td>
-                                            <span style={{
-                                                fontWeight: 600,
-                                                // Merah jika stok habis, amber jika stok kritis (≤ 2), default jika aman
-                                                color: item.remainingQuantity === 0
-                                                    ? 'var(--danger)'
-                                                    : item.remainingQuantity <= 2
-                                                        ? '#f59e0b'
-                                                        : 'inherit',
-                                            }}>
-                                                {item.remainingQuantity} unit
-                                            </span>
-                                        </td>
-                                        <td className="text-success">{formatCurrency(item.totalRevenue)}</td>
-                                        <td className="text-danger">{formatCurrency(item.totalCogs)}</td>
-                                        <td className="text-primary-light" style={{ fontWeight: 600 }}>
-                                            {formatCurrency(item.totalProfit)}
-                                        </td>
-                                        <td>
-                                            {item.totalRevenue > 0 ? ((item.totalProfit / item.totalRevenue) * 100).toFixed(1) : '0.0'}%
-                                        </td>
-                                    </tr>
-                                ))}
+                                {variantPerfData.data.map((item) => {
+                                    // Tentukan class stok berdasarkan jumlah
+                                    const stockClass =
+                                        item.remainingQuantity === 0
+                                            ? 'rp-variant-stock--empty'
+                                            : item.remainingQuantity <= 2
+                                                ? 'rp-variant-stock--low'
+                                                : 'rp-variant-stock';
+
+                                    return (
+                                        <tr key={`${item.productId}-${item.combinationId || 'base'}`}>
+                                            <td className="rp-variant-product-name">{item.productName}</td>
+                                            <td>{item.variantName}</td>
+                                            <td><code style={{ fontSize: '0.85em' }}>{item.sku}</code></td>
+                                            <td>{item.totalQuantitySold}</td>
+                                            <td>
+                                                <span className={stockClass}>
+                                                    {item.remainingQuantity} unit
+                                                </span>
+                                            </td>
+                                            <td className="text-success">{formatCurrency(item.totalRevenue)}</td>
+                                            <td className="text-danger">{formatCurrency(item.totalCogs)}</td>
+                                            <td className="text-primary-light rp-variant-profit">
+                                                {formatCurrency(item.totalProfit)}
+                                            </td>
+                                            <td>
+                                                {item.totalRevenue > 0 ? ((item.totalProfit / item.totalRevenue) * 100).toFixed(1) : '0.0'}%
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
-                        
+
                         {variantPerfData.meta && variantPerfData.meta.totalPages > 1 && (
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderTop: '1px solid var(--border-color)' }}>
-                                <span className="text-muted" style={{ fontSize: '0.9rem' }}>
+                            <div className="rp-pagination">
+                                <span className="text-muted rp-pagination__info">
                                     Menampilkan {variantPerfData.meta.page} dari {variantPerfData.meta.totalPages} halaman (Total: {variantPerfData.meta.total} variant)
                                 </span>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <div className="rp-pagination__controls">
                                     <button
-                                        className="btn btn-secondary btn-sm"
+                                        className="btn btn-secondary btn-sm rp-pagination__btn"
                                         disabled={variantPerfData.meta.page <= 1}
                                         onClick={() => setVariantPage(p => Math.max(1, p - 1))}
-                                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
                                     >
                                         Sebelumnya
                                     </button>
                                     <button
-                                        className="btn btn-secondary btn-sm"
+                                        className="btn btn-secondary btn-sm rp-pagination__btn"
                                         disabled={variantPerfData.meta.page >= variantPerfData.meta.totalPages}
                                         onClick={() => setVariantPage(p => Math.min(variantPerfData.meta.totalPages, p + 1))}
-                                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
                                     >
                                         Selanjutnya
                                     </button>
@@ -391,7 +366,7 @@ export const ReportsPage = () => {
                         )}
                     </div>
                 ) : (
-                    <p className="text-center text-muted" style={{ padding: '1.5rem' }}>Belum ada data performa varian</p>
+                    <p className="rp-empty text-muted">Belum ada data performa varian</p>
                 )}
             </div>
 
@@ -414,15 +389,15 @@ export const ReportsPage = () => {
                             <tbody>
                                 {valuation.map((item) => (
                                     <tr key={item.productId}>
-                                        <td style={{ fontWeight: 600 }}>{item.productName}</td>
+                                        <td className="rp-valuation-product-name">{item.productName}</td>
                                         <td>{item.currentStock} unit</td>
                                         <td>{formatCurrency(item.averageCostPrice)}</td>
-                                        <td className="text-warning" style={{ fontWeight: 600 }}>
+                                        <td className="text-warning rp-valuation-total-value">
                                             {formatCurrency(item.totalValue)}
                                         </td>
                                     </tr>
                                 ))}
-                                <tr style={{ background: 'var(--bg-tertiary)', fontWeight: 'bold' }}>
+                                <tr className="rp-valuation-summary-row">
                                     <td colSpan={3}>Total Nilai Inventori</td>
                                     <td className="text-warning">
                                         {formatCurrency(valuation.reduce((sum, item: any) => sum + item.totalValue, 0))}
@@ -432,7 +407,7 @@ export const ReportsPage = () => {
                         </table>
                     </div>
                 ) : (
-                    <p className="text-center text-muted">Belum ada data inventori</p>
+                    <p className="rp-empty text-muted">Belum ada data inventori</p>
                 )}
             </div>
         </div>

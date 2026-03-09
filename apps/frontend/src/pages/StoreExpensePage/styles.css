@@ -1,0 +1,85 @@
+/* ─── StoreExpensePage ────────────────────────────────────────────────────── */
+
+/* ─── Total Expenses Card ────────────────────────────────────────────────── */
+
+/* Card ringkasan total pengeluaran — gradient pink/merah dengan teks putih */
+.sep-total-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+/* Label kecil di atas angka total */
+.sep-total-label {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Angka total pengeluaran — besar dan bold */
+.sep-total-amount {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* ─── Form Tambah / Ubah Pengeluaran ─────────────────────────────────────── */
+
+/* Grid 4 kolom: jumlah | deskripsi | kategori | tombol aksi */
+.sep-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+/* Grup tombol Submit + Batal — horizontal */
+.sep-form-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* ─── List Header (judul + filter) ───────────────────────────────────────── */
+
+/* Baris atas tabel: judul kiri, filter kanan */
+.sep-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Grup filter: label + select bulan + select tahun + reset */
+.sep-filter-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Label "🔍 Filter:" */
+.sep-filter-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* Select bulan — lebar otomatis dengan minimum */
+.sep-filter-select--month {
+    width: auto;
+    min-width: 140px;
+}
+
+/* Select tahun — lebar otomatis dengan minimum */
+.sep-filter-select--year {
+    width: auto;
+    min-width: 110px;
+}
+
+/* ─── Action Column ───────────────────────────────────────────────────────── */
+
+/* Baris tombol Ubah + Hapus di kolom Aksi */
+.sep-action-btns {
+    display: flex;
+    gap: 0.5rem;
+}

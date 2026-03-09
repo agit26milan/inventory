@@ -1,0 +1,69 @@
+/* ─── ProductsPage ────────────────────────────────────────────────────────── */
+
+/* Nama produk di tabel */
+.pp-product-name {
+    font-weight: 600;
+}
+
+/* Badge SKU dengan background tertiary */
+.pp-sku-badge {
+    background: var(--bg-tertiary);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Tombol aksi kecil (Variants & Delete) di kolom Actions */
+.pp-action-btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+/* ─── Variant Modal ───────────────────────────────────────────────────────── */
+
+/* Overlay modal — fullscreen semi-transparan */
+.pp-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+/* Konten modal — kotak putih dengan scroll */
+.pp-modal-content {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 42rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+/* Tombol tutup (✕) — pojok kanan atas modal */
+.pp-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0.25rem;
+}
+
+.pp-modal-close:hover {
+    color: var(--text);
+}
+
+/* Judul modal */
+.pp-modal-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}

@@ -1,6 +1,7 @@
 import { useSalesSummary, useInventoryValuation } from '../../hooks/useReports';
 import { useProducts } from '../../hooks/useProducts';
 import { formatCurrency } from '../../utils/currency';
+import './styles.css';
 
 export const DashboardPage = () => {
   const { data: summary, isLoading: summaryLoading } = useSalesSummary();
@@ -24,7 +25,7 @@ export const DashboardPage = () => {
             <h3 className="card-title">💰 Total Penjualan</h3>
           </div>
           <div className="text-center">
-            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--success)' }}>
+            <p className="dp-stat--sales">
               {summary ? formatCurrency(summary.totalSales) : formatCurrency(0)}
             </p>
             <p className="text-muted">{summary?.numberOfTransactions || 0} transaksi</p>
@@ -36,7 +37,7 @@ export const DashboardPage = () => {
             <h3 className="card-title">📈 Total Laba Bersih</h3>
           </div>
           <div className="text-center">
-            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary-light)' }}>
+            <p className="dp-stat--profit">
               {summary ? formatCurrency(summary.totalProfit) : formatCurrency(0)}
             </p>
             <p className="text-muted">Margin: {summary?.profitMargin.toFixed(1) || 0}%</p>
@@ -48,7 +49,7 @@ export const DashboardPage = () => {
             <h3 className="card-title">📦 Nilai Inventaris</h3>
           </div>
           <div className="text-center">
-            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--warning)' }}>
+            <p className="dp-stat--inventory">
               {formatCurrency(totalInventoryValue)}
             </p>
             <p className="text-muted">{products?.length || 0} produk</p>

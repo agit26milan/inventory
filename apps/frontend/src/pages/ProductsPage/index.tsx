@@ -4,6 +4,7 @@ import { useProducts, useCreateProduct, useDeleteProduct } from '../../hooks/use
 import { CreateProductDTO, StockMethod } from '../../types';
 import { VariantManager } from '../../components/VariantManager';
 import { SearchableDropdown } from '../../components/SearchableDropdown';
+import './styles.css';
 
 export const ProductsPage = () => {
   const { data: products, isLoading } = useProducts();
@@ -31,7 +32,7 @@ export const ProductsPage = () => {
       const newProduct = await createProduct.mutateAsync(formData);
       setFormData({ name: '', sku: '', stockMethod: 'FIFO' });
       setShowForm(false);
-      
+
       // Open variant manager for the new product
       handleManageVariants(newProduct.id);
     } catch (error: any) {
@@ -137,9 +138,9 @@ export const ProductsPage = () => {
               <tbody>
                 {products.map((product) => (
                   <tr key={product.id}>
-                    <td style={{ fontWeight: 600 }}>{product.name}</td>
+                    <td className="pp-product-name">{product.name}</td>
                     <td>
-                      <code style={{ background: 'var(--bg-tertiary)', padding: '4px 8px', borderRadius: '4px' }}>
+                      <code className="pp-sku-badge">
                         {product.sku}
                       </code>
                     </td>
@@ -155,15 +156,13 @@ export const ProductsPage = () => {
                     </td>
                     <td>
                       <button
-                        className="btn btn-secondary mr-2"
-                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
+                        className="btn btn-secondary mr-2 pp-action-btn"
                         onClick={() => handleManageVariants(product.id)}
                       >
                         Variants
                       </button>
                       <button
-                        className="btn btn-danger"
-                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
+                        className="btn btn-danger pp-action-btn"
                         onClick={() => handleDelete(product.id, product.name)}
                         disabled={deleteProduct.isPending}
                       >
@@ -181,10 +180,10 @@ export const ProductsPage = () => {
       </div>
 
       {showVariantModal && selectedProductId && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
-            <button 
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+        <div className="pp-modal-overlay">
+          <div className="pp-modal-content">
+            <button
+              className="pp-modal-close"
               onClick={() => {
                 setShowVariantModal(false);
                 setSelectedProductId(null);
@@ -192,7 +191,7 @@ export const ProductsPage = () => {
             >
               ✕
             </button>
-            <h3 className="text-xl font-bold mb-4">Manage Variants</h3>
+            <h3 className="pp-modal-title">Manage Variants</h3>
             <VariantManager productId={selectedProductId} />
           </div>
         </div>

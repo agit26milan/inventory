@@ -1,0 +1,57 @@
+/* ─── ConfigurationPage ───────────────────────────────────────────────────── */
+
+/* ─── Card Body ──────────────────────────────────────────────────────────── */
+
+/* Padding dalam area konten card */
+.cp-card-body {
+    padding: 1.5rem;
+}
+
+/* ─── Input Row ──────────────────────────────────────────────────────────── */
+
+/* Baris flex: label + input + tombol simpan */
+.cp-input-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Kolom vertikal: label di atas, input di bawah */
+.cp-input-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Label batas minimum stok */
+.cp-input-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Input angka threshold — lebar tetap */
+.cp-threshold-input {
+    width: 140px;
+}
+
+/* Tombol simpan — rata bawah sejajar dengan input */
+.cp-save-btn {
+    align-self: flex-end;
+}
+
+/* ─── Feedback Messages ──────────────────────────────────────────────────── */
+
+/* Pesan sukses setelah simpan */
+.cp-feedback--success {
+    margin-top: 1rem;
+    color: var(--success);
+    font-weight: 600;
+}
+
+/* Pesan error setelah simpan gagal */
+.cp-feedback--error {
+    margin-top: 1rem;
+    color: var(--danger);
+    font-weight: 600;
+}

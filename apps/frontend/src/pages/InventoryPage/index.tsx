@@ -14,6 +14,7 @@ import { getSkuName } from '../../utils/sku';
 import { CurrencyInput } from '../../components/CurrencyInput';
 import { BulkEditInventoryModal } from '../../components/BulkEditInventoryModal';
 import { SearchableDropdown } from '../../components/SearchableDropdown';
+import './styles.css';
 
 export const InventoryPage = () => {
   // Filter state
@@ -264,7 +265,7 @@ export const InventoryPage = () => {
       {/* Filter Section */}
       <div className="card mb-4">
           <h3 className="mb-3">🔍 Saring Inventaris</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
+          <div className="ip-filter-grid">
               <div className="form-group">
                   <label className="form-label">Nama Produk</label>
                   <input
@@ -343,7 +344,7 @@ export const InventoryPage = () => {
                             onChange={() => toggleBatchSelection(batch.id)}
                         />
                     </td>
-                    <td style={{ fontWeight: 600 }}>{batch.productName}</td>
+                    <td className="ip-product-name">{batch.productName}</td>
                     <td>
                         {batch.variantName ? (
                             <span className="badge badge-secondary">{getSkuName(batch.variantName)}</span>

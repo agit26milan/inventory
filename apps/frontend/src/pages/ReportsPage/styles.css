@@ -1,0 +1,202 @@
+/* ─── ReportsPage ─────────────────────────────────────────────────────────── */
+
+/* ─── Stock Alert Card ───────────────────────────────────────────────────── */
+
+/* Header card peringatan stok: judul + input search */
+.rp-alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.rp-alert-search {
+    flex: 1 1 auto;
+    max-width: 300px;
+}
+
+.rp-alert-search .form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+/* Baris tabel stok kritis – latar merah transparan */
+.rp-alert-row--critical {
+    background: rgba(var(--danger-rgb, 220, 53, 69), 0.12);
+}
+
+/* Baris tabel stok rendah (warning) – latar kuning transparan */
+.rp-alert-row--warning {
+    background: rgba(var(--warning-rgb, 255, 193, 7), 0.08);
+}
+
+/* Nama produk di kolom pertama */
+.rp-alert-product-name {
+    font-weight: 600;
+}
+
+/* Nilai stok saat ini — warna ditentukan via modifier class */
+.rp-alert-stock {
+    font-weight: 700;
+}
+
+.rp-alert-stock--critical {
+    color: var(--danger);
+}
+
+.rp-alert-stock--warning {
+    color: #f59e0b;
+}
+
+.rp-alert-deficit {
+    font-weight: 600;
+}
+
+/* ─── Pagination (Stock Alert & Variant) ─────────────────────────────────── */
+
+.rp-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.rp-pagination__info {
+    font-size: 0.9rem;
+}
+
+.rp-pagination__controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.rp-pagination__btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* ─── Empty State ────────────────────────────────────────────────────────── */
+
+.rp-empty {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+/* ─── Sales Summary ──────────────────────────────────────────────────────── */
+
+.rp-summary-total-sales {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--success);
+}
+
+.rp-summary-total-profit {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-light);
+}
+
+.rp-summary-total-cogs {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--danger);
+}
+
+.rp-summary-margin {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--warning);
+}
+
+/* ─── Product Performance ────────────────────────────────────────────────── */
+
+.rp-product-name {
+    font-weight: 600;
+}
+
+.rp-product-profit {
+    font-weight: 600;
+}
+
+/* ─── Variant Performance ────────────────────────────────────────────────── */
+
+/* Header card varian: judul kiri, filter kanan */
+.rp-variant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Grup berisi input search + dropdown sort */
+.rp-variant-filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.rp-variant-filters .form-control {
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.rp-variant-search-product {
+    min-width: 160px;
+}
+
+.rp-variant-search-variant {
+    min-width: 160px;
+}
+
+.rp-variant-sort-select {
+    min-width: 170px;
+}
+
+/* Nama produk di tabel variant */
+.rp-variant-product-name {
+    font-weight: 600;
+}
+
+/* Stok normal */
+.rp-variant-stock {
+    font-weight: 600;
+}
+
+/* Stok habis */
+.rp-variant-stock--empty {
+    font-weight: 600;
+    color: var(--danger);
+}
+
+/* Stok kritis (≤ 2) */
+.rp-variant-stock--low {
+    font-weight: 600;
+    color: #f59e0b;
+}
+
+.rp-variant-profit {
+    font-weight: 600;
+}
+
+/* ─── Inventory Valuation ────────────────────────────────────────────────── */
+
+.rp-valuation-product-name {
+    font-weight: 600;
+}
+
+.rp-valuation-total-value {
+    font-weight: 600;
+}
+
+/* Baris total keseluruhan di akhir tabel valuasi */
+.rp-valuation-summary-row {
+    background: var(--bg-tertiary);
+    font-weight: bold;
+}

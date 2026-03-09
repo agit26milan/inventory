@@ -1,0 +1,18 @@
+/* ─── InventoryPage ───────────────────────────────────────────────────────── */
+
+/* ─── Filter Section ─────────────────────────────────────────────────────── */
+
+/* Grid 3 kolom: input produk | input varian | tombol hapus penyaring */
+.ip-filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+/* ─── Tabel Batch ─────────────────────────────────────────────────────────── */
+
+/* Nama produk di kolom Produk */
+.ip-product-name {
+    font-weight: 600;
+}
