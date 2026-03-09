@@ -51,7 +51,7 @@ export default function StoreExpensePage() {
     const [filterBulan, setFilterBulan] = useState<number | undefined>(undefined);
     const [filterTahun, setFilterTahun] = useState<number | undefined>(undefined);
 
-    const { data: expenses, isLoading } = useStoreExpenses(filterBulan, filterTahun);
+    const { data: expenses } = useStoreExpenses(filterBulan, filterTahun);
     const { data: totalExpenses } = useTotalExpenses();
     const createExpense = useCreateStoreExpense();
     const updateExpense = useUpdateStoreExpense();

@@ -78,6 +78,7 @@ export default function EquityPage() {
                                 placeholder="Bisa positif atau negatif"
                                 value={amount}
                                 onChange={(value) => setAmount(value)}
+                                allowNegative={true}
                             />
                             <small style={{ color: '#888', fontSize: '0.85rem' }}>
                                 Positif untuk penambahan modal, negatif untuk penarikan

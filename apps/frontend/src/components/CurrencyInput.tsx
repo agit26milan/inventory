@@ -3,25 +3,37 @@ import React, { useState, useEffect } from 'react';
 interface CurrencyInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
     value: number;
     onChange: (value: number) => void;
+    /** Jika true, user dapat menginput nilai negatif. Default: false */
+    allowNegative?: boolean;
 }
 
-export const CurrencyInput: React.FC<CurrencyInputProps> = ({ value, onChange, ...props }) => {
+export const CurrencyInput: React.FC<CurrencyInputProps> = ({ value, onChange, allowNegative = false, ...props }) => {
     const [displayValue, setDisplayValue] = useState('');
     const [isFocused, setIsFocused] = useState(false);
 
-    // Format number to currency display
+    // Format number ke tampilan mata uang
     const formatCurrency = (num: number): string => {
         if (num === 0) return '';
-        return new Intl.NumberFormat('id-ID').format(num);
+        const isNegative = num < 0;
+        const formatted = new Intl.NumberFormat('id-ID').format(Math.abs(num));
+        return isNegative ? `-${formatted}` : formatted;
     };
 
-    // Parse currency string to number
+    // Parse string input ke number; mendukung tanda minus di depan jika allowNegative aktif
     const parseCurrency = (str: string): number => {
+        if (allowNegative) {
+            const isNegative = str.startsWith('-');
+            // Hapus semua karakter selain digit
+            const cleaned = str.replace(/\D/g, '');
+            const parsed = parseInt(cleaned) || 0;
+            return isNegative ? -parsed : parsed;
+        }
+        // Mode normal: hanya izinkan digit positif
         const cleaned = str.replace(/\D/g, '');
         return parseInt(cleaned) || 0;
     };
 
-    // Update display value when prop value changes
+    // Update display saat prop value berubah dari luar
     useEffect(() => {
         if (!isFocused) {
             setDisplayValue(formatCurrency(value));
@@ -30,18 +42,23 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({ value, onChange, .
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = e.target.value;
+
+        // Izinkan user mengetik tanda minus di awal jika allowNegative aktif,
+        // tanpa langsung memformat agar tidak memotong input yang sedang diketik
+        if (allowNegative && inputValue === '-') {
+            setDisplayValue('-');
+            onChange(0);
+            return;
+        }
+
         const numericValue = parseCurrency(inputValue);
-        
-        // Update display with formatted value
         setDisplayValue(formatCurrency(numericValue));
-        
-        // Call parent onChange with numeric value
         onChange(numericValue);
     };
 
     const handleFocus = () => {
         setIsFocused(true);
-        // Show raw number when focused for easier editing
+        // Tampilkan nilai mentah saat fokus agar lebih mudah diedit
         if (value === 0) {
             setDisplayValue('');
         } else {
@@ -51,7 +68,7 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({ value, onChange, .
 
     const handleBlur = () => {
         setIsFocused(false);
-        // Format on blur
+        // Format ulang saat blur
         setDisplayValue(formatCurrency(value));
     };
 
