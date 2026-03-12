@@ -5,6 +5,7 @@ import { CreateMarketplaceFeeDTO } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { CurrencyInput } from '../../components/CurrencyInput';
 import { SearchableDropdown } from '../../components/SearchableDropdown';
+import './styles.css';
 
 export const MarketplaceFeePage = () => {
   const { data: products, isLoading: isLoadingProducts } = useProducts();
@@ -77,8 +78,7 @@ export const MarketplaceFeePage = () => {
                     <div className="flex items-center gap-2">
                         <input
                             type="number"
-                            className="form-input"
-                            style={{ maxWidth: '150px' }}
+                            className="form-input mfp-input-percentage"
                             value={percentage}
                             placeholder="e.g. 5.5"
                             step="0.01"
@@ -96,8 +96,7 @@ export const MarketplaceFeePage = () => {
                     <label className="form-label">Process Fee (Rp)</label>
                     <div className="flex items-center gap-2">
                         <CurrencyInput
-                            className="form-input"
-                            style={{ maxWidth: '200px' }}
+                            className="form-input mfp-input-process-fee"
                             value={processFee}
                             placeholder="e.g. 5000"
                             onChange={(value) => setProcessFee(value)}

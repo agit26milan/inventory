@@ -1,0 +1,13 @@
+/* ─── MarketplaceFeePage ────────────────────────────────────────────────── */
+
+/* ─── Input Widths ───────────────────────────────────────────────────────── */
+
+/* Input persentase fee — max lebar 150px */
+.mfp-input-percentage {
+    max-width: 150px;
+}
+
+/* Input process fee (Rupiah) — max lebar 200px */
+.mfp-input-process-fee {
+    max-width: 200px;
+}
