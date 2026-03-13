@@ -181,6 +181,16 @@ export interface CreateEquityDTO {
     description: string;
 }
 
+export interface PaginatedEquities {
+    data: Equity[];
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}
+
 // Store Expense types
 export interface StoreExpense {
     id: number;

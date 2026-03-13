@@ -8,10 +8,29 @@ export default function EquityPage() {
     const [amount, setAmount] = useState(0);
     const [description, setDescription] = useState('');
 
-    const { data: equities, isLoading } = useEquities();
+    const currentDate = new Date();
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [filterBulan, setFilterBulan] = useState<number | undefined>(currentDate.getMonth() + 1);
+    const [filterTahun, setFilterTahun] = useState<number | undefined>(currentDate.getFullYear());
+
+    const { data: paginatedEquities, isLoading } = useEquities(page, limit, filterBulan, filterTahun);
+    const equities = paginatedEquities?.data || [];
+    const meta = paginatedEquities?.meta;
+
     const { data: totalEquity } = useTotalEquity();
     const { data: totalExpenses } = useTotalExpenses();
     const createEquity = useCreateEquity();
+
+    // Reset pagination ketika filter berubah
+    const handleFilterChange = (type: 'month' | 'year', value: string) => {
+        setPage(1);
+        if (type === 'month') {
+            setFilterBulan(value ? Number(value) : undefined);
+        } else {
+            setFilterTahun(value ? Number(value) : undefined);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -103,8 +122,51 @@ export default function EquityPage() {
 
             {/* Equity History */}
             <div className="card">
-                <h2 className="mb-4">📋 Riwayat Ekuitas</h2>
-                {equities && equities.length > 0 ? (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                    <h2 style={{ margin: 0 }}>📋 Riwayat Ekuitas</h2>
+
+                    {/* Filter Bulan & Tahun */}
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>🔍 Filter:</span>
+
+                        <select
+                            className="form-input"
+                            style={{ width: 'auto', minWidth: '140px' }}
+                            value={filterBulan ?? ''}
+                            onChange={(e) => handleFilterChange('month', e.target.value)}
+                        >
+                            <option value="">Semua Bulan</option>
+                            <option value="1">Januari</option>
+                            <option value="2">Februari</option>
+                            <option value="3">Maret</option>
+                            <option value="4">April</option>
+                            <option value="5">Mei</option>
+                            <option value="6">Juni</option>
+                            <option value="7">Juli</option>
+                            <option value="8">Agustus</option>
+                            <option value="9">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11">November</option>
+                            <option value="12">Desember</option>
+                        </select>
+
+                        <select
+                            className="form-input"
+                            style={{ width: 'auto', minWidth: '110px' }}
+                            value={filterTahun ?? ''}
+                            onChange={(e) => handleFilterChange('year', e.target.value)}
+                        >
+                            <option value="">Semua Tahun</option>
+                            {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map((year) => (
+                                <option key={year} value={year}>
+                                    {year}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                {equities.length > 0 ? (
                     <div className="table-container">
                         <table>
                             <thead>
@@ -132,9 +194,40 @@ export default function EquityPage() {
                                 ))}
                             </tbody>
                         </table>
+
+                        {/* Pagination Controls */}
+                        {meta && meta.totalPages > 1 && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+                                <span className="text-muted" style={{ fontSize: '0.9rem' }}>
+                                    Halaman {meta.page} dari {meta.totalPages} (Total {meta.total} data)
+                                </span>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button
+                                        className="btn btn-secondary"
+                                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+                                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                        disabled={meta.page <= 1}
+                                    >
+                                        Sebelumnya
+                                    </button>
+                                    <button
+                                        className="btn btn-secondary"
+                                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+                                        onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
+                                        disabled={meta.page >= meta.totalPages}
+                                    >
+                                        Selanjutnya
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ) : (
-                    <p className="text-muted">Belum ada data ekuitas. Tambahkan data pertama Anda di atas.</p>
+                    <p className="text-muted">
+                        {filterBulan || filterTahun 
+                            ? 'Tidak ada data ekuitas untuk periode ini.' 
+                            : 'Belum ada data ekuitas. Tambahkan data pertama Anda di atas.'}
+                    </p>
                 )}
             </div>
         </div>

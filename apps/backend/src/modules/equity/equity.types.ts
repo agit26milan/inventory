@@ -9,3 +9,13 @@ export interface EquityResponse {
     description: string;
     createdAt: Date;
 }
+
+export interface PaginatedEquities {
+    data: EquityResponse[];
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}

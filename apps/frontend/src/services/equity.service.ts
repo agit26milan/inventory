@@ -1,5 +1,5 @@
 import api from './api';
-import { Equity, CreateEquityDTO, ApiResponse } from '../types';
+import { Equity, CreateEquityDTO, ApiResponse, PaginatedEquities } from '../types';
 
 export const equityService = {
     createEquity: async (data: CreateEquityDTO): Promise<Equity> => {
@@ -7,8 +7,14 @@ export const equityService = {
         return response.data.data;
     },
 
-    getAllEquities: async (): Promise<Equity[]> => {
-        const response = await api.get<ApiResponse<Equity[]>>('/equity');
+    getAllEquities: async (page?: number, limit?: number, month?: number, year?: number): Promise<PaginatedEquities> => {
+        const params = new URLSearchParams();
+        if (page) params.append('page', page.toString());
+        if (limit) params.append('limit', limit.toString());
+        if (month) params.append('month', month.toString());
+        if (year) params.append('year', year.toString());
+
+        const response = await api.get<ApiResponse<PaginatedEquities>>(`/equity?${params.toString()}`);
         return response.data.data;
     },
 
