@@ -73,115 +73,7 @@ export const ReportsPage = () => {
             <h1>📈 Laporan &amp; Analitik</h1>
             <p className="text-muted mb-4">Wawasan bisnis secara menyeluruh</p>
 
-            {/* ===== STOCK ALERT SECTION ===== */}
-            <div
-                className="card mb-4"
-                style={{
-                    borderLeft: hasAlerts
-                        ? '4px solid var(--danger)'
-                        : '4px solid var(--success)',
-                }}
-            >
-                <div className="card-header rp-alert-header">
-                    <div>
-                        <h3 className="card-title">
-                            {hasAlerts || search || (meta?.total ?? 0) > 0 ? '⚠️ Peringatan Stok Rendah' : '✅ Status Stok'}
-                        </h3>
-                        <span className="text-muted" style={{ fontSize: '0.85rem' }}>
-                            Batas minimum: <strong>{threshold} unit</strong>
-                        </span>
-                    </div>
-                    <div className="rp-alert-search">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Cari produk / variant..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                </div>
-
-                {hasAlerts ? (
-                    <div className="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Produk</th>
-                                    <th>Variant</th>
-                                    <th>SKU</th>
-                                    <th>Stok Saat Ini</th>
-                                    <th>Batas Minimum</th>
-                                    <th>Selisih</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {stockAlerts.map((alert) => {
-                                    // Hitung kekurangan stok dari batas minimum
-                                    const deficit = alert.threshold - alert.currentStock;
-                                    const isCritical = alert.currentStock === 0;
-
-                                    return (
-                                        <tr
-                                            key={alert.combinationId}
-                                            className={isCritical ? 'rp-alert-row--critical' : 'rp-alert-row--warning'}
-                                        >
-                                            <td className="rp-alert-product-name">{alert.productName}</td>
-                                            <td>{alert.variantName}</td>
-                                            <td>
-                                                <code style={{ fontSize: '0.85em' }}>{alert.sku}</code>
-                                            </td>
-                                            <td>
-                                                <span className={`rp-alert-stock ${isCritical ? 'rp-alert-stock--critical' : 'rp-alert-stock--warning'}`}>
-                                                    {alert.currentStock} unit
-                                                </span>
-                                            </td>
-                                            <td>{alert.threshold} unit</td>
-                                            <td className="text-danger rp-alert-deficit">
-                                                -{deficit} unit
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-
-                        {meta && meta.totalPages > 1 && (
-                            <div className="rp-pagination">
-                                <span className="text-muted rp-pagination__info">
-                                    Menampilkan {meta.page} dari {meta.totalPages} halaman (Total: {meta.total} variant)
-                                </span>
-                                <div className="rp-pagination__controls">
-                                    <button
-                                        className="btn btn-secondary btn-sm rp-pagination__btn"
-                                        disabled={meta.page <= 1}
-                                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                                    >
-                                        Sebelumnya
-                                    </button>
-                                    <button
-                                        className="btn btn-secondary btn-sm rp-pagination__btn"
-                                        disabled={meta.page >= meta.totalPages}
-                                        onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
-                                    >
-                                        Selanjutnya
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <p className="rp-empty text-muted">
-                        {search ? (
-                            <>❌ Tidak ada variant stok rendah yang cocok dengan pencarian &quot;<strong>{search}</strong>&quot;</>
-                        ) : (
-                            <>✅ Semua stok variant aman — tidak ada yang di bawah batas minimum ({threshold} unit)</>
-                        )}
-                    </p>
-                )}
-            </div>
-
-            {/* ===== SALES SUMMARY ===== */}
+               {/* ===== SALES SUMMARY ===== */}
             <div className="card mb-4">
                 <div className="card-header">
                     <h3 className="card-title">💰 Ringkasan Penjualan</h3>
@@ -214,48 +106,7 @@ export const ReportsPage = () => {
                 </div>
             </div>
 
-            {/* ===== PRODUCT PERFORMANCE ===== */}
-            <div className="card mb-4">
-                <div className="card-header">
-                    <h3 className="card-title">🏆 Performa Produk</h3>
-                </div>
-                {performance && performance.length > 0 ? (
-                    <div className="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Produk</th>
-                                    <th>Qty Terjual</th>
-                                    <th>Pendapatan</th>
-                                    <th>HPP</th>
-                                    <th>Keuntungan</th>
-                                    <th>Margin</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {performance.map((item) => (
-                                    <tr key={item.productId}>
-                                        <td className="rp-product-name">{item.productName}</td>
-                                        <td>{item.totalQuantitySold}</td>
-                                        <td className="text-success">{formatCurrency(item.totalRevenue)}</td>
-                                        <td className="text-danger">{formatCurrency(item.totalCogs)}</td>
-                                        <td className="text-primary-light rp-product-profit">
-                                            {formatCurrency(item.totalProfit)}
-                                        </td>
-                                        <td>
-                                            {((item.totalProfit / item.totalRevenue) * 100).toFixed(1)}%
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                ) : (
-                    <p className="rp-empty text-muted">Belum ada data penjualan</p>
-                )}
-            </div>
-
-            {/* ===== VARIANT PERFORMANCE ===== */}
+             {/* ===== VARIANT PERFORMANCE ===== */}
             <div className="card mb-4">
                 <div className="card-header rp-variant-header">
                     <h3 className="card-title">📊 Performa Varian</h3>
@@ -369,6 +220,159 @@ export const ReportsPage = () => {
                     <p className="rp-empty text-muted">Belum ada data performa varian</p>
                 )}
             </div>
+
+            {/* ===== STOCK ALERT SECTION ===== */}
+            <div
+                className="card mb-4"
+                style={{
+                    borderLeft: hasAlerts
+                        ? '4px solid var(--danger)'
+                        : '4px solid var(--success)',
+                }}
+            >
+                <div className="card-header rp-alert-header">
+                    <div>
+                        <h3 className="card-title">
+                            {hasAlerts || search || (meta?.total ?? 0) > 0 ? '⚠️ Peringatan Stok Rendah' : '✅ Status Stok'}
+                        </h3>
+                        <span className="text-muted" style={{ fontSize: '0.85rem' }}>
+                            Batas minimum: <strong>{threshold} unit</strong>
+                        </span>
+                    </div>
+                    <div className="rp-alert-search">
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Cari produk / variant..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                {hasAlerts ? (
+                    <div className="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Produk</th>
+                                    <th>Variant</th>
+                                    <th>SKU</th>
+                                    <th>Stok Saat Ini</th>
+                                    <th>Batas Minimum</th>
+                                    <th>Selisih</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {stockAlerts.map((alert) => {
+                                    // Hitung kekurangan stok dari batas minimum
+                                    const deficit = alert.threshold - alert.currentStock;
+                                    const isCritical = alert.currentStock === 0;
+
+                                    return (
+                                        <tr
+                                            key={alert.combinationId}
+                                            className={isCritical ? 'rp-alert-row--critical' : 'rp-alert-row--warning'}
+                                        >
+                                            <td className="rp-alert-product-name">{alert.productName}</td>
+                                            <td>{alert.variantName}</td>
+                                            <td>
+                                                <code style={{ fontSize: '0.85em' }}>{alert.sku}</code>
+                                            </td>
+                                            <td>
+                                                <span className={`rp-alert-stock ${isCritical ? 'rp-alert-stock--critical' : 'rp-alert-stock--warning'}`}>
+                                                    {alert.currentStock} unit
+                                                </span>
+                                            </td>
+                                            <td>{alert.threshold} unit</td>
+                                            <td className="text-danger rp-alert-deficit">
+                                                -{deficit} unit
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+
+                        {meta && meta.totalPages > 1 && (
+                            <div className="rp-pagination">
+                                <span className="text-muted rp-pagination__info">
+                                    Menampilkan {meta.page} dari {meta.totalPages} halaman (Total: {meta.total} variant)
+                                </span>
+                                <div className="rp-pagination__controls">
+                                    <button
+                                        className="btn btn-secondary btn-sm rp-pagination__btn"
+                                        disabled={meta.page <= 1}
+                                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                                    >
+                                        Sebelumnya
+                                    </button>
+                                    <button
+                                        className="btn btn-secondary btn-sm rp-pagination__btn"
+                                        disabled={meta.page >= meta.totalPages}
+                                        onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
+                                    >
+                                        Selanjutnya
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <p className="rp-empty text-muted">
+                        {search ? (
+                            <>❌ Tidak ada variant stok rendah yang cocok dengan pencarian &quot;<strong>{search}</strong>&quot;</>
+                        ) : (
+                            <>✅ Semua stok variant aman — tidak ada yang di bawah batas minimum ({threshold} unit)</>
+                        )}
+                    </p>
+                )}
+            </div>
+
+         
+
+            {/* ===== PRODUCT PERFORMANCE ===== */}
+            <div className="card mb-4">
+                <div className="card-header">
+                    <h3 className="card-title">🏆 Performa Produk</h3>
+                </div>
+                {performance && performance.length > 0 ? (
+                    <div className="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Produk</th>
+                                    <th>Qty Terjual</th>
+                                    <th>Pendapatan</th>
+                                    <th>HPP</th>
+                                    <th>Keuntungan</th>
+                                    <th>Margin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {performance.map((item) => (
+                                    <tr key={item.productId}>
+                                        <td className="rp-product-name">{item.productName}</td>
+                                        <td>{item.totalQuantitySold}</td>
+                                        <td className="text-success">{formatCurrency(item.totalRevenue)}</td>
+                                        <td className="text-danger">{formatCurrency(item.totalCogs)}</td>
+                                        <td className="text-primary-light rp-product-profit">
+                                            {formatCurrency(item.totalProfit)}
+                                        </td>
+                                        <td>
+                                            {((item.totalProfit / item.totalRevenue) * 100).toFixed(1)}%
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <p className="rp-empty text-muted">Belum ada data penjualan</p>
+                )}
+            </div>
+
+           
 
             {/* ===== INVENTORY VALUATION ===== */}
             <div className="card">

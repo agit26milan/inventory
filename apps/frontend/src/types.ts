@@ -75,6 +75,16 @@ export interface SalesSummary {
     numberOfTransactions: number;
 }
 
+export interface PaginatedSales {
+    data: Sale[];
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}
+
 export interface ProductPerformance {
     productId: number;
     productName: string;

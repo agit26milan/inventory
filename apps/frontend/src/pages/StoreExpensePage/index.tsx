@@ -48,9 +48,10 @@ export default function StoreExpensePage() {
     const [category, setCategory] = useState('');
     const [editingId, setEditingId] = useState<number | null>(null);
 
-    // State filter bulan dan tahun (undefined = tampilkan semua)
-    const [filterBulan, setFilterBulan] = useState<number | undefined>(undefined);
-    const [filterTahun, setFilterTahun] = useState<number | undefined>(undefined);
+    // State filter bulan dan tahun (default: bulan & tahun saat ini)
+    const currentDate = new Date();
+    const [filterBulan, setFilterBulan] = useState<number | undefined>(currentDate.getMonth() + 1);
+    const [filterTahun, setFilterTahun] = useState<number | undefined>(currentDate.getFullYear());
 
     const { data: expenses } = useStoreExpenses(filterBulan, filterTahun);
     const { data: totalExpenses } = useTotalExpenses();
@@ -126,8 +127,9 @@ export default function StoreExpensePage() {
     };
 
     const handleResetFilter = () => {
-        setFilterBulan(undefined);
-        setFilterTahun(undefined);
+        const d = new Date();
+        setFilterBulan(d.getMonth() + 1);
+        setFilterTahun(d.getFullYear());
     };
 
     // if (isLoading) {
@@ -217,7 +219,6 @@ export default function StoreExpensePage() {
                             value={filterBulan ?? ''}
                             onChange={(e) => setFilterBulan(e.target.value ? Number(e.target.value) : undefined)}
                         >
-                            <option value="">Semua Bulan</option>
                             {DAFTAR_BULAN.map((bulan) => (
                                 <option key={bulan.value} value={bulan.value}>
                                     {bulan.label}
@@ -230,7 +231,6 @@ export default function StoreExpensePage() {
                             value={filterTahun ?? ''}
                             onChange={(e) => setFilterTahun(e.target.value ? Number(e.target.value) : undefined)}
                         >
-                            <option value="">Semua Tahun</option>
                             {DAFTAR_TAHUN.map((tahun) => (
                                 <option key={tahun} value={tahun}>
                                     {tahun}
@@ -238,8 +238,8 @@ export default function StoreExpensePage() {
                             ))}
                         </select>
 
-                        {/* Tombol reset filter hanya muncul jika ada filter aktif */}
-                        {(filterBulan !== undefined || filterTahun !== undefined) && (
+                        {/* Tombol reset filter hanya muncul jika filter diubah dari bulan/tahun saat ini */}
+                        {(filterBulan !== new Date().getMonth() + 1 || filterTahun !== new Date().getFullYear()) && (
                             <button
                                 type="button"
                                 className="btn btn-secondary"

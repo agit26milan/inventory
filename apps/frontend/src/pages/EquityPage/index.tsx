@@ -156,7 +156,6 @@ export default function EquityPage() {
                             value={filterTahun ?? ''}
                             onChange={(e) => handleFilterChange('year', e.target.value)}
                         >
-                            <option value="">Semua Tahun</option>
                             {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map((year) => (
                                 <option key={year} value={year}>
                                     {year}

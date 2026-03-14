@@ -1,5 +1,5 @@
 import prisma from '../../database/client';
-import { CreateSaleDTO, SaleResponse } from './sales.types';
+import { CreateSaleDTO, SaleResponse, PaginatedSales, GetSalesFilters } from './sales.types';
 import { AppError } from '../../utils/error-handler';
 import { StockMethod } from '@prisma/client';
 
@@ -271,8 +271,12 @@ export class SalesService {
     /**
      * Get all sales
      */
-    async getAllSales(filters?: { productName?: string; variantName?: string; month?: number; year?: number }): Promise<SaleResponse[]> {
+    async getAllSales(filters?: GetSalesFilters): Promise<PaginatedSales> {
         const whereClause: Record<string, unknown> = {};
+        
+        const page = filters?.page || 1;
+        const limit = filters?.limit || 10;
+        const skip = (page - 1) * limit;
 
         /**
          * Logika filter tanggal penjualan:
@@ -318,46 +322,59 @@ export class SalesService {
             };
         }
 
-        const sales = await prisma.sale.findMany({
-            where: whereClause,
-            include: {
-                saleItems: {
-                    include: {
-                        product: {
-                            select: {
-                                name: true,
+        const [sales, total] = await Promise.all([
+            prisma.sale.findMany({
+                where: whereClause,
+                include: {
+                    saleItems: {
+                        include: {
+                            product: {
+                                select: {
+                                    name: true,
+                                },
                             },
-                        },
-                         variantCombination: {
-                             select: {
-                                 sku: true,
+                             variantCombination: {
+                                 select: {
+                                     sku: true,
+                                 }
                              }
-                         }
+                        },
                     },
                 },
-            },
-            orderBy: {
-                saleDate: 'desc',
-            },
-        });
+                orderBy: {
+                    saleDate: 'desc',
+                },
+                skip,
+                take: limit,
+            }),
+            prisma.sale.count({ where: whereClause }),
+        ]);
 
-        return sales.map((sale) => ({
-            id: sale.id,
-            saleDate: sale.saleDate,
-            totalAmount: Number(sale.totalAmount),
-            totalCogs: Number(sale.totalCogs),
-            profit: Number(sale.profit),
-            items: sale.saleItems.map((item) => ({
-                id: item.id,
-                productId: item.productId,
-                productName: item.product.name,
-                variantName: item.variantCombination?.sku,
-                quantity: item.quantity,
-                sellingPrice: Number(item.sellingPrice),
-                cogs: Number(item.cogs),
-                profit: Number(item.sellingPrice) * item.quantity - Number(item.cogs),
+        return {
+            data: sales.map((sale) => ({
+                id: sale.id,
+                saleDate: sale.saleDate,
+                totalAmount: Number(sale.totalAmount),
+                totalCogs: Number(sale.totalCogs),
+                profit: Number(sale.profit),
+                items: sale.saleItems.map((item) => ({
+                    id: item.id,
+                    productId: item.productId,
+                    productName: item.product.name,
+                    variantName: item.variantCombination?.sku,
+                    quantity: item.quantity,
+                    sellingPrice: Number(item.sellingPrice),
+                    cogs: Number(item.cogs),
+                    profit: Number(item.sellingPrice) * item.quantity - Number(item.cogs),
+                })),
             })),
-        }));
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
+        };
     }
 
     /**

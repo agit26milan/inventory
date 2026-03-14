@@ -22,6 +22,10 @@ export const SalesPage = () => {
   const [filterMonth, setFilterMonth] = useState<number | ''>('');
   const [filterYear, setFilterYear] = useState<number | ''>(CURRENT_YEAR);
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
   // Daftar opsi bulan Januari–Desember
   const MONTH_OPTIONS = [
     { value: 1, label: 'Januari' },
@@ -49,9 +53,18 @@ export const SalesPage = () => {
     variantName: filterVariantName || undefined,
     month: filterMonth || undefined,
     year: filterYear || undefined,
+    page,
+    limit,
   };
 
-  const { data: sales } = useSales(filters);
+  const { data: paginatedSales } = useSales(filters);
+  const sales = paginatedSales?.data || [];
+  const meta = paginatedSales?.meta;
+
+  const handleFilterChange = (setter: React.Dispatch<React.SetStateAction<any>>, value: any) => {
+    setter(value);
+    setPage(1);
+  };
   const { data: products } = useProducts();
   const createSale = useCreateSale();
 
@@ -247,7 +260,7 @@ export const SalesPage = () => {
 
       <div className="card">
         <div className="card-header">
-          <h3 className="card-title">Riwayat Penjualan ({sales?.length || 0})</h3>
+          <h3 className="card-title">Riwayat Penjualan ({meta?.total || 0})</h3>
         </div>
 
         {/* Filter Section */}
@@ -260,7 +273,7 @@ export const SalesPage = () => {
                 className="form-input"
                 placeholder="Cari produk..."
                 value={filterProductName}
-                onChange={(e) => setFilterProductName(e.target.value)}
+                onChange={(e) => handleFilterChange(setFilterProductName, e.target.value)}
               />
             </div>
             <div className="form-group">
@@ -270,7 +283,7 @@ export const SalesPage = () => {
                 className="form-input"
                 placeholder="Cari varian..."
                 value={filterVariantName}
-                onChange={(e) => setFilterVariantName(e.target.value)}
+                onChange={(e) => handleFilterChange(setFilterVariantName, e.target.value)}
               />
             </div>
             <div className="form-group">
@@ -278,7 +291,7 @@ export const SalesPage = () => {
               <SearchableDropdown
                 options={MONTH_OPTIONS}
                 value={filterMonth}
-                onChange={(val) => setFilterMonth(val === '' ? '' : Number(val))}
+                onChange={(val) => handleFilterChange(setFilterMonth, val === '' ? '' : Number(val))}
                 placeholder="Semua Bulan"
               />
             </div>
@@ -287,7 +300,7 @@ export const SalesPage = () => {
               <SearchableDropdown
                 options={YEAR_OPTIONS}
                 value={filterYear}
-                onChange={(val) => setFilterYear(val === '' ? '' : Number(val))}
+                onChange={(val) => handleFilterChange(setFilterYear, val === '' ? '' : Number(val))}
                 placeholder="Semua Tahun"
               />
             </div>
@@ -298,6 +311,7 @@ export const SalesPage = () => {
                 setFilterVariantName('');
                 setFilterMonth('');
                 setFilterYear('');
+                setPage(1);
               }}
             >
               Hapus Penyaring
@@ -337,6 +351,33 @@ export const SalesPage = () => {
                 ))}
               </tbody>
             </table>
+
+            {/* Pagination Controls */}
+            {meta && meta.totalPages > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+                    <span className="text-muted" style={{ fontSize: '0.9rem' }}>
+                        Halaman {meta.page} dari {meta.totalPages} (Total {meta.total} data)
+                    </span>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button
+                            className="btn btn-secondary"
+                            style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            disabled={meta.page <= 1}
+                        >
+                            Sebelumnya
+                        </button>
+                        <button
+                            className="btn btn-secondary"
+                            style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+                            onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
+                            disabled={meta.page >= meta.totalPages}
+                        >
+                            Selanjutnya
+                        </button>
+                    </div>
+                </div>
+            )}
           </div>
         ) : (
           <p className="text-center text-muted">Belum ada penjualan. Buat penjualan pertama Anda!</p>

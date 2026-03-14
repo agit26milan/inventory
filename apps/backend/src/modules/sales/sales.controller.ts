@@ -21,6 +21,9 @@ export class SalesController {
                 month: req.query.month ? Number(req.query.month) : undefined,
                 // Parse year dari string query param menjadi number
                 year: req.query.year ? Number(req.query.year) : undefined,
+                // Parse paginasi
+                page: req.query.page ? Number(req.query.page) : undefined,
+                limit: req.query.limit ? Number(req.query.limit) : undefined,
             };
             const sales = await salesService.getAllSales(filters);
             successResponse(res, sales, 'Sales retrieved successfully');

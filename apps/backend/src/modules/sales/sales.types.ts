@@ -35,4 +35,18 @@ export interface GetSalesFilters {
     month?: number;
     /** Tahun untuk filter, misal: 2024, 2025 */
     year?: number;
+    /** Halaman saat ini untuk paginasi */
+    page?: number;
+    /** Batas jumlah data per halaman */
+    limit?: number;
+}
+
+export interface PaginatedSales {
+    data: SaleResponse[];
+    meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
 }

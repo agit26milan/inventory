@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { salesService } from '../services/sales.service';
 import { CreateSaleDTO } from '../types';
 
-export const useSales = (filters?: { productName?: string; variantName?: string; month?: number; year?: number }) => {
+export const useSales = (filters?: { productName?: string; variantName?: string; month?: number; year?: number; page?: number; limit?: number }) => {
     return useQuery({
         queryKey: ['sales', filters],
         queryFn: () => salesService.getAll(filters),
