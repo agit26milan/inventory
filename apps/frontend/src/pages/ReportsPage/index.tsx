@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react';
-import {
-    useSalesSummary,
-    useProductPerformance,
-    useInventoryValuation,
-    useStockAlerts,
-    useVariantPerformance,
-} from '../../hooks/useReports';
+import { useSalesSummary, useProductPerformance, useInventoryValuation, useStockAlerts, useVariantPerformance } from '../../hooks/useReports';
 import { useConfigurationByKey } from '../../hooks/useConfiguration';
+import { useTotalEquity } from '../../hooks/useEquity';
+import { useTotalExpenses } from '../../hooks/useStoreExpense';
 import { formatCurrency } from '../../utils/currency';
 import './styles.css';
 
@@ -45,6 +41,13 @@ export const ReportsPage = () => {
     const { data: summary } = useSalesSummary();
     const { data: performance } = useProductPerformance();
     const { data: valuation } = useInventoryValuation();
+    const { data: totalEquity } = useTotalEquity();
+    const { data: totalExpenses } = useTotalExpenses();
+
+    // Kalkulasi Total Modal + Inventory
+    const ekuitasBersih = (totalEquity || 0) - (totalExpenses || 0);
+    const totalNilaiInventory = valuation?.reduce((sum, item) => sum + Number(item.totalValue), 0) || 0;
+    const modalPlusInventory = ekuitasBersih + totalNilaiInventory;
     const { data: variantPerfData } = useVariantPerformance(
         variantPage,
         10,
@@ -78,7 +81,7 @@ export const ReportsPage = () => {
                 <div className="card-header">
                     <h3 className="card-title">💰 Ringkasan Penjualan</h3>
                 </div>
-                <div className="grid grid-2">
+                <div className="grid grid-3">
                     <div>
                         <p className="text-muted">Total Penjualan</p>
                         <p className="rp-summary-total-sales">
@@ -97,10 +100,16 @@ export const ReportsPage = () => {
                             {summary ? formatCurrency(summary.totalCogs) : formatCurrency(0)}
                         </p>
                     </div>
-                    <div>
+                            <div>
                         <p className="text-muted">Margin Keuntungan</p>
                         <p className="rp-summary-margin">
                             {summary?.profitMargin.toFixed(2) || '0'}%
+                        </p>
+                    </div>
+                    <div>
+                        <p className="text-muted">Modal + Inventory</p>
+                        <p className="rp-summary-modal-inventory">
+                            {formatCurrency(modalPlusInventory)}
                         </p>
                     </div>
                 </div>

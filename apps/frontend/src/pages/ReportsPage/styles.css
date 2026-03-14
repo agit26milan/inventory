@@ -89,13 +89,13 @@
 /* ─── Sales Summary ──────────────────────────────────────────────────────── */
 
 .rp-summary-total-sales {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: bold;
     color: var(--success);
 }
 
 .rp-summary-total-profit {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: bold;
     color: var(--primary-light);
 }
@@ -110,6 +110,18 @@
     font-size: 1.5rem;
     font-weight: bold;
     color: var(--warning);
+}
+
+.rp-summary-modal-inventory {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.rp-summary-divider {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
 }
 
 /* ─── Product Performance ────────────────────────────────────────────────── */
