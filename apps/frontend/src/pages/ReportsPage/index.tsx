@@ -158,8 +158,9 @@ export const ReportsPage = () => {
                                     <th>Produk</th>
                                     <th>Varian</th>
                                     <th>SKU</th>
-                                    <th>Qty Terjual</th>
+                                    
                                     <th>Stok Tersisa</th>
+                                    <th>Qty Terjual</th>
                                     <th>Pendapatan</th>
                                     <th>HPP</th>
                                     <th>Keuntungan</th>
@@ -181,12 +182,12 @@ export const ReportsPage = () => {
                                             <td className="rp-variant-product-name">{item.productName}</td>
                                             <td>{item.variantName}</td>
                                             <td><code style={{ fontSize: '0.85em' }}>{item.sku}</code></td>
-                                            <td>{item.totalQuantitySold}</td>
                                             <td>
                                                 <span className={stockClass}>
                                                     {item.remainingQuantity} unit
                                                 </span>
                                             </td>
+                                            <td>{item.totalQuantitySold}</td>
                                             <td className="text-success">{formatCurrency(item.totalRevenue)}</td>
                                             <td className="text-danger">{formatCurrency(item.totalCogs)}</td>
                                             <td className="text-primary-light rp-variant-profit">

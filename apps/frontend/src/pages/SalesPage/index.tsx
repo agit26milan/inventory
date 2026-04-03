@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSales, useCreateSale } from '../../hooks/useSales';
 import { useProducts } from '../../hooks/useProducts';
 import { useVariantCombinations } from '../../hooks/useVariantCombinations';
+import { useVouchers } from '../../hooks/useVoucher';
 import { SaleItem, VariantCombination } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { getSkuName } from '../../utils/sku';
@@ -79,6 +80,17 @@ export const SalesPage = () => {
   const [selectedProductId, setSelectedProductId] = useState<number>(0);
   const { data: variants } = useVariantCombinations(selectedProductId);
 
+  // State untuk voucher yang dipilih
+  const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
+  const { data: vouchers } = useVouchers();
+
+  // Filter hanya voucher yang sedang aktif dan dalam periode berlaku
+  const activeVouchers = (vouchers || []).filter((v) => {
+    if (!v.isActive) return false;
+    const now = new Date();
+    return now >= new Date(v.startDate) && now <= new Date(v.endDate);
+  });
+
   const addItem = () => {
     if (currentItem.productId && currentItem.quantity > 0) {
       // Check if variant is required but not selected
@@ -116,8 +128,13 @@ export const SalesPage = () => {
     try {
       // Strip variantName before sending to API
       const itemsPayload = saleItems.map(({ variantName, ...item }) => item);
-      await createSale.mutateAsync({ items: itemsPayload });
+      await createSale.mutateAsync({
+        items: itemsPayload,
+        // Kirim voucherId hanya jika ada yang dipilih
+        ...(selectedVoucherId ? { voucherId: selectedVoucherId } : {}),
+      });
       setSaleItems([]);
+      setSelectedVoucherId('');
       setShowForm(false);
     } catch (error: any) {
       alert(error.response?.data?.message || 'Gagal membuat penjualan');
@@ -247,6 +264,23 @@ export const SalesPage = () => {
               </div>
             )}
 
+            {/* Dropdown Voucher - Opsional */}
+            <div className="form-group mb-3">
+              <label className="form-label">Voucher (Opsional)</label>
+              <SearchableDropdown
+                options={[
+                  { value: '', label: 'Tanpa Voucher' },
+                  ...activeVouchers.map((v) => ({
+                    value: v.id,
+                    label: `${v.code} – ${v.discountType === 'NOMINAL' ? formatCurrency(v.discountValue) : `${v.discountValue}%`} – ${v.name}`,
+                  }))
+                ]}
+                value={selectedVoucherId}
+                onChange={(val) => setSelectedVoucherId(String(val))}
+                placeholder="Pilih Voucher Diskon"
+              />
+            </div>
+
             <button
               type="submit"
               className="btn btn-success"
@@ -329,6 +363,7 @@ export const SalesPage = () => {
                   <th>Detail Barang</th>
                   <th>Total Tagihan</th>
                   <th>HPP (COGS)</th>
+                  <th>Diskon Voucher</th>
                   <th>Laba Bersih</th>
                   <th>Margin</th>
                 </tr>
@@ -341,6 +376,20 @@ export const SalesPage = () => {
                     <td>{sale.items.map((item) => `${item.productName} - ${getSkuName(item.variantName || '') || '-'} x ${item.quantity}`).join(' | ')} </td>
                     <td className="text-success">{formatCurrency(sale.totalAmount)}</td>
                     <td className="text-danger">{formatCurrency(sale.totalCogs)}</td>
+                    <td>
+                      {(sale as any).voucherDiscount > 0 ? (
+                        <span style={{ color: 'var(--warning)', fontWeight: 'bold' }}>
+                          - {formatCurrency((sale as any).voucherDiscount)}
+                          {(sale as any).voucherCode && (
+                            <small style={{ display: 'block', color: 'var(--text-muted)', fontWeight: 'normal' }}>
+                              [{(sale as any).voucherCode}]
+                            </small>
+                          )}
+                        </span>
+                      ) : (
+                        <span className="text-muted">-</span>
+                      )}
+                    </td>
                     <td className="text-primary-light sp-profit-cell">
                       {formatCurrency(sale.profit)}
                     </td>

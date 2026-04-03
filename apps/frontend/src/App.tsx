@@ -11,6 +11,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { SalesReportPage } from './pages/SalesReportPage';
 import { ConfigurationPage } from './pages/ConfigurationPage';
+import { VoucherPage } from './pages/VoucherPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,6 +41,7 @@ function App() {
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/sales-report" element={<SalesReportPage />} />
               <Route path="/configuration" element={<ConfigurationPage />} />
+              <Route path="/vouchers" element={<VoucherPage />} />
             </Routes>
           </main>
         </div>

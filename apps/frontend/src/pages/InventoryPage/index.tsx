@@ -325,7 +325,7 @@ export const InventoryPage = () => {
                   </th>
                   <th>Produk</th>
                   <th>Varian</th>
-                  <th>Jml Awal</th>
+                  {/* <th>Jml Awal</th> */}
                   <th>Sisa Stok</th>
                   <th>Harga Beli</th>
                   <th>Harga Jual</th>
@@ -352,7 +352,7 @@ export const InventoryPage = () => {
                             <span className="text-muted">-</span>
                         )}
                     </td>
-                    <td>{batch.quantity}</td>
+                    {/* <td>{batch.quantity}</td> */}
                     <td>
                       <span className={batch.remainingQuantity === 0 ? 'text-muted' : 'text-success'}>
                         {batch.remainingQuantity}

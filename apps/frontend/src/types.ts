@@ -211,6 +211,39 @@ export interface StoreExpense {
     updatedAt: string;
 }
 
+export interface Voucher {
+    id: string; // Menggunakan string untuk kompatibilitas BigInt JSON
+    code: string;
+    name: string;
+    discountType: 'NOMINAL' | 'PERCENTAGE';
+    discountValue: number;
+    startDate: string;
+    endDate: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CreateVoucherDTO {
+    code: string;
+    name: string;
+    discountType: 'NOMINAL' | 'PERCENTAGE';
+    discountValue: number;
+    startDate: string | Date;
+    endDate: string | Date;
+    isActive?: boolean;
+}
+
+export interface UpdateVoucherDTO {
+    code?: string;
+    name?: string;
+    discountType?: 'NOMINAL' | 'PERCENTAGE';
+    discountValue?: number;
+    startDate?: string | Date;
+    endDate?: string | Date;
+    isActive?: boolean;
+}
+
 export interface CreateStoreExpenseDTO {
     amount: number;
     description: string;

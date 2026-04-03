@@ -6,6 +6,8 @@ export interface SaleItemDTO {
 
 export interface CreateSaleDTO {
     items: SaleItemDTO[];
+    /** ID Voucher yang dipakai (opsional) */
+    voucherId?: string;
 }
 
 export interface SaleResponse {
@@ -14,6 +16,8 @@ export interface SaleResponse {
     totalAmount: number;
     totalCogs: number;
     profit: number;
+    voucherDiscount: number;
+    voucherCode?: string;
     items: SaleItemResponse[];
 }
 

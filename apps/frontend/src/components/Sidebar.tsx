@@ -60,6 +60,15 @@ export const Sidebar = () => {
           </li>
           <li>
             <Link
+              to="/vouchers"
+              className={`nav-link ${isActive('/vouchers') ? 'active' : ''}`}
+            >
+              <span className="nav-icon">🎟️</span>
+              Master Voucher
+            </Link>
+          </li>
+          <li>
+            <Link
               to="/equity"
               className={`nav-link ${isActive('/equity') ? 'active' : ''}`}
             >

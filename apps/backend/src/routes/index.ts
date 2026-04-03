@@ -7,6 +7,7 @@ import configurationController from '../modules/configuration/configuration.cont
 import variantRoutes from '../modules/variant/variant.routes';
 import variantCombinationRoutes from '../modules/variant-combination/variant-combination.routes';
 import marketplaceFeeRoutes from './marketplace-fee.routes';
+import voucherRoutes from '../modules/voucher/voucher.routes';
 import * as equityController from '../modules/equity/equity.controller';
 import * as storeExpenseController from '../modules/store-expense/store-expense.controller';
 import { validate } from '../utils/validation';
@@ -59,6 +60,9 @@ router.use('/variant-combinations', variantCombinationRoutes);
 
 // Marketplace Fee routes
 router.use('/marketplace-fees', marketplaceFeeRoutes);
+
+// Voucher routes
+router.use('/vouchers', voucherRoutes);
 
 // Equity routes
 router.post('/equity', validate(createEquitySchema), equityController.createEquity);

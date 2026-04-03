@@ -10,6 +10,8 @@ export const createSaleSchema = z.object({
                 })
             )
             .min(1, 'At least one item is required'),
+        // ID Voucher yang digunakan (opsional), dikirim sebagai string
+        voucherId: z.string().regex(/^\d+$/, 'Invalid voucher ID').optional(),
     }),
 });
 

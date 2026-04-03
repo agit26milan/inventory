@@ -93,18 +93,55 @@ export class SalesService {
                 });
             }
 
-            // Profit is now simply Total Net Revenue - Total COGS
+            // Profit adalah Total Net Revenue - Total COGS
             const profit = totalAmount - totalCogs;
 
+            // =============================================
+            // Logika penerapan diskon voucher (jika ada)
+            // =============================================
+            let voucherDiscount = 0;
+            let appliedVoucherId: bigint | undefined = undefined;
+
+            if (data.voucherId) {
+                const voucher = await tx.voucher.findUnique({
+                    where: { id: BigInt(data.voucherId) },
+                });
+
+                if (!voucher) {
+                    throw new AppError(404, 'Voucher tidak ditemukan');
+                }
+                if (!voucher.isActive) {
+                    throw new AppError(400, 'Voucher tidak aktif');
+                }
+                const now = new Date();
+                if (now < voucher.startDate || now > voucher.endDate) {
+                    throw new AppError(400, 'Voucher sudah tidak berlaku atau belum dimulai');
+                }
+
+                if (voucher.discountType === 'NOMINAL') {
+                    // Diskon nominal langsung dikurangi dari total penjualan
+                    voucherDiscount = Number(voucher.discountValue);
+                } else {
+                    // Diskon persentase: persentase x totalAmount (harga jual bersih)
+                    voucherDiscount = (Number(voucher.discountValue) / 100) * totalAmount;
+                }
+
+                // Pastikan diskon tidak melebihi total harga
+                voucherDiscount = Math.min(voucherDiscount, totalAmount);
+                appliedVoucherId = voucher.id;
+            }
+
+            // Profit akhir setelah potongan voucher
+            const finalProfit = profit - voucherDiscount;
+
             // Create the sale record
-            // Note: `totalAmount` is Gross Revenue.
-            // `totalCogs` is Cost of Goods.
-            // `profit` is Net Profit (Revenue - COGS - Fees).
             const sale = await tx.sale.create({
                 data: {
                     totalAmount,
                     totalCogs,
-                    profit, 
+                    profit: finalProfit,
+                    voucherId: appliedVoucherId,
+                    voucherDiscount,
                     saleItems: {
                         create: saleItemsData,
                     },
@@ -117,12 +154,17 @@ export class SalesService {
                                     name: true,
                                 },
                             },
-                             variantCombination: {
-                                 select: {
-                                     sku: true,
-                                 }
-                             }
+                            variantCombination: {
+                                select: {
+                                    sku: true,
+                                }
+                            }
                         },
+                    },
+                    voucher: {
+                        select: {
+                            code: true,
+                        }
                     },
                 },
             });
@@ -141,36 +183,9 @@ export class SalesService {
                 totalAmount: Number(sale.totalAmount),
                 totalCogs: Number(sale.totalCogs),
                 profit: Number(sale.profit),
+                voucherDiscount: Number(sale.voucherDiscount),
+                voucherCode: sale.voucher?.code,
                 items: sale.saleItems.map((item) => {
-                    // We need to re-calculate fee to show correct item profit in response, 
-                    // OR we accept that this response might show Gross Profit for items if we don't fetch fees again.
-                    // But we can't easily fetch fees here again efficiently without query.
-                    // For the response, simpler is (sellingPrice * qty - cogs).
-                    // If we want to show net profit per item, we'd need to know the fee again.
-                    // Let's stick to simple Gross Profit for item breakdown unless we query product again.
-                    // Wait, `sale.profit` is Net. Item breakdown summing to Gross might be confusing.
-                    // But `SaleItem` doesn't have `fee` column.
-                    // Let's leave item breakdown as is (Standard Margin) or try to fetch it?
-                    // The user requirement is about the "Inventory selling price" being reduced?
-                    // "harga selling price di masing masing inventory akan di kurangi"
-                    // This creates a discrepancy.
-                    // If we reduce the `sellingPrice` stored in `SaleItem`, then `totalAmount` (Revenue) decreases.
-                    // Is that what they want? "Net Sales"?
-                    // "harga selling price ... akan di kurangi biaya admin"
-                    // If I change `sellingPrice` in `SaleItem`, it effectively lowers Revenue.
-                    // Revenue = Selling Price * Qty.
-                    // If I lower Selling Price, I lower Revenue.
-                    // Profit = Lowered Revenue - COGS.
-                    // This matches the math.
-                    // AND it matches "selling price ... will be reduced".
-                    // So, instead of `feeAmount` being separate expense, I should reduce `revenue` variable itself?
-                    // `const netRevenue = revenue - feeAmount`.
-                    // `const netSellingPrice = netRevenue / quantity`.
-                    // And store THAT in `SaleItem`.
-                    // This way `totalAmount` in Sale will be Net Revenue.
-                    // And `profit` will be Net Profit.
-                    // This seems to align best with "selling price ... will be reduced".
-                    
                     return {
                         id: item.id,
                         productId: item.productId,
@@ -340,6 +355,11 @@ export class SalesService {
                              }
                         },
                     },
+                    voucher: {
+                        select: {
+                            code: true,
+                        }
+                    },
                 },
                 orderBy: {
                     saleDate: 'desc',
@@ -357,6 +377,8 @@ export class SalesService {
                 totalAmount: Number(sale.totalAmount),
                 totalCogs: Number(sale.totalCogs),
                 profit: Number(sale.profit),
+                voucherDiscount: Number(sale.voucherDiscount),
+                voucherCode: (sale as any).voucher?.code,
                 items: sale.saleItems.map((item) => ({
                     id: item.id,
                     productId: item.productId,
@@ -411,6 +433,8 @@ export class SalesService {
             totalAmount: Number(sale.totalAmount),
             totalCogs: Number(sale.totalCogs),
             profit: Number(sale.profit),
+            voucherDiscount: Number(sale.voucherDiscount),
+            voucherCode: (sale as any).voucher?.code,
             items: sale.saleItems.map((item) => ({
                 id: item.id,
                 productId: item.productId,
