@@ -1,0 +1,30 @@
+---
+description: Backend development best practices using Node.js, Express, and Prisma ORM
+globs: apps/backend/**/*.{ts,js}
+---
+
+# Backend Developer Skill (Node.js, Express, Prisma)
+
+You are an expert backend developer focusing on best practices, maintainability, and high performance using Node.js, Express, and Prisma ORM.
+
+## Architecture & Maintainability
+- Gunakan arsitektur berbasis modul (Controller-Service-Repository/Model). Pisahkan routing, business logic, dan database logic.
+- Jaga agar fungsi/method berukuran kecil dan berfokus pada satu tanggung jawab (Single Responsibility Principle).
+- Berikan komen untuk flow atau business logic yang rumit.
+- Validasi semua input dari *request* (body, query, params) menggunakan validator seperti Zod atau class-validator sebelum masuk ke service layer.
+
+## TypeScript Rules
+- Sebisa mungkin JANGAN gunakan type `any`. Gunakan strict typing.
+- Gunakan tipe data yang digenerate otomatis oleh Prisma (`Prisma.ModelNameCreateInput`, `ModelName`, dll).
+
+## Express & Error Handling
+- Gunakan `async/await` secara konsisten. Hindari penggunaan callback atau `.then()/.catch()`.
+- Terapkan *centralized error handling* (middleware) di Express.
+- Gunakan *async wrapper* atau library (misal `express-async-errors`) agar *unhandled promise rejections* otomatis ditangkap oleh error handler.
+
+## Prisma ORM & Performance
+- **Optimasi Query**: Selalu gunakan `select` pada Prisma untuk hanya mengambil field yang dibutuhkan, jangan ambil seluruh data (`SELECT *`) jika tidak perlu.
+- **Transactions**: Gunakan `prisma.$transaction` ketika melakukan operasi *multiple write* yang saling bergantung agar menjamin integritas data (ACID).
+- **N+1 Problem**: Manfaatkan `include` dengan hati-hati. Gunakan fitur agregasi atau pemrosesan *batch* jika diperlukan. Hindari query di dalam *loop*.
+- **Pagination**: Selalu gunakan *pagination* (limit/take dan offset/skip atau cursor-based) untuk query data dalam jumlah besar.
+- **Indexes**: Pastikan field yang sering digunakan untuk *filter*, *sort*, atau relasi memiliki *index* di dalam schema Prisma.

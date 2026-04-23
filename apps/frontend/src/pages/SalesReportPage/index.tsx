@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSalesTimeframe, useAnnualSales, useMonthlyProfit } from '../../hooks/useReports';
+import { useSalesTimeframe, useAnnualSales, useMonthlyProfit, useMonthlyOwnerWithdrawal } from '../../hooks/useReports';
 import {
     BarChart,
     Bar,
@@ -12,7 +12,7 @@ import {
 } from 'recharts';
 import './style.css';
 
-type ReportTab = 'timeframe' | 'annual' | 'profit';
+type ReportTab = 'timeframe' | 'annual' | 'profit' | 'withdrawal';
 
 export const SalesReportPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<ReportTab>('timeframe');
@@ -33,6 +33,9 @@ export const SalesReportPage: React.FC = () => {
     // State filter tahun untuk chart laba bulanan (mulai dari 2026)
     const PROFIT_START_YEAR = 2026;
     const [profitYear, setProfitYear] = useState<number>(currentYear);
+
+    // State filter tahun untuk chart penarikan owner (mulai dari 2026)
+    const [withdrawalYear, setWithdrawalYear] = useState<number>(currentYear);
 
     // Debounce search input
     useEffect(() => {
@@ -62,6 +65,12 @@ export const SalesReportPage: React.FC = () => {
 
     // Data laba bulanan — di-fetch ulang otomatis setiap profitYear berubah
     const { data: monthlyProfitData } = useMonthlyProfit(profitYear);
+
+    // Data penarikan owner — di-fetch ulang otomatis setiap withdrawalYear berubah
+    const { data: monthlyWithdrawalData } = useMonthlyOwnerWithdrawal(withdrawalYear);
+
+    // Data laba untuk tab penarikan (menggunakan withdrawalYear)
+    const { data: withdrawalProfitData } = useMonthlyProfit(withdrawalYear);
 
     const timeframeData = timeframeReportData?.data || [];
     const timeframeMeta = timeframeReportData?.meta;
@@ -413,6 +422,109 @@ export const SalesReportPage: React.FC = () => {
         </div>
     );
 
+    // ─── TAB: PENARIKAN OWNER ──────────────────────────────────────────────────
+    const withdrawalChartData = (monthlyWithdrawalData?.data ?? []).map((d, index) => {
+        const profit = withdrawalProfitData?.data?.[index]?.totalProfit ?? 0;
+        const distributable = profit * 0.3; // 30% dari laba bersih
+
+        return {
+            month: MONTH_LABELS[d.month - 1],
+            totalWithdrawal: d.totalWithdrawal,
+            totalProfit: profit,
+            distributableProfit: distributable,
+        };
+    });
+
+    const WithdrawalTooltip = ({ active, payload, label }: any) => {
+        if (!active || !payload?.length) return null;
+
+        const withdrawal: number = payload.find((p: any) => p.dataKey === 'totalWithdrawal')?.value ?? 0;
+        const profit: number = payload.find((p: any) => p.dataKey === 'totalProfit')?.value ?? 0;
+        const distributable: number = payload.find((p: any) => p.dataKey === 'distributableProfit')?.value ?? 0;
+
+        return (
+            <div className="profit-tooltip">
+                <p className="profit-tooltip__label">{label}</p>
+                <p className="profit-tooltip__row" style={{ color: '#6366F1' }}>
+                    Laba Bersih: <strong>{formatRupiah(profit)}</strong>
+                </p>
+                <p className="profit-tooltip__row" style={{ color: '#10B981' }}>
+                    Laba Distribusi (30%): <strong>{formatRupiah(distributable)}</strong>
+                </p>
+                <p className="profit-tooltip__row" style={{ color: '#F59E0B' }}>
+                    Penarikan Owner: <strong>{formatRupiah(withdrawal)}</strong>
+                </p>
+            </div>
+        );
+    };
+
+    const renderWithdrawalTab = () => (
+        <div className="card">
+            <div className="card-header">
+                <h3 className="card-title">Penarikan Owner — Bulanan (Rp)</h3>
+                <div className="profit-filter-row">
+                    <label htmlFor="withdrawal-year-select" className="profit-filter-label">Tahun:</label>
+                    <select
+                        id="withdrawal-year-select"
+                        className="form-control profit-year-select"
+                        value={withdrawalYear}
+                        onChange={(e) => setWithdrawalYear(Number(e.target.value))}
+                    >
+                        {profitYearOptions.map((year) => (
+                            <option key={year} value={year}>{year}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
+            <div className="profit-chart-wrapper">
+                <ResponsiveContainer width="100%" height={400}>
+                    <BarChart
+                        data={withdrawalChartData}
+                        margin={{ top: 20, right: 30, left: 10, bottom: 5 }}
+                        barCategoryGap="20%"
+                    >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                        <XAxis
+                            dataKey="month"
+                            tick={{ fill: '#64748b', fontSize: 12 }}
+                            tickLine={false}
+                            axisLine={{ stroke: '#cbd5e1' }}
+                        />
+                        <YAxis
+                            tickFormatter={formatYAxis}
+                            tick={{ fill: '#64748b', fontSize: 11 }}
+                            tickLine={false}
+                            axisLine={{ stroke: '#cbd5e1' }}
+                            width={95}
+                        />
+                        <Tooltip content={<WithdrawalTooltip />} cursor={{ fill: 'rgba(226,232,240,0.4)' }} />
+                        <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                        <Bar
+                            dataKey="totalProfit"
+                            name="Laba Bersih"
+                            fill="#6366F1"
+                            radius={[4, 4, 0, 0]}
+                        />
+                        <Bar
+                            dataKey="distributableProfit"
+                            name="Laba Distribusi (30%)"
+                            fill="#10B981"
+                            radius={[4, 4, 0, 0]}
+                        />
+                        <Bar
+                            dataKey="totalWithdrawal"
+                            name="Penarikan Owner"
+                            fill="#F59E0B"
+                            radius={[4, 4, 0, 0]}
+                        />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
+    );
+
+
     return (
         <div>
             <div className="srp-header">
@@ -442,11 +554,18 @@ export const SalesReportPage: React.FC = () => {
                 >
                     Laba Bulanan
                 </button>
+                <button
+                    className={`btn ${activeTab === 'withdrawal' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => setActiveTab('withdrawal')}
+                >
+                    Penarikan Owner
+                </button>
             </div>
 
             {activeTab === 'timeframe' && renderTimeframeTab()}
             {activeTab === 'annual' && renderAnnualTab()}
             {activeTab === 'profit' && renderProfitTab()}
+            {activeTab === 'withdrawal' && renderWithdrawalTab()}
         </div>
     );
 };

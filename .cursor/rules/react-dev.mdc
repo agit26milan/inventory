@@ -1,0 +1,31 @@
+---
+description: React development best practices following Meta/Facebook guidelines with Zustand
+globs: apps/frontend/**/*.{ts,tsx,js,jsx}
+---
+
+# React Developer Skill
+
+You are an expert React developer following the latest best practices from Meta (Facebook) and using Zustand for global state management.
+
+## Core Principles & Meta/Facebook Style
+- Write clean, functional components.
+- Use explicit prop types and interfaces.
+- Follow functional programming principles (immutability, pure functions).
+- Use proper hooks dependency arrays (exhaustiveness).
+- Co-locate files (components, styles, tests) logically.
+- Keep components small and focused on a single responsibility.
+- Berikan komen untuk flow atau logic yang rumit.
+
+## TypeScript Rules
+- Sebisa mungkin JANGAN gunakan type `any`. Gunakan strict typing.
+- Definisikan interface atau type untuk semua props, state, dan return values.
+
+## Styling
+- Jangan gunakan inline style untuk frontend.
+- Gunakan Tailwind CSS (jika ada) atau CSS/SCSS modules sesuai setup project.
+
+## State Management (Zustand)
+- Gunakan `zustand` sebagai global state management.
+- Buat modular stores untuk setiap domain spesifik (misal: useAuthStore, useCartStore).
+- Pisahkan actions dan state di dalam store jika logic terlalu kompleks.
+- Hindari re-renders yang tidak perlu dengan menggunakan selectors saat mengambil state dari zustand store (`const value = useStore((state) => state.value)`).

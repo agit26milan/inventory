@@ -12,6 +12,8 @@ import {
     PaginatedAnnualSales,
     MonthlyProfitReport,
     MonthlyProfitDataPoint,
+    MonthlyOwnerWithdrawalReport,
+    MonthlyOwnerWithdrawalDataPoint,
 } from './report.types';
 
 export class ReportService {
@@ -647,6 +649,44 @@ export class ReportService {
             const monthIndex = sale.saleDate.getMonth(); // 0–11
             data[monthIndex].totalRevenue += Number(sale.totalAmount);
             data[monthIndex].totalProfit += Number(sale.profit);
+        });
+
+        return { year, data };
+    }
+
+    /**
+     * Akumulasi StoreExpense.amount per bulan untuk chart penarikan owner (category = OWNER)
+     */
+    async getMonthlyOwnerWithdrawal(year: number): Promise<MonthlyOwnerWithdrawalReport> {
+        // Inisialisasi 12 bulan dengan nilai 0
+        const data: MonthlyOwnerWithdrawalDataPoint[] = Array.from({ length: 12 }, (_, i) => ({
+            month: i + 1,
+            totalWithdrawal: 0,
+        }));
+
+        const startDate = new Date(year, 0, 1);
+        const endDate = new Date(year, 11, 31, 23, 59, 59, 999);
+
+        // Ambil semua pengeluaran Owner dalam rentang tahun yang dipilih
+        const expenses = await prisma.storeExpense.findMany({
+            where: {
+                category: 'OWNER',
+                deletedAt: null,
+                createdAt: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+            },
+            select: {
+                createdAt: true,
+                amount: true,
+            },
+        });
+
+        // Akumulasikan amount ke bulan yang sesuai
+        expenses.forEach((expense) => {
+            const monthIndex = expense.createdAt.getMonth(); // 0–11
+            data[monthIndex].totalWithdrawal += Number(expense.amount);
         });
 
         return { year, data };

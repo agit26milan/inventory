@@ -90,3 +90,11 @@ export const useMonthlyProfit = (year: number) => {
         queryFn: () => reportService.getMonthlyProfit(year),
     });
 };
+
+// Hook untuk chart penarikan owner — re-fetch otomatis ketika year berubah
+export const useMonthlyOwnerWithdrawal = (year: number) => {
+    return useQuery({
+        queryKey: ['reports', 'owner-withdrawal', year],
+        queryFn: () => reportService.getMonthlyOwnerWithdrawal(year),
+    });
+};

@@ -8,6 +8,7 @@ import {
     PaginatedSalesTimeframe,
     PaginatedAnnualSales,
     MonthlyProfitReport,
+    MonthlyOwnerWithdrawalReport,
     ApiResponse,
 } from '../types';
 
@@ -123,6 +124,16 @@ export const reportService = {
 
         const response = await api.get<ApiResponse<MonthlyProfitReport>>(
             `/reports/monthly-profit?${params.toString()}`
+        );
+        return response.data.data;
+    },
+
+    getMonthlyOwnerWithdrawal: async (year: number): Promise<MonthlyOwnerWithdrawalReport> => {
+        const params = new URLSearchParams();
+        params.append('year', year.toString());
+
+        const response = await api.get<ApiResponse<MonthlyOwnerWithdrawalReport>>(
+            `/reports/owner-withdrawal?${params.toString()}`
         );
         return response.data.data;
     },

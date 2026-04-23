@@ -361,3 +361,13 @@ export interface MonthlyProfitReport {
     year: number;
     data: MonthlyProfitDataPoint[];
 }
+
+export interface MonthlyOwnerWithdrawalDataPoint {
+    month: number;
+    totalWithdrawal: number;
+}
+
+export interface MonthlyOwnerWithdrawalReport {
+    year: number;
+    data: MonthlyOwnerWithdrawalDataPoint[];
+}

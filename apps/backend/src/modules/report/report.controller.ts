@@ -128,6 +128,20 @@ export class ReportController {
             next(error);
         }
     }
+
+    async getMonthlyOwnerWithdrawal(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            // Gunakan tahun saat ini sebagai default jika query year tidak ada
+            const year = req.query['year']
+                ? parseInt(req.query['year'] as string, 10)
+                : new Date().getFullYear();
+
+            const report = await reportService.getMonthlyOwnerWithdrawal(year);
+            successResponse(res, report, 'Monthly owner withdrawal report retrieved successfully');
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new ReportController();

@@ -120,3 +120,14 @@ export interface MonthlyProfitReport {
     year: number;
     data: MonthlyProfitDataPoint[];
 }
+
+// Data penarikan owner per bulan untuk bar chart
+export interface MonthlyOwnerWithdrawalDataPoint {
+    month: number;         // 1–12
+    totalWithdrawal: number;  // Akumulasi StoreExpense.amount per bulan
+}
+
+export interface MonthlyOwnerWithdrawalReport {
+    year: number;
+    data: MonthlyOwnerWithdrawalDataPoint[];
+}
