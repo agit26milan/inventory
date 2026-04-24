@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useSales, useCreateSale } from '../../hooks/useSales';
 import { useProducts } from '../../hooks/useProducts';
 import { useVariantCombinations } from '../../hooks/useVariantCombinations';
@@ -7,28 +7,25 @@ import { SaleItem, VariantCombination } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { getSkuName } from '../../utils/sku';
 import { SearchableDropdown } from '../../components/SearchableDropdown';
-import './style.css';
+import styles from './styles.module.css';
 
 // Extend SaleItem for UI display
 interface CartItem extends SaleItem {
   variantName?: string;
 }
 
-export const SalesPage = () => {
-    // Daftar opsi tahun secara dinamis: dari 3 tahun lalu hingga tahun berjalan
+export const SalesPage: React.FC = (): JSX.Element => {
   const CURRENT_YEAR = new Date().getFullYear();
-  // Filter state
-  const [filterProductName, setFilterProductName] = useState('');
-  const [filterVariantName, setFilterVariantName] = useState('');
+
+  const [filterProductName, setFilterProductName] = useState<string>('');
+  const [filterVariantName, setFilterVariantName] = useState<string>('');
   const [filterMonth, setFilterMonth] = useState<number | ''>('');
   const [filterYear, setFilterYear] = useState<number | ''>(CURRENT_YEAR);
 
-  // Pagination state
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const [page, setPage] = useState<number>(1);
+  const [limit] = useState<number>(10);
 
-  // Daftar opsi bulan Januari–Desember
-  const MONTH_OPTIONS = [
+  const MONTH_OPTIONS = useMemo(() => [
     { value: 1, label: 'Januari' },
     { value: 2, label: 'Februari' },
     { value: 3, label: 'Maret' },
@@ -41,66 +38,61 @@ export const SalesPage = () => {
     { value: 10, label: 'Oktober' },
     { value: 11, label: 'November' },
     { value: 12, label: 'Desember' },
-  ];
+  ], []);
 
-
-  const YEAR_OPTIONS = Array.from({ length: 2026 - CURRENT_YEAR + 1 }, (_, i) => {
+  const YEAR_OPTIONS = useMemo(() => Array.from({ length: 2026 - CURRENT_YEAR + 1 }, (_, i) => {
     const year = CURRENT_YEAR + i;
     return { value: year, label: String(year) };
-  }).reverse();
+  }).reverse(), [CURRENT_YEAR]);
 
-  const filters = {
+  const filters = useMemo(() => ({
     productName: filterProductName || undefined,
     variantName: filterVariantName || undefined,
     month: filterMonth || undefined,
     year: filterYear || undefined,
     page,
     limit,
-  };
+  }), [filterProductName, filterVariantName, filterMonth, filterYear, page, limit]);
 
   const { data: paginatedSales } = useSales(filters);
   const sales = paginatedSales?.data || [];
   const meta = paginatedSales?.meta;
 
-  const handleFilterChange = (setter: React.Dispatch<React.SetStateAction<any>>, value: any) => {
+  const handleFilterChange = (setter: React.Dispatch<React.SetStateAction<any>>, value: unknown) => {
     setter(value);
     setPage(1);
   };
+
   const { data: products } = useProducts();
   const createSale = useCreateSale();
 
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState<boolean>(false);
   const [saleItems, setSaleItems] = useState<CartItem[]>([]);
   const [currentItem, setCurrentItem] = useState<CartItem>({
     productId: 0,
     quantity: 1,
   });
 
-  // Track selected product to fetch variants
   const [selectedProductId, setSelectedProductId] = useState<number>(0);
   const { data: variants } = useVariantCombinations(selectedProductId);
 
-  // State untuk voucher yang dipilih
   const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
   const { data: vouchers } = useVouchers();
 
-  // Filter hanya voucher yang sedang aktif dan dalam periode berlaku
-  const activeVouchers = (vouchers || []).filter((v) => {
+  const activeVouchers = useMemo(() => (vouchers || []).filter((v) => {
     if (!v.isActive) return false;
     const now = new Date();
     return now >= new Date(v.startDate) && now <= new Date(v.endDate);
-  });
+  }), [vouchers]);
 
   const addItem = () => {
     if (currentItem.productId && currentItem.quantity > 0) {
-      // Check if variant is required but not selected
       if (variants && variants.length > 0 && !currentItem.variantCombinationId) {
           alert('Silakan pilih varian');
           return;
       }
 
-      // Add variant name if variant is selected
-      let itemToAdd = { ...currentItem };
+      const itemToAdd = { ...currentItem };
       if (currentItem.variantCombinationId && variants) {
           const selectedVariant = variants.find(v => v.id === currentItem.variantCombinationId);
           if (selectedVariant) {
@@ -126,18 +118,17 @@ export const SalesPage = () => {
     }
 
     try {
-      // Strip variantName before sending to API
       const itemsPayload = saleItems.map(({ variantName, ...item }) => item);
       await createSale.mutateAsync({
         items: itemsPayload,
-        // Kirim voucherId hanya jika ada yang dipilih
         ...(selectedVoucherId ? { voucherId: selectedVoucherId } : {}),
       });
       setSaleItems([]);
       setSelectedVoucherId('');
       setShowForm(false);
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Gagal membuat penjualan');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      alert(err.response?.data?.message || 'Gagal membuat penjualan');
     }
   };
 
@@ -180,7 +171,6 @@ export const SalesPage = () => {
                 />
               </div>
 
-               {/* Variant Selection */}
                {variants && variants.length > 0 && (
                   <div className="form-group">
                     <label className="form-label">Varian</label>
@@ -204,7 +194,7 @@ export const SalesPage = () => {
                   type="number"
                   className="form-input"
                   value={currentItem.quantity}
-                  onChange={(e) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setCurrentItem({ ...currentItem, quantity: parseInt(e.target.value) })
                   }
                   min="1"
@@ -249,7 +239,7 @@ export const SalesPage = () => {
                             <td>
                               <button
                                 type="button"
-                                className="btn btn-danger sp-btn-remove"
+                                className={`btn btn-danger ${styles.spBtnRemove}`}
                                 onClick={() => removeItem(index)}
                               >
                                 Hapus
@@ -264,7 +254,6 @@ export const SalesPage = () => {
               </div>
             )}
 
-            {/* Dropdown Voucher - Opsional */}
             <div className="form-group mb-3">
               <label className="form-label">Voucher (Opsional)</label>
               <SearchableDropdown
@@ -297,9 +286,8 @@ export const SalesPage = () => {
           <h3 className="card-title">Riwayat Penjualan ({meta?.total || 0})</h3>
         </div>
 
-        {/* Filter Section */}
-        <div className="sp-filter-section">
-          <div className="sp-filter-grid">
+        <div className={styles.spFilterSection}>
+          <div className={styles.spFilterGrid}>
             <div className="form-group">
               <label className="form-label">Cari berdasarkan Nama Produk</label>
               <input
@@ -307,7 +295,7 @@ export const SalesPage = () => {
                 className="form-input"
                 placeholder="Cari produk..."
                 value={filterProductName}
-                onChange={(e) => handleFilterChange(setFilterProductName, e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterChange(setFilterProductName, e.target.value)}
               />
             </div>
             <div className="form-group">
@@ -317,7 +305,7 @@ export const SalesPage = () => {
                 className="form-input"
                 placeholder="Cari varian..."
                 value={filterVariantName}
-                onChange={(e) => handleFilterChange(setFilterVariantName, e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterChange(setFilterVariantName, e.target.value)}
               />
             </div>
             <div className="form-group">
@@ -339,7 +327,7 @@ export const SalesPage = () => {
               />
             </div>
             <button
-              className="btn btn-secondary sp-filter-clear"
+              className={`btn btn-secondary ${styles.spFilterClear}`}
               onClick={() => {
                 setFilterProductName('');
                 setFilterVariantName('');
@@ -369,20 +357,20 @@ export const SalesPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {sales.map((sale) => (
+                {sales.map((sale: any) => (
                   <tr key={sale.id}>
                     <td>{new Date(sale.saleDate).toLocaleString()}</td>
                     <td>{sale.items.length} barang</td>
-                    <td>{sale.items.map((item) => `${item.productName} - ${getSkuName(item.variantName || '') || '-'} x ${item.quantity}`).join(' | ')} </td>
+                    <td>{sale.items.map((item: any) => `${item.productName} - ${getSkuName(item.variantName || '') || '-'} x ${item.quantity}`).join(' | ')} </td>
                     <td className="text-success">{formatCurrency(sale.totalAmount)}</td>
                     <td className="text-danger">{formatCurrency(sale.totalCogs)}</td>
                     <td>
-                      {(sale as any).voucherDiscount > 0 ? (
-                        <span style={{ color: 'var(--warning)', fontWeight: 'bold' }}>
-                          - {formatCurrency((sale as any).voucherDiscount)}
-                          {(sale as any).voucherCode && (
-                            <small style={{ display: 'block', color: 'var(--text-muted)', fontWeight: 'normal' }}>
-                              [{(sale as any).voucherCode}]
+                      {sale.voucherDiscount > 0 ? (
+                        <span className={styles.voucherDiscount}>
+                          - {formatCurrency(sale.voucherDiscount)}
+                          {sale.voucherCode && (
+                            <small className={styles.voucherCode}>
+                              [{sale.voucherCode}]
                             </small>
                           )}
                         </span>
@@ -390,7 +378,7 @@ export const SalesPage = () => {
                         <span className="text-muted">-</span>
                       )}
                     </td>
-                    <td className="text-primary-light sp-profit-cell">
+                    <td className={`text-primary-light ${styles.spProfitCell}`}>
                       {formatCurrency(sale.profit)}
                     </td>
                     <td>
@@ -401,24 +389,21 @@ export const SalesPage = () => {
               </tbody>
             </table>
 
-            {/* Pagination Controls */}
             {meta && meta.totalPages > 1 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                    <span className="text-muted" style={{ fontSize: '0.9rem' }}>
+                <div className={styles.paginationContainer}>
+                    <span className={`text-muted ${styles.paginationText}`}>
                         Halaman {meta.page} dari {meta.totalPages} (Total {meta.total} data)
                     </span>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div className={styles.paginationButtons}>
                         <button
-                            className="btn btn-secondary"
-                            style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+                            className={`btn btn-secondary ${styles.btnSm}`}
                             onClick={() => setPage((p) => Math.max(1, p - 1))}
                             disabled={meta.page <= 1}
                         >
                             Sebelumnya
                         </button>
                         <button
-                            className="btn btn-secondary"
-                            style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+                            className={`btn btn-secondary ${styles.btnSm}`}
                             onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
                             disabled={meta.page >= meta.totalPages}
                         >

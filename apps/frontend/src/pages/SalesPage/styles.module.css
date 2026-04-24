@@ -1,0 +1,58 @@
+.spBtnRemove {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+.spFilterSection {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 0;
+}
+
+.spFilterGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+.spFilterClear {
+    margin-bottom: 0.5rem;
+}
+
+.spProfitCell {
+    font-weight: 600;
+}
+
+/* New Extracted Styles */
+.voucherDiscount {
+    color: var(--warning);
+    font-weight: bold;
+}
+
+.voucherCode {
+    display: block;
+    color: var(--text-muted);
+    font-weight: normal;
+}
+
+.paginationContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.paginationText {
+    font-size: 0.9rem;
+}
+
+.paginationButtons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btnSm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.85rem;
+}

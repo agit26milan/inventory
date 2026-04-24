@@ -1,16 +1,17 @@
-import { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useEquities, useCreateEquity, useTotalEquity } from '../../hooks/useEquity';
 import { useTotalExpenses } from '../../hooks/useStoreExpense';
 import { formatCurrency } from '../../utils/currency';
 import { CurrencyInput } from '../../components/CurrencyInput';
+import styles from './styles.module.css';
 
-export default function EquityPage() {
-    const [amount, setAmount] = useState(0);
-    const [description, setDescription] = useState('');
+export default function EquityPage(): JSX.Element {
+    const [amount, setAmount] = useState<number>(0);
+    const [description, setDescription] = useState<string>('');
 
     const currentDate = new Date();
-    const [page, setPage] = useState(1);
-    const [limit] = useState(10);
+    const [page, setPage] = useState<number>(1);
+    const [limit] = useState<number>(10);
     const [filterBulan, setFilterBulan] = useState<number | undefined>(currentDate.getMonth() + 1);
     const [filterTahun, setFilterTahun] = useState<number | undefined>(currentDate.getFullYear());
 
@@ -21,6 +22,17 @@ export default function EquityPage() {
     const { data: totalEquity } = useTotalEquity();
     const { data: totalExpenses } = useTotalExpenses();
     const createEquity = useCreateEquity();
+
+    // Kalkulasi net equity menggunakan useMemo untuk menghindari re-render yang tidak perlu
+    const netEquity = useMemo<number>(() => {
+        return (totalEquity || 0) - (totalExpenses || 0);
+    }, [totalEquity, totalExpenses]);
+
+    // Opsi tahun filter
+    const yearOptions = useMemo<number[]>(() => {
+        const currentYear = new Date().getFullYear();
+        return Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
+    }, []);
 
     // Reset pagination ketika filter berubah
     const handleFilterChange = (type: 'month' | 'year', value: string) => {
@@ -50,8 +62,9 @@ export default function EquityPage() {
             setAmount(0);
             setDescription('');
             alert('Data ekuitas berhasil ditambahkan!');
-        } catch (error: any) {
-            alert(error.response?.data?.message || 'Gagal menambahkan data ekuitas');
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            alert(err.response?.data?.message || 'Gagal menambahkan data ekuitas');
         }
     };
 
@@ -64,23 +77,23 @@ export default function EquityPage() {
             <h1>💰 Manajemen Ekuitas (Modal)</h1>
 
             {/* Summary Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
-                <div className="card" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
-                    <h3 style={{ marginBottom: '0.5rem', fontSize: '0.9rem', opacity: 0.9 }}>Total Ekuitas</h3>
-                    <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>
+            <div className={styles.summaryGrid}>
+                <div className={`card ${styles.cardEquity}`}>
+                    <h3 className={styles.cardTitle}>Total Ekuitas</h3>
+                    <p className={styles.cardValue}>
                         {formatCurrency(totalEquity || 0)}
                     </p>
                 </div>
-                <div className="card" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', color: 'white' }}>
-                    <h3 style={{ marginBottom: '0.5rem', fontSize: '0.9rem', opacity: 0.9 }}>Total Pengeluaran</h3>
-                    <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>
+                <div className={`card ${styles.cardExpense}`}>
+                    <h3 className={styles.cardTitle}>Total Pengeluaran</h3>
+                    <p className={styles.cardValue}>
                         {formatCurrency(totalExpenses || 0)}
                     </p>
                 </div>
-                <div className="card" style={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', color: 'white' }}>
-                    <h3 style={{ marginBottom: '0.5rem', fontSize: '0.9rem', opacity: 0.9 }}>Ekuitas Bersih</h3>
-                    <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>
-                        {formatCurrency((totalEquity || 0) - (totalExpenses || 0))}
+                <div className={`card ${styles.cardNet}`}>
+                    <h3 className={styles.cardTitle}>Ekuitas Bersih</h3>
+                    <p className={styles.cardValue}>
+                        {formatCurrency(netEquity)}
                     </p>
                 </div>
             </div>
@@ -89,17 +102,17 @@ export default function EquityPage() {
             <div className="card mb-4">
                 <h2 className="mb-4">➕ Tambah Data Ekuitas</h2>
                 <form onSubmit={handleSubmit}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: '1rem', alignItems: 'end' }}>
+                    <div className={styles.formGrid}>
                         <div className="form-group">
                             <label className="form-label">Jumlah (Rp)</label>
                             <CurrencyInput
                                 className="form-input"
                                 placeholder="Bisa positif atau negatif"
                                 value={amount}
-                                onChange={(value) => setAmount(value)}
+                                onChange={(value: number) => setAmount(value)}
                                 allowNegative={true}
                             />
-                            <small style={{ color: '#888', fontSize: '0.85rem' }}>
+                            <small className={styles.helpText}>
                                 Positif untuk penambahan modal, negatif untuk penarikan
                             </small>
                         </div>
@@ -110,7 +123,7 @@ export default function EquityPage() {
                                 className="form-input"
                                 placeholder="misal: Modal awal, Penarikan pemilik"
                                 value={description}
-                                onChange={(e) => setDescription(e.target.value)}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)}
                             />
                         </div>
                         <button type="submit" className="btn btn-primary" disabled={createEquity.isPending}>
@@ -122,18 +135,17 @@ export default function EquityPage() {
 
             {/* Equity History */}
             <div className="card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
-                    <h2 style={{ margin: 0 }}>📋 Riwayat Ekuitas</h2>
+                <div className={styles.historyHeader}>
+                    <h2 className={styles.historyTitle}>📋 Riwayat Ekuitas</h2>
 
                     {/* Filter Bulan & Tahun */}
-                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>🔍 Filter:</span>
+                    <div className={styles.filterContainer}>
+                        <span className={styles.filterLabel}>🔍 Filter:</span>
 
                         <select
-                            className="form-input"
-                            style={{ width: 'auto', minWidth: '140px' }}
+                            className={`form-input ${styles.selectMonth}`}
                             value={filterBulan ?? ''}
-                            onChange={(e) => handleFilterChange('month', e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFilterChange('month', e.target.value)}
                         >
                             <option value="">Semua Bulan</option>
                             <option value="1">Januari</option>
@@ -151,12 +163,11 @@ export default function EquityPage() {
                         </select>
 
                         <select
-                            className="form-input"
-                            style={{ width: 'auto', minWidth: '110px' }}
+                            className={`form-input ${styles.selectYear}`}
                             value={filterTahun ?? ''}
-                            onChange={(e) => handleFilterChange('year', e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFilterChange('year', e.target.value)}
                         >
-                            {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map((year) => (
+                            {yearOptions.map((year) => (
                                 <option key={year} value={year}>
                                     {year}
                                 </option>
@@ -177,7 +188,7 @@ export default function EquityPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {equities.map((equity) => (
+                                {equities.map((equity: any) => (
                                     <tr key={equity.id}>
                                         <td>{new Date(equity.createdAt).toLocaleString()}</td>
                                         <td>{equity.description}</td>
@@ -196,22 +207,20 @@ export default function EquityPage() {
 
                         {/* Pagination Controls */}
                         {meta && meta.totalPages > 1 && (
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                                <span className="text-muted" style={{ fontSize: '0.9rem' }}>
+                            <div className={styles.paginationContainer}>
+                                <span className={`text-muted ${styles.paginationText}`}>
                                     Halaman {meta.page} dari {meta.totalPages} (Total {meta.total} data)
                                 </span>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <div className={styles.paginationButtons}>
                                     <button
-                                        className="btn btn-secondary"
-                                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+                                        className={`btn btn-secondary ${styles.btnSm}`}
                                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                                         disabled={meta.page <= 1}
                                     >
                                         Sebelumnya
                                     </button>
                                     <button
-                                        className="btn btn-secondary"
-                                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+                                        className={`btn btn-secondary ${styles.btnSm}`}
                                         onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
                                         disabled={meta.page >= meta.totalPages}
                                     >

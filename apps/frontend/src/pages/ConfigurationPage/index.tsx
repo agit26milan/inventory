@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useConfigurationByKey, useUpsertConfiguration } from '../../hooks/useConfiguration';
-import './styles.css';
+import styles from './styles.module.css';
 
 const STOCK_ALERT_KEY = 'stock_alert_threshold';
 
-export const ConfigurationPage = () => {
+export const ConfigurationPage: React.FC = (): JSX.Element => {
     const { data: config, isLoading } = useConfigurationByKey(STOCK_ALERT_KEY);
     const { mutate: upsert, isPending, isSuccess, isError } = useUpsertConfiguration();
 
@@ -42,18 +42,18 @@ export const ConfigurationPage = () => {
                 {isLoading ? (
                     <div className="spinner"></div>
                 ) : (
-                    <div className="cp-card-body">
+                    <div className={styles['cp-card-body']}>
                         <p className="text-muted mb-4">
                             Tentukan batas minimum stok variant. Jika stok sebuah variant berada
                             di bawah angka ini, sistem akan memunculkan peringatan di halaman
                             <strong> Reports</strong>.
                         </p>
 
-                        <div className="cp-input-row">
-                            <div className="cp-input-col">
+                        <div className={styles['cp-input-row']}>
+                            <div className={styles['cp-input-col']}>
                                 <label
                                     htmlFor="stock-threshold"
-                                    className="cp-input-label"
+                                    className={styles['cp-input-label']}
                                 >
                                     Batas minimum stok (unit)
                                 </label>
@@ -62,13 +62,13 @@ export const ConfigurationPage = () => {
                                     type="number"
                                     min={1}
                                     value={threshold}
-                                    onChange={(e) => setThreshold(e.target.value)}
-                                    className="cp-threshold-input"
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setThreshold(e.target.value)}
+                                    className={`form-input ${styles['cp-threshold-input']}`}
                                 />
                             </div>
 
                             <button
-                                className="btn btn-primary cp-save-btn"
+                                className={`btn btn-primary ${styles['cp-save-btn']}`}
                                 onClick={handleSave}
                                 disabled={isPending}
                             >
@@ -78,12 +78,12 @@ export const ConfigurationPage = () => {
 
                         {/* Feedback pesan sukses / error */}
                         {isSuccess && (
-                            <p className="cp-feedback--success">
+                            <p className={styles['cp-feedback--success']}>
                                 ✅ Konfigurasi berhasil disimpan!
                             </p>
                         )}
                         {isError && (
-                            <p className="cp-feedback--error">
+                            <p className={styles['cp-feedback--error']}>
                                 ❌ Gagal menyimpan konfigurasi. Silakan coba lagi.
                             </p>
                         )}
