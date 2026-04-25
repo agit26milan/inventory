@@ -80,7 +80,11 @@ export class ReportController {
             const stockSort: 'asc' | 'desc' | undefined =
                 rawStockSort === 'asc' || rawStockSort === 'desc' ? rawStockSort : undefined;
 
-            const performance = await reportService.getVariantPerformance(page, limit, productName, variantName, stockSort);
+            const rawQtySort = req.query['qtySort'] as string | undefined;
+            const qtySort: 'asc' | 'desc' | undefined =
+                rawQtySort === 'asc' || rawQtySort === 'desc' ? rawQtySort : undefined;
+
+            const performance = await reportService.getVariantPerformance(page, limit, productName, variantName, stockSort, qtySort);
             successResponse(res, performance, 'Variant performance retrieved successfully');
         } catch (error) {
             next(error);

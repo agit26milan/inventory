@@ -64,7 +64,8 @@ export const reportService = {
         limit: number = 10,
         productName?: string,
         variantName?: string,
-        stockSort?: 'asc' | 'desc'
+        stockSort?: 'asc' | 'desc',
+        qtySort?: 'asc' | 'desc'
     ): Promise<PaginatedVariantPerformance> => {
         const params = new URLSearchParams();
         params.append('page', page.toString());
@@ -72,6 +73,7 @@ export const reportService = {
         if (productName) params.append('productName', productName);
         if (variantName) params.append('variantName', variantName);
         if (stockSort) params.append('stockSort', stockSort);
+        if (qtySort) params.append('qtySort', qtySort);
 
         const response = await api.get<ApiResponse<PaginatedVariantPerformance>>(
             `/reports/variant-performance?${params.toString()}`

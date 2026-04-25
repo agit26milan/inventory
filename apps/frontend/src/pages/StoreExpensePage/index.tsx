@@ -132,9 +132,6 @@ export default function StoreExpensePage() {
         setFilterTahun(d.getFullYear());
     };
 
-    // if (isLoading) {
-    //     return <div className="spinner"></div>;
-    // }
 
     return (
         <div>

@@ -19,6 +19,7 @@ export const ReportsPage = () => {
     const [debouncedVariantProduct, setDebouncedVariantProduct] = useState('');
     const [debouncedVariantVariant, setDebouncedVariantVariant] = useState('');
     const [variantStockSort, setVariantStockSort] = useState<'asc' | 'desc' | undefined>(undefined);
+    const [variantQtySort, setVariantQtySort] = useState<'asc' | 'desc' | undefined>('desc');
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -53,7 +54,8 @@ export const ReportsPage = () => {
         10,
         debouncedVariantProduct || undefined,
         debouncedVariantVariant || undefined,
-        variantStockSort
+        variantStockSort,
+        variantQtySort
     );
 
     // Baca threshold dari konfigurasi; gunakan default jika belum pernah di-set
@@ -144,9 +146,22 @@ export const ReportsPage = () => {
                                 setVariantStockSort(val === 'asc' || val === 'desc' ? val : undefined);
                             }}
                         >
-                            <option value="">Urutkan Stok (Default)</option>
+                            <option value="">Urutkan Stok</option>
                             <option value="asc">⬆ Stok Terendah</option>
                             <option value="desc">⬇ Stok Tertinggi</option>
+                        </select>
+                        <select
+                            className="form-control rp-variant-sort-select"
+                            value={variantQtySort ?? ''}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setVariantPage(1);
+                                setVariantQtySort(val === 'asc' || val === 'desc' ? val : undefined);
+                            }}
+                        >
+                            <option value="">Urutkan Qty Terjual</option>
+                            <option value="desc">⬇ Qty Terbanyak (Default)</option>
+                            <option value="asc">⬆ Qty Sedikit</option>
                         </select>
                     </div>
                 </div>
