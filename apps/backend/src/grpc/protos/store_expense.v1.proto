@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package store_expense.v1;
+
+service StoreExpenseService {
+  rpc CreateExpense(CreateExpenseRequest) returns (ExpenseResponse);
+  rpc GetAllExpenses(GetAllExpensesRequest) returns (GetAllExpensesResponse);
+  rpc GetTotalExpenses(EmptyRequest) returns (GetTotalExpensesResponse);
+  rpc UpdateExpense(UpdateExpenseRequest) returns (ExpenseResponse);
+  rpc DeleteExpense(DeleteExpenseRequest) returns (MessageResponse);
+}
+
+message EmptyRequest {}
+
+message ExpenseResponse {
+  int32 id = 1;
+  string description = 2;
+  double amount = 3;
+  string category = 4;
+  string created_at = 5;
+}
+
+message CreateExpenseRequest {
+  string description = 1;
+  double amount = 2;
+  string category = 3;
+}
+
+message GetAllExpensesRequest {
+  int32 month = 1;
+  int32 year = 2;
+}
+
+message GetAllExpensesResponse {
+  repeated ExpenseResponse data = 1;
+}
+
+message GetTotalExpensesResponse {
+  double total = 1;
+}
+
+message UpdateExpenseRequest {
+  int32 id = 1;
+  string description = 2;
+  double amount = 3;
+  string category = 4;
+}
+
+message DeleteExpenseRequest {
+  int32 id = 1;
+}
+
+message MessageResponse {
+  string message = 1;
+}

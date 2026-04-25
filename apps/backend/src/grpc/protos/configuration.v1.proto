@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package configuration.v1;
+
+service ConfigurationService {
+  rpc GetAll(EmptyRequest) returns (GetAllConfigsResponse);
+  rpc GetByKey(GetByKeyRequest) returns (ConfigResponse);
+  rpc Upsert(UpsertConfigRequest) returns (ConfigResponse);
+}
+
+message EmptyRequest {}
+
+message ConfigResponse {
+  string key = 1;
+  string value = 2;
+  string description = 3;
+}
+
+message GetAllConfigsResponse {
+  repeated ConfigResponse data = 1;
+}
+
+message GetByKeyRequest {
+  string key = 1;
+}
+
+message UpsertConfigRequest {
+  string key = 1;
+  string value = 2;
+  string description = 3;
+}

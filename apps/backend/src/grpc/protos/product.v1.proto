@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package product.v1;
+
+import "google/protobuf/empty.proto";
+
+service ProductService {
+  rpc CreateProduct(CreateProductRequest) returns (ProductResponse);
+  rpc GetProducts(GetProductsRequest) returns (GetProductsResponse);
+  rpc GetProductById(GetProductByIdRequest) returns (ProductResponse);
+  rpc GetProductWithVariants(GetProductByIdRequest) returns (ProductWithVariantsResponse);
+  rpc UpdateProduct(UpdateProductRequest) returns (ProductResponse);
+  rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+}
+
+// ─── Messages ────────────────────────────────────────────────────────────────
+
+message ProductResponse {
+  int32 id = 1;
+  string name = 2;
+  string sku = 3;
+  string stock_method = 4;
+  int32 current_stock = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message VariantValue {
+  int32 id = 1;
+  string name = 2;
+}
+
+message Variant {
+  int32 id = 1;
+  string name = 2;
+  repeated VariantValue values = 3;
+}
+
+message VariantCombinationValue {
+  int32 id = 1;
+  string name = 2;
+  int32 variant_id = 3;
+  string variant_name = 4;
+}
+
+message VariantCombination {
+  int32 id = 1;
+  string sku = 2;
+  int32 stock = 3;
+  repeated VariantCombinationValue values = 4;
+}
+
+message ProductWithVariantsResponse {
+  int32 id = 1;
+  string name = 2;
+  string sku = 3;
+  string stock_method = 4;
+  int32 current_stock = 5;
+  string created_at = 6;
+  string updated_at = 7;
+  repeated Variant variants = 8;
+  repeated VariantCombination variant_combinations = 9;
+}
+
+// ─── Requests ─────────────────────────────────────────────────────────────────
+
+message CreateProductRequest {
+  string name = 1;
+  string sku = 2;
+  string stock_method = 3;
+}
+
+message GetProductsRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  string search = 3;
+}
+
+message GetProductsResponse {
+  repeated ProductResponse data = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+message GetProductByIdRequest {
+  int32 id = 1;
+}
+
+message UpdateProductRequest {
+  int32 id = 1;
+  string name = 2;
+  string sku = 3;
+  string stock_method = 4;
+}
+
+message DeleteProductRequest {
+  int32 id = 1;
+}
+
+message DeleteProductResponse {
+  string message = 1;
+}

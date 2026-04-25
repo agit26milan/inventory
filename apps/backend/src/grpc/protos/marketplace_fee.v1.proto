@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package marketplace_fee.v1;
+
+service MarketplaceFeeService {
+  rpc SetFee(SetFeeRequest) returns (FeeResponse);
+  rpc GetFeesByProduct(GetFeesByProductRequest) returns (GetFeesResponse);
+  rpc DeleteFee(DeleteFeeRequest) returns (MessageResponse);
+}
+
+message FeeResponse {
+  int32 id = 1;
+  int32 product_id = 2;
+  string product_name = 3;
+  string marketplace = 4;
+  double percentage = 5;
+  double process_fee = 6;
+  string created_at = 7;
+  string updated_at = 8;
+}
+
+message SetFeeRequest {
+  int32 product_id = 1;
+  string marketplace = 2;
+  double percentage = 3;
+  double process_fee = 4;
+}
+
+message GetFeesByProductRequest {
+  int32 product_id = 1;
+}
+
+message GetFeesResponse {
+  repeated FeeResponse data = 1;
+}
+
+message DeleteFeeRequest {
+  int32 id = 1;
+}
+
+message MessageResponse {
+  string message = 1;
+}

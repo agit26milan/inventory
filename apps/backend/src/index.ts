@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import routes from './routes';
 import { errorHandler } from './utils/error-handler';
+import { startGrpcServer } from './grpc/server';
 
 // Load environment variables
 dotenv.config();
@@ -26,10 +27,13 @@ app.use('/api', routes);
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
-// Start server
+// Start REST server
 app.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
+    console.log(`🚀 REST server is running on http://localhost:${PORT}`);
     console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
 });
+
+// Start gRPC server (port 50051 by default)
+startGrpcServer();
 
 export default app;

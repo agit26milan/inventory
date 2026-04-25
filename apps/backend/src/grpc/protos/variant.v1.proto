@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package variant.v1;
+
+service VariantService {
+  rpc CreateVariant(CreateVariantRequest) returns (VariantResponse);
+  rpc GetVariantsByProduct(GetVariantsByProductRequest) returns (GetVariantsResponse);
+  rpc GetVariantById(GetVariantByIdRequest) returns (VariantResponse);
+  rpc UpdateVariant(UpdateVariantRequest) returns (VariantResponse);
+  rpc DeleteVariant(DeleteVariantRequest) returns (MessageResponse);
+  rpc CreateVariantValue(CreateVariantValueRequest) returns (VariantValueResponse);
+  rpc UpdateVariantValue(UpdateVariantValueRequest) returns (VariantValueResponse);
+  rpc DeleteVariantValue(DeleteVariantValueRequest) returns (MessageResponse);
+}
+
+message VariantValueResponse {
+  int32 id = 1;
+  string name = 2;
+  int32 variant_id = 3;
+}
+
+message VariantResponse {
+  int32 id = 1;
+  int32 product_id = 2;
+  string name = 3;
+  repeated VariantValueResponse values = 4;
+}
+
+message GetVariantsResponse {
+  repeated VariantResponse data = 1;
+}
+
+message CreateVariantRequest {
+  int32 product_id = 1;
+  string name = 2;
+}
+
+message GetVariantsByProductRequest {
+  int32 product_id = 1;
+}
+
+message GetVariantByIdRequest {
+  int32 id = 1;
+}
+
+message UpdateVariantRequest {
+  int32 id = 1;
+  string name = 2;
+}
+
+message DeleteVariantRequest {
+  int32 id = 1;
+}
+
+message CreateVariantValueRequest {
+  int32 variant_id = 1;
+  string name = 2;
+}
+
+message UpdateVariantValueRequest {
+  int32 id = 1;
+  string name = 2;
+}
+
+message DeleteVariantValueRequest {
+  int32 id = 1;
+}
+
+message MessageResponse {
+  string message = 1;
+}

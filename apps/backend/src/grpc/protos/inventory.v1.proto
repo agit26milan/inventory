@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package inventory.v1;
+
+service InventoryService {
+  rpc CreateBatch(CreateBatchRequest) returns (InventoryBatchResponse);
+  rpc GetAllBatches(GetAllBatchesRequest) returns (GetBatchesResponse);
+  rpc GetBatchesByProduct(GetByProductRequest) returns (GetBatchesResponse);
+  rpc GetCurrentStock(GetCurrentStockRequest) returns (GetCurrentStockResponse);
+  rpc GetBatchById(GetBatchByIdRequest) returns (InventoryBatchResponse);
+  rpc UpdateBatch(UpdateBatchRequest) returns (InventoryBatchResponse);
+  rpc BulkUpdateSellingPrice(BulkUpdateSellingPriceRequest) returns (BulkUpdateSellingPriceResponse);
+  rpc DeleteBatch(DeleteBatchRequest) returns (MessageResponse);
+}
+
+message InventoryBatchResponse {
+  int32 id = 1;
+  int32 product_id = 2;
+  string product_name = 3;
+  string variant_name = 4;
+  int32 quantity = 5;
+  int32 remaining_quantity = 6;
+  double cost_price = 7;
+  double selling_price = 8;
+  string created_at = 9;
+}
+
+message CreateBatchRequest {
+  int32 product_id = 1;
+  int32 variant_combination_id = 2;
+  int32 quantity = 3;
+  double cost_price = 4;
+  double selling_price = 5;
+}
+
+message GetAllBatchesRequest {
+  string product_name = 1;
+  string variant_name = 2;
+}
+
+message GetBatchesResponse {
+  repeated InventoryBatchResponse data = 1;
+}
+
+message GetByProductRequest {
+  int32 product_id = 1;
+}
+
+message GetCurrentStockRequest {
+  int32 product_id = 1;
+  int32 variant_combination_id = 2;
+}
+
+message GetCurrentStockResponse {
+  int32 stock = 1;
+}
+
+message GetBatchByIdRequest {
+  int32 id = 1;
+}
+
+message UpdateBatchRequest {
+  int32 id = 1;
+  int32 quantity = 2;
+  double cost_price = 3;
+  double selling_price = 4;
+}
+
+message SellingPriceUpdate {
+  int32 id = 1;
+  double selling_price = 2;
+}
+
+message BulkUpdateSellingPriceRequest {
+  repeated SellingPriceUpdate updates = 1;
+}
+
+message BulkUpdateSellingPriceResponse {
+  int32 updated_count = 1;
+}
+
+message DeleteBatchRequest {
+  int32 id = 1;
+}
+
+message MessageResponse {
+  string message = 1;
+}

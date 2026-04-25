@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package equity.v1;
+
+service EquityService {
+  rpc CreateEquity(CreateEquityRequest) returns (EquityResponse);
+  rpc GetAllEquities(GetAllEquitiesRequest) returns (GetAllEquitiesResponse);
+  rpc GetTotalEquity(EmptyRequest) returns (GetTotalEquityResponse);
+}
+
+message EmptyRequest {}
+
+message EquityResponse {
+  int32 id = 1;
+  double amount = 2;
+  string description = 3;
+  string created_at = 4;
+}
+
+message CreateEquityRequest {
+  double amount = 1;
+  string description = 2;
+}
+
+message GetAllEquitiesRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  int32 month = 3;
+  int32 year = 4;
+}
+
+message PaginationMeta {
+  int32 total = 1;
+  int32 page = 2;
+  int32 limit = 3;
+  int32 total_pages = 4;
+}
+
+message GetAllEquitiesResponse {
+  repeated EquityResponse data = 1;
+  PaginationMeta meta = 2;
+}
+
+message GetTotalEquityResponse {
+  double total = 1;
+}

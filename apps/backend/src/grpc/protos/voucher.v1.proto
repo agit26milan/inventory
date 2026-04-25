@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package voucher.v1;
+
+service VoucherService {
+  rpc CreateVoucher(CreateVoucherRequest) returns (VoucherResponse);
+  rpc GetAllVouchers(EmptyRequest) returns (GetAllVouchersResponse);
+  rpc GetVoucherById(GetVoucherByIdRequest) returns (VoucherResponse);
+  rpc UpdateVoucher(UpdateVoucherRequest) returns (VoucherResponse);
+  rpc DeleteVoucher(DeleteVoucherRequest) returns (MessageResponse);
+}
+
+message EmptyRequest {}
+
+message VoucherResponse {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+  string discount_type = 4;
+  double discount_value = 5;
+  string start_date = 6;
+  string end_date = 7;
+  bool is_active = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+message GetAllVouchersResponse {
+  repeated VoucherResponse data = 1;
+}
+
+message CreateVoucherRequest {
+  string code = 1;
+  string name = 2;
+  string discount_type = 3;
+  double discount_value = 4;
+  string start_date = 5;
+  string end_date = 6;
+  bool is_active = 7;
+}
+
+message GetVoucherByIdRequest {
+  string id = 1;
+}
+
+message UpdateVoucherRequest {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+  string discount_type = 4;
+  double discount_value = 5;
+  string start_date = 6;
+  string end_date = 7;
+  bool is_active = 8;
+}
+
+message DeleteVoucherRequest {
+  string id = 1;
+}
+
+message MessageResponse {
+  string message = 1;
+}
