@@ -169,10 +169,11 @@ export class SalesService {
                 },
             });
 
-            // Automatically create equity entry for the total revenue
+            // Automatically create equity entry for the net revenue (after voucher discount)
+            const netAmount = totalAmount - voucherDiscount;
             await tx.equity.create({
                 data: {
-                    amount: totalAmount,
+                    amount: netAmount,
                     description: `Revenue from Sale #${sale.id}`,
                 },
             });

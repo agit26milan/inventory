@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
     useInventoryBatches, 
     useCreateInventoryBatch, 
@@ -22,10 +22,10 @@ export const InventoryPage = () => {
   const [filterVariantName, setFilterVariantName] = useState('');
   
   // Build filters object
-  const filters = {
+  const filters = useMemo(() => ({
     productName: filterProductName || undefined,
     variantName: filterVariantName || undefined,
-  };
+  }), [filterProductName, filterVariantName]);
 
   const { data: batches, refetch: refetchBatches } = useInventoryBatches(filters);
   const { data: products } = useProducts();

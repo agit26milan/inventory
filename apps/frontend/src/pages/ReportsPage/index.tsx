@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSalesSummary, useProductPerformance, useInventoryValuation, useStockAlerts, useVariantPerformance } from '../../hooks/useReports';
 import { useConfigurationByKey } from '../../hooks/useConfiguration';
 import { useTotalEquity } from '../../hooks/useEquity';
@@ -62,12 +62,14 @@ export const ReportsPage = () => {
     const { data: thresholdConfig } = useConfigurationByKey(STOCK_ALERT_KEY);
     const threshold = thresholdConfig ? parseInt(thresholdConfig.value, 10) : DEFAULT_THRESHOLD;
 
-    const { data: stockAlertsData } = useStockAlerts({
+    const stockAlertParams = useMemo(() => ({
         threshold,
         page,
         limit: 10,
         search: debouncedSearch,
-    });
+    }), [threshold, page, debouncedSearch]);
+
+    const { data: stockAlertsData } = useStockAlerts(stockAlertParams);
 
     const stockAlerts = stockAlertsData?.data || [];
     const meta = stockAlertsData?.meta;

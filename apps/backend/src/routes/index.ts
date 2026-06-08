@@ -17,6 +17,7 @@ import {
     getProductSchema,
     deleteProductSchema,
 } from '../modules/product/product.validation';
+import { upsertConfigurationSchema } from '../modules/configuration/configuration.validation';
 import {
     createInventoryBatchSchema,
     getInventoryByProductSchema,
@@ -137,6 +138,6 @@ router.get('/reports/owner-withdrawal', reportController.getMonthlyOwnerWithdraw
 // Configuration routes
 router.get('/configurations', configurationController.getAll);
 router.get('/configurations/:key', configurationController.getByKey);
-router.put('/configurations/:key', configurationController.upsert);
+router.put('/configurations/:key', validate(upsertConfigurationSchema), configurationController.upsert);
 
 export default router;
