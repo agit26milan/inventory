@@ -81,8 +81,8 @@ export const VoucherPage = () => {
     };
 
     return (
-        <div className="page-container">
-            <div className="page-header">
+        <div>
+            <div className="flex justify-between items-center mb-4">
                 <div>
                     <h1>🎟️ Master Voucher</h1>
                     <p className="text-muted">Kelola promo kode kupon diskon untuk pelanggan</p>
