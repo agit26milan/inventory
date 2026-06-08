@@ -61,9 +61,9 @@ export const storeExpenseHandler = {
         try {
             const r = call.request;
             const expense = await storeExpenseService.updateExpense(r.id, {
-                description: r.description || undefined,
-                amount: r.amount || undefined,
-                category: r.category || undefined,
+                description: r.description ?? undefined,
+                amount: r.amount ?? undefined,
+                category: r.category ?? undefined,
             });
             callback(null, mapExpense(expense));
         } catch (error) { handleError(error, callback); }

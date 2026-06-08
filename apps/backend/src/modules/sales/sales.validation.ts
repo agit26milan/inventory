@@ -7,6 +7,7 @@ export const createSaleSchema = z.object({
                 z.object({
                     productId: z.number().int().positive('Product ID must be a positive integer'),
                     quantity: z.number().int().positive('Quantity must be a positive integer'),
+                    variantCombinationId: z.number().int().positive().optional(),
                 })
             )
             .min(1, 'At least one item is required'),

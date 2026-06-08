@@ -3,7 +3,7 @@ import { useSales, useCreateSale } from '../../hooks/useSales';
 import { useProducts } from '../../hooks/useProducts';
 import { useVariantCombinations } from '../../hooks/useVariantCombinations';
 import { useVouchers } from '../../hooks/useVoucher';
-import { SaleItem, VariantCombination } from '../../types';
+import { SaleItem, Sale, VariantCombination } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { getSkuName } from '../../utils/sku';
 import { SearchableDropdown } from '../../components/SearchableDropdown';
@@ -357,17 +357,17 @@ export const SalesPage: React.FC = (): JSX.Element => {
                 </tr>
               </thead>
               <tbody>
-                {sales.map((sale: any) => (
+                {sales.map((sale: Sale) => (
                   <tr key={sale.id}>
                     <td>{new Date(sale.saleDate).toLocaleString()}</td>
                     <td>{sale.items.length} barang</td>
-                    <td>{sale.items.map((item: any) => `${item.productName} - ${getSkuName(item.variantName || '') || '-'} x ${item.quantity}`).join(' | ')} </td>
+                    <td>{sale.items.map((item) => `${item.productName} - ${getSkuName(item.variantName || '') || '-'} x ${item.quantity}`).join(' | ')} </td>
                     <td className="text-success">{formatCurrency(sale.totalAmount)}</td>
                     <td className="text-danger">{formatCurrency(sale.totalCogs)}</td>
                     <td>
-                      {sale.voucherDiscount > 0 ? (
+                      {(sale.voucherDiscount ?? 0) > 0 ? (
                         <span className={styles.voucherDiscount}>
-                          - {formatCurrency(sale.voucherDiscount)}
+                          - {formatCurrency(sale.voucherDiscount!)}
                           {sale.voucherCode && (
                             <small className={styles.voucherCode}>
                               [{sale.voucherCode}]
@@ -382,7 +382,9 @@ export const SalesPage: React.FC = (): JSX.Element => {
                       {formatCurrency(sale.profit)}
                     </td>
                     <td>
-                      {((sale.profit / sale.totalAmount) * 100).toFixed(1)}%
+                      {sale.totalAmount > 0
+                        ? `${((sale.profit / sale.totalAmount) * 100).toFixed(1)}%`
+                        : '0.0%'}
                     </td>
                   </tr>
                 ))}

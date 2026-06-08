@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useEquities, useCreateEquity, useTotalEquity } from '../../hooks/useEquity';
 import { useTotalExpenses } from '../../hooks/useStoreExpense';
 import { formatCurrency } from '../../utils/currency';

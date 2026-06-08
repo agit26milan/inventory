@@ -32,6 +32,7 @@ export class MarketplaceFeeService {
                 productId: data.productId,
                 marketplace: data.marketplace,
                 percentage: data.percentage,
+                processFee: data.processFee,
             },
             include: {
                 product: {
@@ -81,8 +82,12 @@ export class MarketplaceFeeService {
      * Delete a fee
      */
     async deleteFee(id: number): Promise<void> {
-         await prisma.marketplaceFee.delete({
-             where: { id }
-         });
+        const fee = await prisma.marketplaceFee.findUnique({ where: { id } });
+        if (!fee) {
+            throw new AppError(404, 'Marketplace fee not found');
+        }
+        await prisma.marketplaceFee.delete({
+            where: { id }
+        });
     }
 }

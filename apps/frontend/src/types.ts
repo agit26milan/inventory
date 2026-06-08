@@ -45,6 +45,7 @@ export interface SaleItem {
 
 export interface CreateSaleDTO {
     items: SaleItem[];
+    voucherId?: string;
 }
 
 export interface Sale {
@@ -53,6 +54,8 @@ export interface Sale {
     totalAmount: number;
     totalCogs: number;
     profit: number;
+    voucherDiscount?: number;
+    voucherCode?: string;
     items: SaleItemDetail[];
 }
 

@@ -20,6 +20,7 @@ export const BulkEditInventoryModal: React.FC<BulkEditInventoryModalProps> = ({
     const [priceUpdates, setPriceUpdates] = useState<{ [id: number]: number }>(
         selectedBatches.reduce((acc, batch) => ({ ...acc, [batch.id]: batch.sellingPrice }), {})
     );
+    const [applyAllValue, setApplyAllValue] = useState<number>(0);
 
     const updateMutation = useBulkUpdateSellingPrice();
 
@@ -29,10 +30,10 @@ export const BulkEditInventoryModal: React.FC<BulkEditInventoryModalProps> = ({
         setPriceUpdates((prev) => ({ ...prev, [id]: value }));
     };
 
-    const handleApplyAll = (value: number) => {
+    const handleApplyAll = () => {
         const newUpdates = { ...priceUpdates };
         selectedBatches.forEach(batch => {
-            newUpdates[batch.id] = value;
+            newUpdates[batch.id] = applyAllValue;
         });
         setPriceUpdates(newUpdates);
     };
@@ -67,10 +68,10 @@ export const BulkEditInventoryModal: React.FC<BulkEditInventoryModalProps> = ({
                             <div className="flex gap-2">
                                 <CurrencyInput 
                                     className="form-input" 
-                                    value={0}
-                                    onChange={handleApplyAll}
+                                    value={applyAllValue}
+                                    onChange={setApplyAllValue}
                                 />
-                                <button type="button" className="btn btn-secondary btn-sm">Terapkan</button>
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={handleApplyAll}>Terapkan</button>
                             </div>
                         </div>
 

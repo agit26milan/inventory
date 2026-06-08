@@ -177,9 +177,9 @@ export const productHandler = {
             const parsed = updateProductSchema.safeParse({
                 params: { id: String(id) },
                 body: {
-                    name: call.request.name || undefined,
-                    sku: call.request.sku || undefined,
-                    stockMethod: call.request.stock_method || undefined,
+                    name: call.request.name ?? undefined,
+                    sku: call.request.sku ?? undefined,
+                    stockMethod: call.request.stock_method ?? undefined,
                 },
             });
 
@@ -194,9 +194,9 @@ export const productHandler = {
             }
 
             const product = await productService.updateProduct(id, {
-                name: call.request.name || undefined,
-                sku: call.request.sku || undefined,
-                stockMethod: call.request.stock_method || undefined,
+                name: call.request.name ?? undefined,
+                sku: call.request.sku ?? undefined,
+                stockMethod: call.request.stock_method ?? undefined,
             });
 
             callback(null, {

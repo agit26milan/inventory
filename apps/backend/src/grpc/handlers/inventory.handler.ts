@@ -90,9 +90,9 @@ export const inventoryHandler = {
         try {
             const r = call.request;
             const batch = await inventoryService.updateBatch(r.id, {
-                quantity: r.quantity || undefined,
-                costPrice: r.cost_price || undefined,
-                sellingPrice: r.selling_price || undefined,
+                quantity: r.quantity ?? undefined,
+                costPrice: r.cost_price ?? undefined,
+                sellingPrice: r.selling_price ?? undefined,
             });
             callback(null, mapBatch(batch));
         } catch (error) { handleError(error, callback); }

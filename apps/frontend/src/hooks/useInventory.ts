@@ -24,7 +24,8 @@ export const useCreateInventoryBatch = () => {
     return useMutation({
         mutationFn: (data: CreateInventoryBatchDTO) => inventoryService.createBatch(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['inventory'] });
+            queryClient.invalidateQueries({ queryKey: ['inventoryBatches'] });
+            queryClient.invalidateQueries({ queryKey: ['inventory', 'product'] });
             queryClient.invalidateQueries({ queryKey: ['products'] });
         },
     });
@@ -37,7 +38,8 @@ export const useUpdateInventoryBatch = () => {
         mutationFn: ({ id, data }: { id: number; data: Partial<CreateInventoryBatchDTO> }) => 
             inventoryService.updateBatch(id, data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['inventory'] });
+            queryClient.invalidateQueries({ queryKey: ['inventoryBatches'] });
+            queryClient.invalidateQueries({ queryKey: ['inventory', 'product'] });
             queryClient.invalidateQueries({ queryKey: ['products'] });
         },
     });
@@ -59,7 +61,8 @@ export const useDeleteInventoryBatch = () => {
     return useMutation({
         mutationFn: (id: number) => inventoryService.deleteBatch(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['inventory'] });
+            queryClient.invalidateQueries({ queryKey: ['inventoryBatches'] });
+            queryClient.invalidateQueries({ queryKey: ['inventory', 'product'] });
             queryClient.invalidateQueries({ queryKey: ['products'] });
         },
     });
@@ -72,7 +75,8 @@ export const useBulkUpdateSellingPrice = () => {
         mutationFn: (data: { updates: { id: number; sellingPrice: number }[] }) => 
             inventoryService.bulkUpdateSellingPrice(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['inventory'] });
+            queryClient.invalidateQueries({ queryKey: ['inventoryBatches'] });
+            queryClient.invalidateQueries({ queryKey: ['inventory', 'product'] });
         },
     });
 };
