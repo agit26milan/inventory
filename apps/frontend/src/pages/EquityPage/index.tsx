@@ -126,7 +126,7 @@ export default function EquityPage(): JSX.Element {
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)}
                             />
                         </div>
-                        <button type="submit" className="btn btn-primary" disabled={createEquity.isPending}>
+                        <button type="submit" className="btn btn-primary" disabled={!amount || !description || createEquity.isPending}>
                             {createEquity.isPending ? 'Menambahkan...' : 'Tambah Data'}
                         </button>
                     </div>
