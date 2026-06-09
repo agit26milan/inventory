@@ -1,19 +1,13 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { 
     useInventoryBatches, 
-    useCreateInventoryBatch, 
-    useUpdateInventoryBatch, 
     useDeleteInventoryBatch,
-    useInventoryBatch
 } from '../../hooks/useInventory';
-import { useProducts } from '../../hooks/useProducts';
-import { useVariantCombinations } from '../../hooks/useVariantCombinations';
-import { CreateInventoryBatchDTO, VariantCombination, InventoryBatch } from '../../types';
+import { InventoryBatch } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { getSkuName } from '../../utils/sku';
-import { CurrencyInput } from '../../components/CurrencyInput';
 import { BulkEditInventoryModal } from '../../components/BulkEditInventoryModal';
-import { SearchableDropdown } from '../../components/SearchableDropdown';
+import { InventoryModal } from './components/InventoryModal';
 import './styles.css';
 
 export const InventoryPage = () => {
@@ -28,22 +22,11 @@ export const InventoryPage = () => {
   }), [filterProductName, filterVariantName]);
 
   const { data: batches, refetch: refetchBatches } = useInventoryBatches(filters);
-  const { data: products } = useProducts();
-  const createBatch = useCreateInventoryBatch();
-  const updateBatch = useUpdateInventoryBatch();
   const deleteBatch = useDeleteInventoryBatch();
-  const [showForm, setShowForm] = useState(false);
-  const [editingBatchId, setEditingBatchId] = useState<number | null>(null);
-  
-  // Fetch detailed batch data when editing
-  const { data: batchDetail, isLoading: isLoadingDetail } = useInventoryBatch(editingBatchId);
 
-  const [formData, setFormData] = useState<CreateInventoryBatchDTO>({
-    productId: 0,
-    quantity: 1,
-    costPrice: 0,
-    sellingPrice: 0,
-  });
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [editingBatchId, setEditingBatchId] = useState<number | null>(null);
 
   // Bulk Edit State
   const [selectedBatchIds, setSelectedBatchIds] = useState<number[]>([]);
@@ -70,40 +53,9 @@ export const InventoryPage = () => {
       refetchBatches();
   };
 
-  // State to track selected product's variants
-  const [selectedProductId, setSelectedProductId] = useState<number>(0);
-  const { data: variants } = useVariantCombinations(selectedProductId);
-
-  // Effect to populate form when batchDetail is loaded
-  useEffect(() => {
-      if (batchDetail && editingBatchId) {          
-          const combinationId = findCombinationId();
-          setFormData({
-              productId: batchDetail.productId,
-              quantity: batchDetail.quantity,
-              costPrice: batchDetail.costPrice,
-              sellingPrice: batchDetail.sellingPrice,
-              variantCombinationId: combinationId 
-          });
-          setSelectedProductId(batchDetail.productId);
-      }
-  }, [batchDetail, editingBatchId, variants]);
-
-  const resetForm = () => {
-      setFormData({ productId: 0, quantity: 1, costPrice: 0, sellingPrice: 0 });
-      setSelectedProductId(0);
-      setEditingBatchId(null);
-      setShowForm(false);
-  };
-
   const handleEdit = (batch: InventoryBatch) => {
       setEditingBatchId(batch.id);
-      setShowForm(true);
-      // Data will be populated by useEffect once useInventoryBatch fetches it
-  };
-
-  const findCombinationId = () => {
-    return variants?.find((v) => v.sku === batchDetail?.variantName)?.id;
+      setShowModal(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -116,26 +68,13 @@ export const InventoryPage = () => {
       }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      if (editingBatchId) {
-          await updateBatch.mutateAsync({
-              id: editingBatchId,
-              data: {
-                  quantity: formData.quantity,
-                  costPrice: formData.costPrice,
-                  sellingPrice: formData.sellingPrice
-              }
-          });
-      } else {
-          await createBatch.mutateAsync(formData);
-      }
+  const handleModalSuccess = () => {
       refetchBatches();
-      resetForm();
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Gagal menyimpan stok masuk');
-    }
+  };
+
+  const handleModalClose = () => {
+      setShowModal(false);
+      setEditingBatchId(null);
   };
 
   const clearFilters = () => {
@@ -154,113 +93,21 @@ export const InventoryPage = () => {
         <button 
             className="btn btn-primary" 
             onClick={() => {
-                if (showForm) resetForm();
-                else setShowForm(true);
+                setShowModal(true);
             }}
         >
-          {showForm ? '✕ Batal' : '+ Stok Masuk'}
+          {'+ Stok Masuk'}
         </button>
       </div>
 
-      {showForm && (
-        <div className="card mb-4">
-          <div className="card-header">
-            <h3 className="card-title">{editingBatchId ? 'Ubah Stok' : 'Tambah Stok Masuk'}</h3>
-          </div>
-          
-          {isLoadingDetail && editingBatchId ? (
-              <div className="p-4 text-center">Memuat detail stok...</div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-                <div className="grid grid-3">
-                <div className="form-group">
-                    <label className="form-label">Produk</label>
-                    <SearchableDropdown
-                        options={[
-                            { value: 0, label: 'Pilih produk' },
-                            ...(products?.map((product) => ({
-                                value: product.id,
-                                label: `${product.name} (${product.sku})`,
-                            })) || [])
-                        ]}
-                        value={formData.productId}
-                        onChange={(val) => {
-                            const pid = Number(val);
-                            setFormData({ ...formData, productId: pid, variantCombinationId: undefined });
-                            setSelectedProductId(pid);
-                        }}
-                        placeholder="Pilih produk"
-                        disabled={!!editingBatchId}
-                    />
-                </div>
-
-                {/* Variant Selection if available */}
-                {variants && variants.length > 0 && (
-                    <div className="form-group">
-                        <label className="form-label">Varian</label>
-                        <SearchableDropdown
-                            options={variants.map((variant: VariantCombination) => ({
-                                value: variant.id,
-                                label: getSkuName(variant.sku),
-                            }))}
-                            value={formData.variantCombinationId || ''}
-                            onChange={(value) =>
-                                setFormData({ ...formData, variantCombinationId: Number(value) })
-                            }
-                            placeholder="Pilih Varian"
-                        />
-                    </div>
-                )}
-
-                <div className="form-group">
-                    <label className="form-label">Jumlah</label>
-                    <input
-                    type="number"
-                    className="form-input"
-                    value={formData.quantity}
-                    onChange={(e) =>
-                        setFormData({ ...formData, quantity: parseInt(e.target.value) })
-                    }
-                    required
-                    min="1"
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label className="form-label">Harga Beli (Modal)</label>
-                    <CurrencyInput
-                        className="form-input"
-                        value={formData.costPrice}
-                        onChange={(value) => setFormData({ ...formData, costPrice: value })}
-                        required
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label className="form-label">Harga Jual</label>
-                    <CurrencyInput
-                        className="form-input"
-                        value={formData.sellingPrice}
-                        onChange={(value) => setFormData({ ...formData, sellingPrice: value })}
-                        required
-                    />
-                </div>
-                </div>
-
-                <div className="flex gap-2">
-                    <button type="submit" className="btn btn-success" disabled={createBatch.isPending || updateBatch.isPending}>
-                    {createBatch.isPending || updateBatch.isPending ? 'Menyimpan...' : (editingBatchId ? 'Simpan Perubahan' : 'Tambah Stok')}
-                    </button>
-                    {editingBatchId && (
-                        <button type="button" className="btn btn-secondary" onClick={resetForm}>
-                            Batal
-                        </button>
-                    )}
-                </div>
-            </form>
-          )}
-        </div>
-      )}
+      {/* Modal for Add/Edit Stock */}
+      <InventoryModal
+          isOpen={showModal}
+          onClose={handleModalClose}
+          onSuccess={handleModalSuccess}
+          editingBatchId={editingBatchId}
+          onEditingDone={handleModalClose}
+      />
 
       {/* Filter Section */}
       <div className="card mb-4">
