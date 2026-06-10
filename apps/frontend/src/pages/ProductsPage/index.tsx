@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
 import { useProducts, useCreateProduct, useDeleteProduct } from '../../hooks/useProducts';
-import { CreateProductDTO, StockMethod } from '../../types';
+import { CreateProductDTO } from '../../types';
 import { VariantManager } from '../../components/VariantManager';
-import { SearchableDropdown } from '../../components/SearchableDropdown';
+import { ProductFormModal } from './ProductFormModal';
 import './styles.css';
 
 export const ProductsPage = () => {
@@ -11,13 +11,7 @@ export const ProductsPage = () => {
   const createProduct = useCreateProduct();
   const deleteProduct = useDeleteProduct();
 
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState<CreateProductDTO>({
-    name: '',
-    sku: '',
-    stockMethod: 'FIFO',
-  });
-
+  const [showFormModal, setShowFormModal] = useState(false);
   const [showVariantModal, setShowVariantModal] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
 
@@ -26,12 +20,10 @@ export const ProductsPage = () => {
     setShowVariantModal(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreateProduct = async (data: CreateProductDTO) => {
     try {
-      const newProduct = await createProduct.mutateAsync(formData);
-      setFormData({ name: '', sku: '', stockMethod: 'FIFO' });
-      setShowForm(false);
+      const newProduct = await createProduct.mutateAsync(data);
+      setShowFormModal(false);
 
       // Open variant manager for the new product
       handleManageVariants(newProduct.id);
@@ -61,62 +53,17 @@ export const ProductsPage = () => {
           <h1>📦 Products</h1>
           <p className="text-muted">Manage your product catalog</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-          {showForm ? '✕ Cancel' : '+ Add Product'}
+        <button className="btn btn-primary" onClick={() => setShowFormModal(true)}>
+          + Add Product
         </button>
       </div>
 
-      {showForm && (
-        <div className="card mb-4">
-          <div className="card-header">
-            <h3 className="card-title">Create New Product</h3>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-2">
-              <div className="form-group">
-                <label className="form-label">Product Name</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">SKU</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={formData.sku}
-                  onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Stock Method</label>
-                <SearchableDropdown
-                  options={[
-                    { value: 'FIFO', label: 'FIFO (First In First Out)' },
-                    { value: 'LIFO', label: 'LIFO (Last In First Out)' },
-                  ]}
-                  value={formData.stockMethod}
-                  onChange={(val) =>
-                    setFormData({ ...formData, stockMethod: val as StockMethod })
-                  }
-                  placeholder="Select Stock Method"
-                />
-              </div>
-            </div>
-
-            <button type="submit" className="btn btn-primary" disabled={createProduct.isPending}>
-              {createProduct.isPending ? 'Creating...' : 'Create Product'}
-            </button>
-          </form>
-        </div>
-      )}
+      <ProductFormModal
+        isOpen={showFormModal}
+        onClose={() => setShowFormModal(false)}
+        onSubmit={handleCreateProduct}
+        isPending={createProduct.isPending}
+      />
 
       <div className="card">
         <div className="card-header">
