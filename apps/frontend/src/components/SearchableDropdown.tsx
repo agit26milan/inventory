@@ -65,7 +65,8 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
             {isOpen && (
                 <div className="dropdown-menu" style={{
                     position: 'absolute',
-                    top: '-200px',
+                    top: '100%',
+                    marginTop: '4px',
                     left: 0,
                     right: 0,
                     zIndex: 9999,
