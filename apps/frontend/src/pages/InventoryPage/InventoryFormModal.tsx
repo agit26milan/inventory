@@ -171,6 +171,53 @@ export const InventoryFormModal = ({
                     </form>
                 )}
             </div>
+            <style>{`
+                .modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                }
+                .modal-content {
+                    background: #1e293b;
+                    padding: 20px;
+                    border-radius: 8px;
+                    width: 90%;
+                    max-height: 90vh;
+                    display: flex;
+                    flex-direction: column;
+                    border: 1px solid #475569;
+                }
+                .modal-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                }
+                .modal-close {
+                    background: none;
+                    border: none;
+                    font-size: 1.5rem;
+                    cursor: pointer;
+                    color: #94a3b8;
+                }
+                .modal-body {
+                    flex: 1;
+                    overflow: auto;
+                }
+                .modal-footer {
+                    margin-top: 20px;
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                }
+            `}</style>
         </div>
     );
 };
