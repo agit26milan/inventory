@@ -184,7 +184,7 @@ export default function StoreExpensePage() {
                             <button
                                 type="submit"
                                 className="btn btn-primary"
-                                disabled={createExpense.isPending || updateExpense.isPending}
+                                disabled={!amount || !description || createExpense.isPending || updateExpense.isPending}
                             >
                                 {editingId ? 'Simpan' : 'Tambah'}
                             </button>
