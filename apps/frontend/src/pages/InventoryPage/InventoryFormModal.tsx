@@ -171,6 +171,7 @@ export const InventoryFormModal = ({
                     </form>
                 )}
             </div>
+
         </div>
     );
 };
