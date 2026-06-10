@@ -1,18 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { useSales, useCreateSale } from '../../hooks/useSales';
-import { useProducts } from '../../hooks/useProducts';
-import { useVariantCombinations } from '../../hooks/useVariantCombinations';
-import { useVouchers } from '../../hooks/useVoucher';
-import { SaleItem, Sale, VariantCombination } from '../../types';
+import { SaleItem, Sale } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { getSkuName } from '../../utils/sku';
 import { SearchableDropdown } from '../../components/SearchableDropdown';
+import { SalesFormModal } from './SalesFormModal';
 import styles from './styles.module.css';
-
-// Extend SaleItem for UI display
-interface CartItem extends SaleItem {
-  variantName?: string;
-}
+import './styles.css';
 
 export const SalesPage: React.FC = (): JSX.Element => {
   const CURRENT_YEAR = new Date().getFullYear();
@@ -63,73 +57,17 @@ export const SalesPage: React.FC = (): JSX.Element => {
     setPage(1);
   };
 
-  const { data: products } = useProducts();
   const createSale = useCreateSale();
 
-  const [showForm, setShowForm] = useState<boolean>(false);
-  const [saleItems, setSaleItems] = useState<CartItem[]>([]);
-  const [currentItem, setCurrentItem] = useState<CartItem>({
-    productId: 0,
-    quantity: 1,
-  });
+  const [showModal, setShowModal] = useState<boolean>(false);
 
-  const [selectedProductId, setSelectedProductId] = useState<number>(0);
-  const { data: variants } = useVariantCombinations(selectedProductId);
-
-  const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
-  const { data: vouchers } = useVouchers();
-
-  const activeVouchers = useMemo(() => (vouchers || []).filter((v) => {
-    if (!v.isActive) return false;
-    const now = new Date();
-    return now >= new Date(v.startDate) && now <= new Date(v.endDate);
-  }), [vouchers]);
-
-  const addItem = () => {
-    if (currentItem.productId && currentItem.quantity > 0) {
-      if (variants && variants.length > 0 && !currentItem.variantCombinationId) {
-          alert('Silakan pilih varian');
-          return;
-      }
-
-      const itemToAdd = { ...currentItem };
-      if (currentItem.variantCombinationId && variants) {
-          const selectedVariant = variants.find(v => v.id === currentItem.variantCombinationId);
-          if (selectedVariant) {
-              itemToAdd.variantName = selectedVariant.sku;
-          }
-      }
-
-      setSaleItems([...saleItems, itemToAdd]);
-      setCurrentItem({ productId: 0, quantity: 1 });
-      setSelectedProductId(0);
-    }
+  const handleCloseModal = () => {
+    setShowModal(false);
   };
 
-  const removeItem = (index: number) => {
-    setSaleItems(saleItems.filter((_, i) => i !== index));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (saleItems.length === 0) {
-      alert('Silakan tambahkan minimal satu barang ke dalam penjualan');
-      return;
-    }
-
-    try {
-      const itemsPayload = saleItems.map(({ variantName, ...item }) => item);
-      await createSale.mutateAsync({
-        items: itemsPayload,
-        ...(selectedVoucherId ? { voucherId: selectedVoucherId } : {}),
-      });
-      setSaleItems([]);
-      setSelectedVoucherId('');
-      setShowForm(false);
-    } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      alert(err.response?.data?.message || 'Gagal membuat penjualan');
-    }
+  const handleModalSubmit = async (data: { items: SaleItem[]; voucherId?: string }) => {
+    await createSale.mutateAsync(data);
+    handleCloseModal();
   };
 
   return (
@@ -139,147 +77,10 @@ export const SalesPage: React.FC = (): JSX.Element => {
           <h1>💰 Penjualan</h1>
           <p className="text-muted">Proses transaksi penjualan</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-          {showForm ? '✕ Batal' : '+ Penjualan Baru'}
+        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+          + Penjualan Baru
         </button>
       </div>
-
-      {showForm && (
-        <div className="card mb-4">
-          <div className="card-header">
-            <h3 className="card-title">Buat Penjualan Baru</h3>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-3 mb-3">
-              <div className="form-group">
-                <label className="form-label">Produk</label>
-                <SearchableDropdown
-                  options={[
-                    { value: 0, label: 'Pilih produk' },
-                    ...(products?.map((product) => ({
-                      value: product.id,
-                      label: `${product.name} - Stok: ${product.currentStock}`,
-                    })) || [])
-                  ]}
-                  value={currentItem.productId}
-                  onChange={(val) => {
-                    const pid = Number(val);
-                    setCurrentItem({ ...currentItem, productId: pid, variantCombinationId: undefined });
-                    setSelectedProductId(pid);
-                  }}
-                  placeholder="Pilih produk"
-                />
-              </div>
-
-               {variants && variants.length > 0 && (
-                  <div className="form-group">
-                    <label className="form-label">Varian</label>
-                    <SearchableDropdown
-                      options={variants.map((variant: VariantCombination) => ({
-                        value: variant.id,
-                        label: getSkuName(variant.sku),
-                      }))}
-                      value={currentItem.variantCombinationId || ''}
-                      onChange={(val) =>
-                        setCurrentItem({ ...currentItem, variantCombinationId: Number(val) })
-                      }
-                      placeholder="Pilih Varian"
-                    />
-                  </div>
-              )}
-
-              <div className="form-group">
-                <label className="form-label">Jumlah</label>
-                <input
-                  type="number"
-                  className="form-input"
-                  value={currentItem.quantity}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setCurrentItem({ ...currentItem, quantity: parseInt(e.target.value) })
-                  }
-                  min="1"
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">&nbsp;</label>
-                <button type="button" className="btn btn-secondary" onClick={addItem}>
-                  + Tambah Barang
-                </button>
-              </div>
-            </div>
-
-            {saleItems.length > 0 && (
-              <div className="mb-3">
-                <h4>Barang Penjualan:</h4>
-                <div className="table-container">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Produk</th>
-                        <th>Varian</th>
-                        <th>Jumlah</th>
-                        <th>Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {saleItems.map((item, index) => {
-                        const product = products?.find((p) => p.id === item.productId);
-                        return (
-                          <tr key={index}>
-                            <td>{product?.name}</td>
-                            <td>
-                                {item.variantName ? (
-                                    <span className="badge badge-secondary">{item.variantName}</span>
-                                ) : (
-                                    <span className="text-muted">-</span>
-                                )}
-                            </td>
-                            <td>{item.quantity}</td>
-                            <td>
-                              <button
-                                type="button"
-                                className={`btn btn-danger ${styles.spBtnRemove}`}
-                                onClick={() => removeItem(index)}
-                              >
-                                Hapus
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            <div className="form-group mb-3">
-              <label className="form-label">Voucher (Opsional)</label>
-              <SearchableDropdown
-                options={[
-                  { value: '', label: 'Tanpa Voucher' },
-                  ...activeVouchers.map((v) => ({
-                    value: v.id,
-                    label: `${v.code} – ${v.discountType === 'NOMINAL' ? formatCurrency(v.discountValue) : `${v.discountValue}%`} – ${v.name}`,
-                  }))
-                ]}
-                value={selectedVoucherId}
-                onChange={(val) => setSelectedVoucherId(String(val))}
-                placeholder="Pilih Voucher Diskon"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="btn btn-success"
-              disabled={createSale.isPending || saleItems.length === 0}
-            >
-              {createSale.isPending ? 'Memproses...' : 'Selesaikan Penjualan'}
-            </button>
-          </form>
-        </div>
-      )}
 
       <div className="card">
         <div className="card-header">
@@ -419,6 +220,13 @@ export const SalesPage: React.FC = (): JSX.Element => {
           <p className="text-center text-muted">Belum ada penjualan. Buat penjualan pertama Anda!</p>
         )}
       </div>
+
+      <SalesFormModal
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        onSubmit={handleModalSubmit}
+        isPending={createSale.isPending}
+      />
     </div>
   );
 };
