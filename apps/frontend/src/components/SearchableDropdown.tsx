@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 interface Option {
     value: number | string;
@@ -25,6 +26,7 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
 
     const filteredOptions = options.filter(option =>
         option.label.toLowerCase().includes(searchTerm.toLowerCase())
@@ -34,7 +36,11 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+            if (
+                wrapperRef.current &&
+                !wrapperRef.current.contains(event.target as Node) &&
+                !menuRef.current?.contains(event.target as Node)
+            ) {
                 setIsOpen(false);
             }
         };
@@ -51,9 +57,46 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
         setSearchTerm('');
     };
 
+    const triggerRef = useRef<HTMLDivElement>(null);
+    const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
+
+    const updateMenuPosition = () => {
+        if (triggerRef.current) {
+            const rect = triggerRef.current.getBoundingClientRect();
+            setMenuStyle({
+                position: 'fixed',
+                top: `${rect.bottom + 4}px`,
+                left: `${rect.left}px`,
+                width: `${rect.width}px`,
+                zIndex: 9999,
+                backgroundColor: 'var(--bg-primary)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-md)',
+                boxShadow: 'var(--shadow-lg)',
+                maxHeight: '200px',
+                overflowY: 'auto',
+                color: 'var(--text-primary)',
+                height: '200px'
+            });
+        }
+    };
+
+    useEffect(() => {
+        if (isOpen) {
+            updateMenuPosition();
+            window.addEventListener('scroll', updateMenuPosition, true);
+            window.addEventListener('resize', updateMenuPosition);
+            return () => {
+                window.removeEventListener('scroll', updateMenuPosition, true);
+                window.removeEventListener('resize', updateMenuPosition);
+            };
+        }
+    }, [isOpen]);
+
     return (
         <div className={`searchable-dropdown ${className}`} ref={wrapperRef} style={{ position: 'relative' }}>
             <div
+                ref={triggerRef}
                 className={`form-select ${disabled ? 'disabled' : ''}`}
                 onClick={() => !disabled && setIsOpen(!isOpen)}
                 style={{ cursor: disabled ? 'not-allowed' : 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
@@ -62,23 +105,8 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
                 <span style={{ fontSize: '0.8em', marginLeft: '8px' }}>▼</span>
             </div>
 
-            {isOpen && (
-                <div className="dropdown-menu" style={{
-                    position: 'absolute',
-                    top: '100%',
-                    marginTop: '4px',
-                    left: 0,
-                    right: 0,
-                    zIndex: 9999,
-                    backgroundColor: 'var(--bg-primary)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-md)',
-                    boxShadow: 'var(--shadow-lg)',
-                    maxHeight: '200px',
-                    overflowY: 'auto',
-                    color: 'var(--text-primary)',
-                    height: '200px'
-                }}>
+            {isOpen && createPortal(
+                <div ref={menuRef} className="dropdown-menu" style={menuStyle} onClick={(e) => e.stopPropagation()}>
                     <div className="p-2 border-bottom" style={{ borderBottom: '1px solid var(--border)' }}>
                         <input
                             type="text"
@@ -113,7 +141,8 @@ export const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
                     ) : (
                         <div style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>Pilihan tidak ditemukan</div>
                     )}
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
