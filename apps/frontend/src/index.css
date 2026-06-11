@@ -300,6 +300,21 @@ tbody tr:hover {
 }
 
 /* Loading Spinner */
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg) var(--spacing-md);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.pagination__controls {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
 .spinner {
   border: 3px solid var(--bg-tertiary);
   border-top: 3px solid var(--primary);

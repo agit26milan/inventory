@@ -1,0 +1,36 @@
+.vp-status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.vp-status-badge--active {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: var(--success);
+}
+
+.vp-status-badge--pending {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: var(--warning);
+}
+
+.vp-status-badge--inactive {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: var(--danger);
+}
+
+.vp-discount-value {
+  color: var(--success);
+  font-weight: bold;
+}
+
+.vp-action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.vp-empty-cell {
+  padding: 2rem;
+  text-align: center;
+}

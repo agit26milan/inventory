@@ -31,18 +31,17 @@ export const ConfigurationPage: React.FC = (): JSX.Element => {
     };
 
     return (
-        <div>
-            <h1>⚙️ Konfigurasi</h1>
-            <p className="text-muted mb-4">Pengaturan umum aplikasi inventory</p>
+        <>
+            <LoadingModal isLoading={isLoading} />
+            <div>
+                <h1>⚙️ Konfigurasi</h1>
+                <p className="text-muted mb-4">Pengaturan umum aplikasi inventory</p>
 
-            <div className="card mb-4">
-                <div className="card-header">
-                    <h3 className="card-title">📦 Peringatan Stok Minimum</h3>
-                </div>
+                <div className="card mb-4">
+                    <div className="card-header">
+                        <h3 className="card-title">📦 Peringatan Stok Minimum</h3>
+                    </div>
 
-                {isLoading ? (
-                    <LoadingModal isLoading={true} />
-                ) : (
                     <div className={styles['cp-card-body']}>
                         <p className="text-muted mb-4">
                             Tentukan batas minimum stok variant. Jika stok sebuah variant berada
@@ -77,7 +76,6 @@ export const ConfigurationPage: React.FC = (): JSX.Element => {
                             </button>
                         </div>
 
-                        {/* Feedback pesan sukses / error */}
                         {isSuccess && (
                             <p className={styles['cp-feedback--success']}>
                                 ✅ Konfigurasi berhasil disimpan!
@@ -89,8 +87,8 @@ export const ConfigurationPage: React.FC = (): JSX.Element => {
                             </p>
                         )}
                     </div>
-                )}
+                </div>
             </div>
-        </div>
+        </>
     );
 };

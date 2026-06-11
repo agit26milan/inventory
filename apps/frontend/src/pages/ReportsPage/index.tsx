@@ -4,6 +4,7 @@ import { useConfigurationByKey } from '../../hooks/useConfiguration';
 import { useTotalEquity } from '../../hooks/useEquity';
 import { useTotalExpenses } from '../../hooks/useStoreExpense';
 import { LoadingModal } from '../../components/LoadingModal';
+import { Pagination } from '../../components/Pagination';
 import { formatCurrency } from '../../utils/currency';
 import './styles.css';
 
@@ -224,28 +225,8 @@ export const ReportsPage = () => {
                             </tbody>
                         </table>
 
-                        {variantPerfData.meta && variantPerfData.meta.totalPages > 1 && (
-                            <div className="rp-pagination">
-                                <span className="text-muted rp-pagination__info">
-                                    Menampilkan {variantPerfData.meta.page} dari {variantPerfData.meta.totalPages} halaman (Total: {variantPerfData.meta.total} variant)
-                                </span>
-                                <div className="rp-pagination__controls">
-                                    <button
-                                        className="btn btn-secondary btn-sm rp-pagination__btn"
-                                        disabled={variantPerfData.meta.page <= 1}
-                                        onClick={() => setVariantPage(p => Math.max(1, p - 1))}
-                                    >
-                                        Sebelumnya
-                                    </button>
-                                    <button
-                                        className="btn btn-secondary btn-sm rp-pagination__btn"
-                                        disabled={variantPerfData.meta.page >= variantPerfData.meta.totalPages}
-                                        onClick={() => setVariantPage(p => Math.min(variantPerfData.meta.totalPages, p + 1))}
-                                    >
-                                        Selanjutnya
-                                    </button>
-                                </div>
-                            </div>
+                        {variantPerfData.meta && (
+                            <Pagination meta={variantPerfData.meta} onPageChange={setVariantPage} />
                         )}
                     </div>
                 ) : (
@@ -326,28 +307,8 @@ export const ReportsPage = () => {
                             </tbody>
                         </table>
 
-                        {meta && meta.totalPages > 1 && (
-                            <div className="rp-pagination">
-                                <span className="text-muted rp-pagination__info">
-                                    Menampilkan {meta.page} dari {meta.totalPages} halaman (Total: {meta.total} variant)
-                                </span>
-                                <div className="rp-pagination__controls">
-                                    <button
-                                        className="btn btn-secondary btn-sm rp-pagination__btn"
-                                        disabled={meta.page <= 1}
-                                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                                    >
-                                        Sebelumnya
-                                    </button>
-                                    <button
-                                        className="btn btn-secondary btn-sm rp-pagination__btn"
-                                        disabled={meta.page >= meta.totalPages}
-                                        onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
-                                    >
-                                        Selanjutnya
-                                    </button>
-                                </div>
-                            </div>
+                        {meta && (
+                            <Pagination meta={meta} onPageChange={setPage} />
                         )}
                     </div>
                 ) : (

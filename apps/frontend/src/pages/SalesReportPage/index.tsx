@@ -11,6 +11,7 @@ import {
     ResponsiveContainer,
 } from 'recharts';
 import { LoadingModal } from '../../components/LoadingModal';
+import { Pagination } from '../../components/Pagination';
 import './style.css';
 
 type ReportTab = 'timeframe' | 'annual' | 'profit' | 'withdrawal';
@@ -154,28 +155,8 @@ export const SalesReportPage: React.FC = () => {
                         </ResponsiveContainer>
                     </div>
 
-                    {timeframeMeta && timeframeMeta.totalPages > 1 && (
-                        <div className="srp-pagination">
-                            <span className="text-muted srp-pagination__info">
-                                Halaman {timeframeMeta.page} dari {timeframeMeta.totalPages} (Total: {timeframeMeta.total} produk)
-                            </span>
-                            <div className="srp-pagination__controls">
-                                <button
-                                    className="btn btn-secondary srp-pagination__btn"
-                                    disabled={timeframeMeta.page <= 1}
-                                    onClick={() => setTimeframePage(p => Math.max(1, p - 1))}
-                                >
-                                    Sebelumnya
-                                </button>
-                                <button
-                                    className="btn btn-secondary srp-pagination__btn"
-                                    disabled={timeframeMeta.page >= timeframeMeta.totalPages}
-                                    onClick={() => setTimeframePage(p => Math.min(timeframeMeta.totalPages, p + 1))}
-                                >
-                                    Selanjutnya
-                                </button>
-                            </div>
-                        </div>
+                    {timeframeMeta && (
+                        <Pagination meta={timeframeMeta} onPageChange={setTimeframePage} />
                     )}
                 </div>
             ) : (
@@ -266,28 +247,8 @@ export const SalesReportPage: React.FC = () => {
                         </ResponsiveContainer>
                     </div>
 
-                    {annualMeta && annualMeta.totalPages > 1 && (
-                        <div className="srp-pagination">
-                            <span className="text-muted srp-pagination__info">
-                                Halaman {annualMeta.page} dari {annualMeta.totalPages} (Total: {annualMeta.total} produk)
-                            </span>
-                            <div className="srp-pagination__controls">
-                                <button
-                                    className="btn btn-secondary srp-pagination__btn"
-                                    disabled={annualMeta.page <= 1}
-                                    onClick={() => setAnnualPage(p => Math.max(1, p - 1))}
-                                >
-                                    Sebelumnya
-                                </button>
-                                <button
-                                    className="btn btn-secondary srp-pagination__btn"
-                                    disabled={annualMeta.page >= annualMeta.totalPages}
-                                    onClick={() => setAnnualPage(p => Math.min(annualMeta.totalPages, p + 1))}
-                                >
-                                    Selanjutnya
-                                </button>
-                            </div>
-                        </div>
+                    {annualMeta && (
+                        <Pagination meta={annualMeta} onPageChange={setAnnualPage} />
                     )}
                 </div>
             ) : (
