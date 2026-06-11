@@ -9,6 +9,7 @@ import { Voucher } from '../../types';
 import { LoadingModal } from '../../components/LoadingModal';
 import { VoucherModal } from './components/VoucherModal';
 import { formatCurrency } from '../../utils/currency';
+import './styles.css';
 
 export const VoucherPage = () => {
     const { data: vouchers, isLoading } = useVouchers();
@@ -81,102 +82,105 @@ export const VoucherPage = () => {
         return now >= start && now <= end;
     };
 
+    const getStatusBadgeClass = (voucher: Voucher) => {
+        if (!voucher.isActive) return 'vp-status-badge--inactive';
+        const activeLive = isCurrentlyActive(voucher);
+        return activeLive ? 'vp-status-badge--active' : 'vp-status-badge--pending';
+    };
+
+    const getStatusLabel = (voucher: Voucher) => {
+        if (!voucher.isActive) return 'Nonaktif';
+        const activeLive = isCurrentlyActive(voucher);
+        return activeLive ? 'Aktif' : 'Menunggu / Berakhir';
+    };
+
     return (
-        <div className="page-container">
-            <div className="page-header">
-                <div>
-                    <h1>🎟️ Master Voucher</h1>
-                    <p className="text-muted">Kelola promo kode kupon diskon untuk pelanggan</p>
-                </div>
-                <button className="btn btn-primary" onClick={handleCreate}>
-                    + Tambah Voucher
-                </button>
-            </div>
-
+        <>
             <LoadingModal isLoading={isLoading} />
-
-            <div className="card">
-                <div className="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Kode</th>
-                                <th>Nama Promo</th>
-                                <th>Nilai Diskon</th>
-                                <th>Mulai</th>
-                                <th>Berakhir</th>
-                                <th>Status Tayang</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {vouchers && vouchers.length > 0 ? (
-                                vouchers.map((voucher) => {
-                                    const activeLive = isCurrentlyActive(voucher);
-                                    return (
-                                        <tr key={voucher.id}>
-                                            <td>
-                                                <strong><code>{voucher.code}</code></strong>
-                                            </td>
-                                            <td>{voucher.name}</td>
-                                            <td style={{ color: 'var(--success)', fontWeight: 'bold' }}>
-                                                {voucher.discountType === 'NOMINAL' 
-                                                    ? formatCurrency(voucher.discountValue) 
-                                                    : `${voucher.discountValue}%`}
-                                            </td>
-                                            <td>{new Date(voucher.startDate).toLocaleString()}</td>
-                                            <td>{new Date(voucher.endDate).toLocaleString()}</td>
-                                            <td>
-                                                <span 
-                                                    style={{ 
-                                                        padding: '4px 8px', 
-                                                        borderRadius: '12px', 
-                                                        fontSize: '0.8rem',
-                                                        fontWeight: 'bold',
-                                                        backgroundColor: voucher.isActive ? (activeLive ? 'rgba(40, 167, 69, 0.1)' : 'rgba(255, 193, 7, 0.1)') : 'rgba(220, 53, 69, 0.1)',
-                                                        color: voucher.isActive ? (activeLive ? 'var(--success)' : 'var(--warning)') : 'var(--danger)'
-                                                    }}
-                                                >
-                                                    {voucher.isActive ? (activeLive ? 'Aktif' : 'Menunggu / Berakhir') : 'Nonaktif'}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                                    <button 
-                                                        className="btn btn-secondary btn-sm"
-                                                        onClick={() => handleEdit(voucher)}
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                    <button 
-                                                        className="btn btn-danger btn-sm"
-                                                        onClick={() => handleDelete(voucher.id)}
-                                                    >
-                                                        Hapus
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            ) : (
-                                <tr>
-                                    <td colSpan={7} className="text-center text-muted" style={{ padding: '2rem' }}>
-                                        Belum ada data voucher terdaftar.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+            <div className="page-container">
+                <div className="page-header">
+                    <div>
+                        <h1>🎟️ Master Voucher</h1>
+                        <p className="text-muted">Kelola promo kode kupon diskon untuk pelanggan</p>
+                    </div>
+                    <button className="btn btn-primary" onClick={handleCreate}>
+                        + Tambah Voucher
+                    </button>
                 </div>
-            </div>
 
-            <VoucherModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={handleSubmit}
-                initialData={selectedVoucher}
-            />
-        </div>
+                <div className="card">
+                    <div className="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama Promo</th>
+                                    <th>Nilai Diskon</th>
+                                    <th>Mulai</th>
+                                    <th>Berakhir</th>
+                                    <th>Status Tayang</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {vouchers && vouchers.length > 0 ? (
+                                    vouchers.map((voucher) => {
+                                        return (
+                                            <tr key={voucher.id}>
+                                                <td>
+                                                    <strong><code>{voucher.code}</code></strong>
+                                                </td>
+                                                <td>{voucher.name}</td>
+                                                <td className="vp-discount-value">
+                                                    {voucher.discountType === 'NOMINAL' 
+                                                        ? formatCurrency(voucher.discountValue) 
+                                                        : `${voucher.discountValue}%`}
+                                                </td>
+                                                <td>{new Date(voucher.startDate).toLocaleString()}</td>
+                                                <td>{new Date(voucher.endDate).toLocaleString()}</td>
+                                                <td>
+                                                    <span className={`vp-status-badge ${getStatusBadgeClass(voucher)}`}>
+                                                        {getStatusLabel(voucher)}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div className="vp-action-buttons">
+                                                        <button 
+                                                            className="btn btn-secondary btn-sm"
+                                                            onClick={() => handleEdit(voucher)}
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button 
+                                                            className="btn btn-danger btn-sm"
+                                                            onClick={() => handleDelete(voucher.id)}
+                                                        >
+                                                            Hapus
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                ) : (
+                                    <tr>
+                                        <td colSpan={7} className="text-center text-muted vp-empty-cell">
+                                            Belum ada data voucher terdaftar.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <VoucherModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    onSubmit={handleSubmit}
+                    initialData={selectedVoucher}
+                />
+            </div>
+        </>
     );
 };

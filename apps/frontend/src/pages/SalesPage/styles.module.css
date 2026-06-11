@@ -36,23 +36,4 @@
     font-weight: normal;
 }
 
-.paginationContainer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 1rem;
-}
 
-.paginationText {
-    font-size: 0.9rem;
-}
-
-.paginationButtons {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.btnSm {
-    padding: 0.25rem 0.75rem;
-    font-size: 0.85rem;
-}

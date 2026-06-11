@@ -55,30 +55,6 @@
     font-weight: 600;
 }
 
-/* ─── Pagination (Stock Alert & Variant) ─────────────────────────────────── */
-
-.rp-pagination {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    border-top: 1px solid var(--border-color);
-}
-
-.rp-pagination__info {
-    font-size: 0.9rem;
-}
-
-.rp-pagination__controls {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.rp-pagination__btn {
-    padding: 0.25rem 0.75rem;
-    font-size: 0.875rem;
-}
-
 /* ─── Empty State ────────────────────────────────────────────────────────── */
 
 .rp-empty {

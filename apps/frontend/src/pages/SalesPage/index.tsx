@@ -4,6 +4,7 @@ import { SaleItem, Sale } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { getSkuName } from '../../utils/sku';
 import { LoadingModal } from '../../components/LoadingModal';
+import { Pagination } from '../../components/Pagination';
 import { SearchableDropdown } from '../../components/SearchableDropdown';
 import { SalesFormModal } from './SalesFormModal';
 import styles from './styles.module.css';
@@ -195,28 +196,8 @@ export const SalesPage: React.FC = (): JSX.Element => {
               </tbody>
             </table>
 
-            {meta && meta.totalPages > 1 && (
-                <div className={styles.paginationContainer}>
-                    <span className={`text-muted ${styles.paginationText}`}>
-                        Halaman {meta.page} dari {meta.totalPages} (Total {meta.total} data)
-                    </span>
-                    <div className={styles.paginationButtons}>
-                        <button
-                            className={`btn btn-secondary ${styles.btnSm}`}
-                            onClick={() => setPage((p) => Math.max(1, p - 1))}
-                            disabled={meta.page <= 1}
-                        >
-                            Sebelumnya
-                        </button>
-                        <button
-                            className={`btn btn-secondary ${styles.btnSm}`}
-                            onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
-                            disabled={meta.page >= meta.totalPages}
-                        >
-                            Selanjutnya
-                        </button>
-                    </div>
-                </div>
+            {meta && (
+                <Pagination meta={meta} onPageChange={setPage} />
             )}
           </div>
         ) : (

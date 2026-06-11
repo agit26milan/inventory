@@ -4,6 +4,7 @@ import { useTotalExpenses } from '../../hooks/useStoreExpense';
 import { formatCurrency } from '../../utils/currency';
 import { CurrencyInput } from '../../components/CurrencyInput';
 import { LoadingModal } from '../../components/LoadingModal';
+import { Pagination } from '../../components/Pagination';
 import styles from './styles.module.css';
 
 export default function EquityPage(): JSX.Element {
@@ -206,29 +207,8 @@ export default function EquityPage(): JSX.Element {
                             </tbody>
                         </table>
 
-                        {/* Pagination Controls */}
-                        {meta && meta.totalPages > 1 && (
-                            <div className={styles.paginationContainer}>
-                                <span className={`text-muted ${styles.paginationText}`}>
-                                    Halaman {meta.page} dari {meta.totalPages} (Total {meta.total} data)
-                                </span>
-                                <div className={styles.paginationButtons}>
-                                    <button
-                                        className={`btn btn-secondary ${styles.btnSm}`}
-                                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                        disabled={meta.page <= 1}
-                                    >
-                                        Sebelumnya
-                                    </button>
-                                    <button
-                                        className={`btn btn-secondary ${styles.btnSm}`}
-                                        onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
-                                        disabled={meta.page >= meta.totalPages}
-                                    >
-                                        Selanjutnya
-                                    </button>
-                                </div>
-                            </div>
+                        {meta && (
+                            <Pagination meta={meta} onPageChange={setPage} />
                         )}
                     </div>
                 ) : (
