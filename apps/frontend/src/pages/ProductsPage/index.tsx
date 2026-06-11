@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { LoadingModal } from '../../components/LoadingModal';
 import { useProducts, useCreateProduct, useDeleteProduct } from '../../hooks/useProducts';
 import { CreateProductDTO } from '../../types';
 import { VariantManager } from '../../components/VariantManager';
@@ -43,7 +44,7 @@ export const ProductsPage = () => {
   };
 
   if (isLoading) {
-    return <div className="spinner"></div>;
+    return <LoadingModal isLoading={true} />;
   }
 
   return (

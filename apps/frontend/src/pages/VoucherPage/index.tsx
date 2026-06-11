@@ -6,6 +6,7 @@ import {
     useDeleteVoucher 
 } from '../../hooks/useVoucher';
 import { Voucher } from '../../types';
+import { LoadingModal } from '../../components/LoadingModal';
 import { VoucherModal } from './components/VoucherModal';
 import { formatCurrency } from '../../utils/currency';
 
@@ -92,6 +93,8 @@ export const VoucherPage = () => {
                 </button>
             </div>
 
+            <LoadingModal isLoading={isLoading} />
+
             <div className="card">
                 <div className="table-container">
                     <table>
@@ -107,13 +110,7 @@ export const VoucherPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {isLoading ? (
-                                <tr>
-                                    <td colSpan={7} className="text-center text-muted" style={{ padding: '2rem' }}>
-                                        <div className="loading-spinner" style={{ margin: '0 auto' }}></div>
-                                    </td>
-                                </tr>
-                            ) : vouchers && vouchers.length > 0 ? (
+                            {vouchers && vouchers.length > 0 ? (
                                 vouchers.map((voucher) => {
                                     const activeLive = isCurrentlyActive(voucher);
                                     return (

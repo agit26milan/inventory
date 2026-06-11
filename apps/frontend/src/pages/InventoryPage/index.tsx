@@ -10,6 +10,7 @@ import { CreateInventoryBatchDTO, InventoryBatch } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { getSkuName } from '../../utils/sku';
 import { BulkEditInventoryModal } from '../../components/BulkEditInventoryModal';
+import { LoadingModal } from '../../components/LoadingModal';
 import { InventoryFormModal } from './InventoryFormModal';
 import './styles.css';
 
@@ -24,7 +25,7 @@ export const InventoryPage = () => {
     variantName: filterVariantName || undefined,
   }), [filterProductName, filterVariantName]);
 
-  const { data: batches, refetch: refetchBatches } = useInventoryBatches(filters);
+  const { data: batches, isLoading, refetch: refetchBatches } = useInventoryBatches(filters);
   const createBatch = useCreateInventoryBatch();
   const updateBatch = useUpdateInventoryBatch();
   const deleteBatch = useDeleteInventoryBatch();
@@ -106,7 +107,9 @@ export const InventoryPage = () => {
   };
 
   return (
-    <div>
+    <>
+      <LoadingModal isLoading={isLoading} />
+      <div>
       <div className="flex justify-between items-center mb-4">
         <div>
           <h1>📥 Inventaris</h1>
@@ -265,5 +268,6 @@ export const InventoryPage = () => {
         />
       )}
     </div>
+    </>
   );
 };

@@ -3,6 +3,7 @@ import { useSalesSummary, useProductPerformance, useInventoryValuation, useStock
 import { useConfigurationByKey } from '../../hooks/useConfiguration';
 import { useTotalEquity } from '../../hooks/useEquity';
 import { useTotalExpenses } from '../../hooks/useStoreExpense';
+import { LoadingModal } from '../../components/LoadingModal';
 import { formatCurrency } from '../../utils/currency';
 import './styles.css';
 
@@ -39,9 +40,9 @@ export const ReportsPage = () => {
         return () => clearTimeout(timer);
     }, [variantSearchProduct, variantSearchVariant]);
 
-    const { data: summary } = useSalesSummary();
-    const { data: performance } = useProductPerformance();
-    const { data: valuation } = useInventoryValuation();
+    const { data: summary, isLoading: summaryLoading } = useSalesSummary();
+    const { data: performance, isLoading: perfLoading } = useProductPerformance();
+    const { data: valuation, isLoading: valuationLoading } = useInventoryValuation();
     const { data: totalEquity } = useTotalEquity();
     const { data: totalExpenses } = useTotalExpenses();
 
@@ -75,7 +76,11 @@ export const ReportsPage = () => {
     const meta = stockAlertsData?.meta;
     const hasAlerts = stockAlerts.length > 0;
 
+    const isLoading = summaryLoading || perfLoading || valuationLoading;
+
     return (
+        <>
+            <LoadingModal isLoading={isLoading} />
         <div>
             <h1>📈 Laporan &amp; Analitik</h1>
             <p className="text-muted mb-4">Wawasan bisnis secara menyeluruh</p>
@@ -442,5 +447,6 @@ export const ReportsPage = () => {
                 )}
             </div>
         </div>
+        </>
     );
 };

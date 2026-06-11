@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useConfigurationByKey, useUpsertConfiguration } from '../../hooks/useConfiguration';
+import { LoadingModal } from '../../components/LoadingModal';
 import styles from './styles.module.css';
 
 const STOCK_ALERT_KEY = 'stock_alert_threshold';
@@ -40,7 +41,7 @@ export const ConfigurationPage: React.FC = (): JSX.Element => {
                 </div>
 
                 {isLoading ? (
-                    <div className="spinner"></div>
+                    <LoadingModal isLoading={true} />
                 ) : (
                     <div className={styles['cp-card-body']}>
                         <p className="text-muted mb-4">

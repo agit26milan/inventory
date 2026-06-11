@@ -10,6 +10,7 @@ import {
     Legend,
     ResponsiveContainer,
 } from 'recharts';
+import { LoadingModal } from '../../components/LoadingModal';
 import './style.css';
 
 type ReportTab = 'timeframe' | 'annual' | 'profit' | 'withdrawal';
@@ -49,13 +50,13 @@ export const SalesReportPage: React.FC = () => {
     }, [search]);
 
     // Data fetching
-    const { data: timeframeReportData } = useSalesTimeframe({
+    const { data: timeframeReportData, isLoading: timeframeLoading } = useSalesTimeframe({
         page: timeframePage,
         limit: 10,
         search: debouncedSearch,
     });
 
-    const { data: annualReportData } = useAnnualSales({
+    const { data: annualReportData, isLoading: annualLoading } = useAnnualSales({
         year: selectedYear,
         month: selectedMonth === 'all' ? undefined : selectedMonth,
         page: annualPage,
@@ -64,13 +65,18 @@ export const SalesReportPage: React.FC = () => {
     });
 
     // Data laba bulanan — di-fetch ulang otomatis setiap profitYear berubah
-    const { data: monthlyProfitData } = useMonthlyProfit(profitYear);
+    const { data: monthlyProfitData, isLoading: profitLoading } = useMonthlyProfit(profitYear);
 
     // Data penarikan owner — di-fetch ulang otomatis setiap withdrawalYear berubah
-    const { data: monthlyWithdrawalData } = useMonthlyOwnerWithdrawal(withdrawalYear);
+    const { data: monthlyWithdrawalData, isLoading: withdrawalLoading } = useMonthlyOwnerWithdrawal(withdrawalYear);
 
     // Data laba untuk tab penarikan (menggunakan withdrawalYear)
     const { data: withdrawalProfitData } = useMonthlyProfit(withdrawalYear);
+
+    const activeLoading = activeTab === 'timeframe' ? timeframeLoading
+        : activeTab === 'annual' ? annualLoading
+        : activeTab === 'profit' ? profitLoading
+        : withdrawalLoading;
 
     const timeframeData = timeframeReportData?.data || [];
     const timeframeMeta = timeframeReportData?.meta;
@@ -526,6 +532,8 @@ export const SalesReportPage: React.FC = () => {
 
 
     return (
+        <>
+            <LoadingModal isLoading={activeLoading} />
         <div>
             <div className="srp-header">
                 <div>
@@ -567,6 +575,7 @@ export const SalesReportPage: React.FC = () => {
             {activeTab === 'profit' && renderProfitTab()}
             {activeTab === 'withdrawal' && renderWithdrawalTab()}
         </div>
+        </>
     );
 };
 

@@ -8,6 +8,7 @@ import {
 } from '../../hooks/useStoreExpense';
 import { formatCurrency } from '../../utils/currency';
 import { CurrencyInput } from '../../components/CurrencyInput';
+import { LoadingModal } from '../../components/LoadingModal';
 import { SearchableDropdown } from '../../components/SearchableDropdown';
 import { EXPENSE_CATEGORIES } from './constants';
 import './styles.css';
@@ -53,7 +54,7 @@ export default function StoreExpensePage() {
     const [filterBulan, setFilterBulan] = useState<number | undefined>(currentDate.getMonth() + 1);
     const [filterTahun, setFilterTahun] = useState<number | undefined>(currentDate.getFullYear());
 
-    const { data: expenses } = useStoreExpenses(filterBulan, filterTahun);
+    const { data: expenses, isLoading } = useStoreExpenses(filterBulan, filterTahun);
     const { data: totalExpenses } = useTotalExpenses();
     const createExpense = useCreateStoreExpense();
     const updateExpense = useUpdateStoreExpense();
@@ -134,6 +135,8 @@ export default function StoreExpensePage() {
 
 
     return (
+        <>
+            <LoadingModal isLoading={isLoading} />
         <div>
             <h1>🏪 Pengeluaran Toko</h1>
 
@@ -304,5 +307,6 @@ export default function StoreExpensePage() {
                 )}
             </div>
         </div>
+        </>
     );
 }
