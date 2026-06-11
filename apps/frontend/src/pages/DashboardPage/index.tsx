@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useSalesSummary, useInventoryValuation } from '../../hooks/useReports';
 import { useProducts } from '../../hooks/useProducts';
 import { formatCurrency } from '../../utils/currency';
+import { LoadingModal } from '../../components/LoadingModal';
 import styles from './styles.module.css';
 
 export const DashboardPage: React.FC = (): JSX.Element => {
@@ -16,7 +17,7 @@ export const DashboardPage: React.FC = (): JSX.Element => {
   }, [valuation]);
 
   if (summaryLoading || valuationLoading || productsLoading) {
-    return <div className="spinner"></div>;
+    return <LoadingModal isLoading={true} />;
   }
 
   const totalSalesFormatted = summary ? formatCurrency(summary.totalSales) : formatCurrency(0);

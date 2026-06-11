@@ -3,6 +3,7 @@ import { useEquities, useCreateEquity, useTotalEquity } from '../../hooks/useEqu
 import { useTotalExpenses } from '../../hooks/useStoreExpense';
 import { formatCurrency } from '../../utils/currency';
 import { CurrencyInput } from '../../components/CurrencyInput';
+import { LoadingModal } from '../../components/LoadingModal';
 import styles from './styles.module.css';
 
 export default function EquityPage(): JSX.Element {
@@ -69,7 +70,7 @@ export default function EquityPage(): JSX.Element {
     };
 
     if (isLoading) {
-        return <div className="spinner"></div>;
+        return <LoadingModal isLoading={true} />;
     }
 
     return (

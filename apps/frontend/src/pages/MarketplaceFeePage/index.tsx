@@ -4,6 +4,7 @@ import { useFeesByProduct, useSetFee } from '../../hooks/useMarketplaceFees';
 import { CreateMarketplaceFeeDTO } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { CurrencyInput } from '../../components/CurrencyInput';
+import { LoadingModal } from '../../components/LoadingModal';
 import { SearchableDropdown } from '../../components/SearchableDropdown';
 import './styles.css';
 
@@ -49,7 +50,7 @@ export const MarketplaceFeePage = () => {
     }
   };
 
-  if (isLoadingProducts) return <div className="spinner"></div>;
+  if (isLoadingProducts) return <LoadingModal isLoading={true} />;
 
   return (
     <div>
@@ -118,7 +119,7 @@ export const MarketplaceFeePage = () => {
                 <div className="mt-6">
                     <h4 className="font-bold mb-2">Current Configuration</h4>
                     {isLoadingFees ? (
-                        <p>Loading...</p>
+                        <LoadingModal isLoading={true} />
                     ) : fees && fees.length > 0 ? (
                         <div className="table-container">
                             <table>

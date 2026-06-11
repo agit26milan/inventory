@@ -3,6 +3,7 @@ import { useSales, useCreateSale } from '../../hooks/useSales';
 import { SaleItem, Sale } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { getSkuName } from '../../utils/sku';
+import { LoadingModal } from '../../components/LoadingModal';
 import { SearchableDropdown } from '../../components/SearchableDropdown';
 import { SalesFormModal } from './SalesFormModal';
 import styles from './styles.module.css';
@@ -48,7 +49,7 @@ export const SalesPage: React.FC = (): JSX.Element => {
     limit,
   }), [filterProductName, filterVariantName, filterMonth, filterYear, page, limit]);
 
-  const { data: paginatedSales } = useSales(filters);
+  const { data: paginatedSales, isLoading } = useSales(filters);
   const sales = paginatedSales?.data || [];
   const meta = paginatedSales?.meta;
 
@@ -71,7 +72,9 @@ export const SalesPage: React.FC = (): JSX.Element => {
   };
 
   return (
-    <div>
+    <>
+      <LoadingModal isLoading={isLoading} />
+      <div>
       <div className="flex justify-between items-center mb-4">
         <div>
           <h1>💰 Penjualan</h1>
@@ -228,5 +231,6 @@ export const SalesPage: React.FC = (): JSX.Element => {
         isPending={createSale.isPending}
       />
     </div>
+    </>
   );
 };
