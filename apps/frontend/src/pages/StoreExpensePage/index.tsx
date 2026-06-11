@@ -219,6 +219,7 @@ export default function StoreExpensePage() {
                             value={filterBulan ?? ''}
                             onChange={(e) => setFilterBulan(e.target.value ? Number(e.target.value) : undefined)}
                         >
+                            <option value="">Semua Bulan</option>
                             {DAFTAR_BULAN.map((bulan) => (
                                 <option key={bulan.value} value={bulan.value}>
                                     {bulan.label}
