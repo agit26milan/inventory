@@ -22,6 +22,7 @@ export const SalesPage: React.FC = (): JSX.Element => {
   const [limit] = useState<number>(10);
 
   const MONTH_OPTIONS = useMemo(() => [
+    { value: '', label: 'Semua Bulan' },
     { value: 1, label: 'Januari' },
     { value: 2, label: 'Februari' },
     { value: 3, label: 'Maret' },
