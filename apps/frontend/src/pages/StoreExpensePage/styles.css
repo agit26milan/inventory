@@ -24,6 +24,14 @@
 
 /* ─── Form Tambah / Ubah Pengeluaran ─────────────────────────────────────── */
 
+/* Card form perlu position relative & z-index agar dropdown tidak terhalang
+   card daftar pengeluaran di bawahnya (backdrop-filter pada .card membuat
+   stacking context baru, sehingga z-index dropdown scoped di dalam card) */
+.sep-form-card {
+    position: relative;
+    z-index: 1;
+}
+
 /* Grid 4 kolom: jumlah | deskripsi | kategori | tombol aksi */
 .sep-form-grid {
     display: grid;
