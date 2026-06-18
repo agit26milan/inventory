@@ -12,8 +12,6 @@ import { variantHandler } from './handlers/variant.handler';
 import { voucherHandler } from './handlers/voucher.handler';
 import { marketplaceFeeHandler } from './handlers/marketplace_fee.handler';
 
-const PROTO_PATH = path.join(__dirname, './protos/product.v1.proto');
-
 function loadProto(protoFile: string) {
     return protoLoader.loadSync(path.join(__dirname, `./protos/${protoFile}`), {
         keepCase: true,
