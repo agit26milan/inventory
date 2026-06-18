@@ -149,7 +149,7 @@ export default function StoreExpensePage() {
             </div>
 
             {/* Add/Edit Expense Form */}
-            <div className="card mb-4">
+            <div className="card mb-4 sep-form-card">
                 <h2 className="mb-4">{editingId ? '✏️ Ubah Pengeluaran' : '➕ Tambah Pengeluaran Baru'}</h2>
                 <form onSubmit={handleSubmit}>
                 <div className="sep-form-grid">
